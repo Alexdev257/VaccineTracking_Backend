@@ -12,10 +12,6 @@ namespace ClassLib.Service
     public class UserService
     {
         private readonly UserRepository _userRepository;
-
-      
-
-        
         public UserService(UserRepository userRepository)
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
