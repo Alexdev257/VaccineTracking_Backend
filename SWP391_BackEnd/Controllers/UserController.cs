@@ -25,7 +25,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> login([FromBody] LoginRequest loginRequest)
+        public async Task<IActionResult> login([FromBody] LoginRequest loginRequest) //IActionResult
         {
             try
             {

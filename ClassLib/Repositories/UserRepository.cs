@@ -23,9 +23,9 @@ namespace ClassLib.Repositories
             return await _context.Users.ToListAsync();
         }
 
-        public async Task<User?> getUserByUsernameAsync(string username)
+        public async Task<User?> getUserByUsernameAsync(string Username)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            return await _context.Users.FirstOrDefaultAsync(u => u.Username == Username);
         }
 
     }

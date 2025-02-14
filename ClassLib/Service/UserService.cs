@@ -26,15 +26,15 @@ namespace ClassLib.Service
 
         public async Task<User?> loginAsync(LoginRequest loginRequest)
         {
-            if (loginRequest.username.Equals("") || loginRequest.password.Equals(""))
+            if (loginRequest.Username.Equals("") || loginRequest.Password.Equals(""))
             {
                 throw new ArgumentException("username or password can not be empty");
             }
 
-            var user = await _userRepository.getUserByUsernameAsync(loginRequest.username);
+            var user = await _userRepository.getUserByUsernameAsync(loginRequest.Username);
             if (user != null)
             {
-                if (loginRequest.password == user.Password)
+                if (loginRequest.Password == user.Password)
                 {
                     return user;
                 }
@@ -45,7 +45,7 @@ namespace ClassLib.Service
             }
             else
             {
-                throw new UnauthorizedAccessException("Account is nor exist");
+                throw new UnauthorizedAccessException("Account is not exist");
             }
         }
 
