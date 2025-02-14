@@ -9,13 +9,17 @@ public partial class BookingDetail
 
     public int BookingId { get; set; }
 
-    public int ComboId { get; set; }
+    public int ChildId { get; set; }
 
-    public int VaccineId { get; set; }
+    public int? ComboId { get; set; }
+
+    public int? VaccineId { get; set; }
 
     public virtual Booking Booking { get; set; } = null!;
 
-    public virtual VaccinesCombo Combo { get; set; } = null!;
+    public virtual Child Child { get; set; } = null!;
 
-    public virtual Vaccine Vaccine { get; set; } = null!;
+    public virtual VaccinesCombo? Combo { get; set; }
+
+    public virtual Vaccine? Vaccine { get; set; }
 }

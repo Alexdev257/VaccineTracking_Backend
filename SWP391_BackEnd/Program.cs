@@ -1,6 +1,9 @@
+//using ClassLib.Models;
+//using ClassLib.Repositories; // Import UserRepo
+//using ClassLib.Service;    // Import UserService
 using ClassLib.Models;
-using ClassLib.Repositories; // Import UserRepo
-using ClassLib.Service;    // Import UserService
+using ClassLib.Repositories;
+using ClassLib.Service;
 using Microsoft.EntityFrameworkCore;
 namespace SWP391_BackEnd
 {
@@ -10,10 +13,10 @@ namespace SWP391_BackEnd
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddDbContext<DbSwpVaccineTrackingContext>(options =>
+            builder.Services.AddDbContext<DbSwpVaccineTracking2Context>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            // Add services to the container.
+            //// Add services to the container.
             builder.Services.AddScoped<UserRepository>();
             builder.Services.AddScoped<UserService>();
 

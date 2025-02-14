@@ -12,8 +12,8 @@ namespace ClassLib.Repositories
 {
     public class UserRepository
     {
-        private readonly DbSwpVaccineTrackingContext _context;
-        public UserRepository(DbSwpVaccineTrackingContext context)
+        private readonly DbSwpVaccineTracking2Context _context;
+        public UserRepository(DbSwpVaccineTracking2Context context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }

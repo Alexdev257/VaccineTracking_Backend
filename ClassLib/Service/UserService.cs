@@ -26,7 +26,7 @@ namespace ClassLib.Service
 
         public async Task<User?> loginAsync(LoginRequest loginRequest)
         {
-            if(loginRequest.username.Equals("") || loginRequest.password.Equals(""))
+            if (loginRequest.username.Equals("") || loginRequest.password.Equals(""))
             {
                 throw new ArgumentException("username or password can not be empty");
             }
@@ -52,7 +52,7 @@ namespace ClassLib.Service
         public async Task<User?> registerAsync(RegisterRequest registerRequest)
         {
             var user = await _userRepository.getUserByUsernameAsync(registerRequest.Username);
-            if(user != null)
+            if (user != null)
             {
                 throw new Exception("Exist username. Please choose another one.");
             }

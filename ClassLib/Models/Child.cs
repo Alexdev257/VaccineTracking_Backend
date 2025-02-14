@@ -19,7 +19,7 @@ public partial class Child
 
     public DateTime CreatedAt { get; set; }
 
-    public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+    public virtual ICollection<BookingDetail> BookingDetails { get; set; } = new List<BookingDetail>();
 
     public virtual User Parent { get; set; } = null!;
 

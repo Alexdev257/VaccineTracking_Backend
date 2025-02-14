@@ -30,15 +30,17 @@ namespace SWP391_BackEnd.Controllers
             try
             {
                 var user = _userService.loginAsync(loginRequest);
-                return Ok(new {msg = "Login successfully", user = user});
+                return Ok(new { msg = "Login successfully", user = user });
             }
-            catch(ArgumentException e) 
+            catch (ArgumentException e)
             {
                 return BadRequest(new { error = e.Message });
-            }catch(UnauthorizedAccessException e) 
+            }
+            catch (UnauthorizedAccessException e)
             {
                 return NotFound(new { error = e.Message });
-            }catch(Exception e) 
+            }
+            catch (Exception e)
             {
                 return StatusCode(500, new { error = "unauthenticated error", details = e });
             }
@@ -56,7 +58,7 @@ namespace SWP391_BackEnd.Controllers
             {
                 return BadRequest(new { msg = "Exist username" });
             }
-            
+
         }
-     }
+    }
 }

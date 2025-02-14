@@ -9,8 +9,6 @@ public partial class Booking
 
     public int ParentId { get; set; }
 
-    public int ChildId { get; set; }
-
     public string AdvisoryDetail { get; set; } = null!;
 
     public int TotalPrice { get; set; }
@@ -23,9 +21,7 @@ public partial class Booking
 
     public virtual ICollection<BookingDetail> BookingDetails { get; set; } = new List<BookingDetail>();
 
-    public virtual Child Child { get; set; } = null!;
-
     public virtual User Parent { get; set; } = null!;
 
-    public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+    public virtual Payment? Payment { get; set; }
 }
