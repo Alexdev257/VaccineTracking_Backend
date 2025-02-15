@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace SWP391_BackEnd.Controllers
 {
@@ -7,6 +8,7 @@ namespace SWP391_BackEnd.Controllers
     public class BookingController : ControllerBase
     {
         [HttpGet]
+        [Authorize]
         public IActionResult Get()
         {
             return Ok("This is BookingController");

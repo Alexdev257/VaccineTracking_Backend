@@ -28,5 +28,17 @@ namespace ClassLib.Repositories
             return await _context.Users.FirstOrDefaultAsync(u => u.Username == Username);
         }
 
+        public async Task<User?> getUserByPhoneAsync(string PhoneNumber)
+        {
+            // ngăn lỗi giữ lại dbcontext
+            return await _context.Users.FirstOrDefaultAsync(u => u.PhoneNumber == PhoneNumber);
+        }
+
+        public async Task addUserAsync(User user)
+        {
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

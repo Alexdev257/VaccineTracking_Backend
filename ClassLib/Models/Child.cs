@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 
 namespace ClassLib.Models;
-
 public partial class Child
 {
     public int Id { get; set; }
