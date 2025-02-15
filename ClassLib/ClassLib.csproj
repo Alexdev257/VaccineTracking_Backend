@@ -22,7 +22,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTO\Response\" />
+    <Folder Include="DTO\Address\" />
+    <Folder Include="DTO\VaccineTracking\" />
+    <Folder Include="DTO\VaccineCombo\" />
+    <Folder Include="DTO\Vaccine\" />
+    <Folder Include="DTO\PaymentMethod\" />
+    <Folder Include="DTO\Payment\" />
+    <Folder Include="DTO\Child\" />
+    <Folder Include="DTO\BookingDetail\" />
+    <Folder Include="DTO\Booking\" />
+    <Folder Include="Helpers\" />
   </ItemGroup>
 
 </Project>
