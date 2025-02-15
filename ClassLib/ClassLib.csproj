@@ -21,6 +21,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.2" />
   </ItemGroup>
 
+
   <ItemGroup>
     <Folder Include="DTO\Address\" />
     <Folder Include="DTO\VaccineTracking\" />
@@ -33,5 +34,4 @@
     <Folder Include="DTO\Booking\" />
     <Folder Include="Helpers\" />
   </ItemGroup>
-
 </Project>
