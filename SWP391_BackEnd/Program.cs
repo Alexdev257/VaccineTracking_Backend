@@ -110,8 +110,8 @@ namespace SWP391_BackEnd
                 });
             var app = builder.Build();
 
-            // Auto Mapper Configurations
-            builder.Services.AddAutoMapper(typeof(Program).Assembly);
+            //// Auto Mapper Configurations
+            //builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
