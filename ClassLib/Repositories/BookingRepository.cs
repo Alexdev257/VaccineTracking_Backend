@@ -16,14 +16,19 @@ namespace ClassLib.Repositories
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<List<Booking>> getAll()
+        public async Task<List<Booking>?> getAll()
         {
             return await _context.Bookings.ToListAsync();
         }
 
-        public async Task<List<Booking>> getBookingByParentId(int userId)
+        public async Task<List<Booking>?> getBookingByParentId(int userId)
         {
             return await _context.Bookings.Where(b => b.ParentId == userId).ToListAsync();
+        }
+
+        public async Task<List<Booking>?> getBookingByStatus(string status)
+        {
+            return await _context.Bookings.Where(b => b.Status == status).ToListAsync();
         }
     }
 }

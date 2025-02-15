@@ -1,6 +1,10 @@
 ﻿using ClassLib.Repositories; // Import UserRepo
 using ClassLib.Service;    // Import UserService
 using ClassLib.Helpers;
+//using ClassLib.Models;
+//using ClassLib.Repositories; // Import UserRepo
+//using ClassLib.Service;    // Import UserService
+using AutoMapper;
 using ClassLib.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -105,6 +109,9 @@ namespace SWP391_BackEnd
                     options.SerializerSettings.DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Utc;
                 });
             var app = builder.Build();
+
+            // Auto Mapper Configurations
+            builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
