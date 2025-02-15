@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace ClassLib.DTO.Booking
 {
-    internal class b
+    public class UpdateBooking
     {
+        public int Id { get; set; }
+        public required string Status { get; set; }
     }
 }
