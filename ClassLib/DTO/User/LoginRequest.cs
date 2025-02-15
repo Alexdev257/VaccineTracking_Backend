@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClassLib.DTO.Request
+namespace ClassLib.DTO.User
 {
     public class LoginRequest
     {

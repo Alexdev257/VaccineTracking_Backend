@@ -1,4 +1,4 @@
-﻿using ClassLib.DTO.Request;
+﻿using ClassLib.DTO.User;
 using ClassLib.Models;
 using ClassLib.Service;
 using Microsoft.AspNetCore.Http;
