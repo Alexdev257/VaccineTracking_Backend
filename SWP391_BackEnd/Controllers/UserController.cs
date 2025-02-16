@@ -1,6 +1,7 @@
 ﻿using ClassLib.DTO.User;
 using ClassLib.Models;
 using ClassLib.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,18 +20,34 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("getAll")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<User>>> GetUser()
         {
             return await _userService.getAllService();
         }
 
-        [HttpPost("login")]
+        [HttpPost("register")]
+        public async Task<IActionResult> register([FromBody] RegisterRequest registerRequest)
+        {
+            try
+            {
+                var registerResponse = await _userService.registerAsync(registerRequest);
+                return Ok(new { msg = "Register successfully", user = registerResponse });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { msg = e.Message });
+            }
+
+        }
+
+        [HttpPost("login-by-account")]
         public async Task<IActionResult> login([FromBody] LoginRequest loginRequest) //IActionResult
         {
             try
             {
-                var user = _userService.loginAsync(loginRequest);
-                return Ok(new { msg = "Login successfully", user = user });
+                var LoginResponse = await _userService.loginAsync(loginRequest);
+                return Ok(new { msg = "Login successfully", loginRes = LoginResponse });
             }
             catch (ArgumentException e)
             {
@@ -45,21 +62,5 @@ namespace SWP391_BackEnd.Controllers
                 return StatusCode(500, new { error = "unauthenticated error", details = e });
             }
         }
-
-        [HttpPost("register")]
-        public async Task<IActionResult> register([FromBody] RegisterRequest registerRequest)
-        {
-            try
-            {
-                var user = _userService.registerAsync(registerRequest);
-                return Ok(new { msg = "Login successfully", user = user });
-            }
-            catch (Exception e)
-            {
-                return BadRequest(new { msg = "Exist username" });
-            }
-
-        }
     }
 }
-//fewfewfewfewfewf
