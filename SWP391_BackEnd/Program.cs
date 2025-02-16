@@ -5,7 +5,11 @@ using ClassLib.Helpers;
 //using ClassLib.Repositories; // Import UserRepo
 //using ClassLib.Service;    // Import UserService
 using AutoMapper;
+using ClassLib.DTO.Payment;
 using ClassLib.Models;
+using ClassLib.Repositories;
+using ClassLib.Service;
+using ClassLib.Service.Momo;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -103,6 +107,15 @@ namespace SWP391_BackEnd
 
 
             // Update Json Soft
+
+            // Auto Mapper Configurations
+            builder.Services.AddAutoMapper( typeof( Program ).Assembly );
+
+            // Connect Momo Api
+            builder.Services.Configure<MomoOptionModel>( builder.Configuration.GetSection( "MomoAPI" ) );
+            //builder.Services.AddScoped<IMomoService, MomoService>;
+
+
             builder.Services.AddControllers().AddNewtonsoftJson(options =>
                 {
                     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
