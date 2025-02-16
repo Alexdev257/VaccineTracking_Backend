@@ -37,13 +37,18 @@ namespace SWP391_BackEnd
             //Automapper
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+<<<<<<< Updated upstream
             //read Jwt form appsetting.json
+=======
+            // read Jwt form appsetting.json
+>>>>>>> Stashed changes
             var jwtSettings = builder.Configuration.GetSection("JwtSettings");
             var key = Encoding.ASCII.GetBytes(jwtSettings["SecretKey"]!);
 
             //JWT
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(otp =>
+<<<<<<< Updated upstream
                 {
                     otp.RequireHttpsMetadata = false;
                     otp.SaveToken = true;
@@ -64,6 +69,28 @@ namespace SWP391_BackEnd
                         IssuerSigningKey = new SymmetricSecurityKey(key)
                     };
                 });
+=======
+                 {
+                otp.RequireHttpsMetadata = false;
+                otp.SaveToken = true;
+                otp.TokenValidationParameters = new TokenValidationParameters
+                {
+                    //ValidateIssuerSigningKey = true,
+                    //IssuerSigningKey = new SymmetricSecurityKey(key),
+                    //ValidateIssuer = true,
+                    //ValidateAudience = true,
+                    //ValidIssuer = jwtSettings["Issuer"],
+                    //ValidAudience = jwtSettings["Audience"]
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings["Issuer"],
+                    ValidAudience = jwtSettings["Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                };
+            });
+>>>>>>> Stashed changes
 
             builder.Services.AddAuthorization();
 
@@ -123,6 +150,11 @@ namespace SWP391_BackEnd
                 });
             var app = builder.Build();
 
+<<<<<<< Updated upstream
+=======
+            // Auto Mapper Configurations
+            //builder.Services.AddAutoMapper(typeof(Program).Assembly);
+>>>>>>> Stashed changes
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
