@@ -20,5 +20,10 @@ namespace ClassLib.Service
         {
             return await _bookingRepository.GetByQuerry(query);
         }
+
+        public async Task<List<Booking>?> GettAll()
+        {
+            return await _bookingRepository.GetAll();
+        }
     }
 }

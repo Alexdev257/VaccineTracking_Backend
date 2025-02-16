@@ -16,6 +16,10 @@ namespace ClassLib.Repositories
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
+        public async Task<List<Booking>> GetAll()
+        {
+            return await _context.Bookings.ToListAsync();
+        }
 
         public async Task<List<Booking>?> GetByQuerry(BookingQuerryObject bookingQuerryObject)
         {

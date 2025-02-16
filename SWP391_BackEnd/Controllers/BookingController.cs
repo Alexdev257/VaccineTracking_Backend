@@ -17,10 +17,12 @@ namespace SWP391_BackEnd.Controllers
 
 
         [HttpGet]
-        public IActionResult GetByQuerry([FromQuery] BookingQuerryObject query)
+        public async Task<IActionResult> Get( [FromQuery] BookingQuerryObject bqo)
         {
-            var bookings = _bookingService.GetByQuerry(query);
-            return Ok(bookings);
+            var bookings = await _bookingService.GetByQuerry(bqo);
+
+          if(bookings == null) return NotFound();
+          return Ok(bookings);
         }
 
     }
