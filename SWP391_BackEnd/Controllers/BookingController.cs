@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ClassLib.Helpers;
+using ClassLib.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SWP391_BackEnd.Controllers
@@ -7,11 +9,19 @@ namespace SWP391_BackEnd.Controllers
     [ApiController]
     public class BookingController : ControllerBase
     {
-        [HttpGet]
-        [Authorize]
-        public IActionResult Get()
+        private readonly BookingService _bookingService;
+        public BookingController(BookingService bookingService)
         {
-            return Ok("This is BookingController");
+            _bookingService = bookingService ?? throw new ArgumentNullException(nameof(bookingService));
         }
+
+
+        [HttpGet]
+        public IActionResult GetByQuerry([FromQuery] BookingQuerryObject query)
+        {
+            var bookings = _bookingService.GetByQuerry(query);
+            return Ok(bookings);
+        }
+
     }
 }
