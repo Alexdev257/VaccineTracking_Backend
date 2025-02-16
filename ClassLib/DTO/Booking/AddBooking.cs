@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace ClassLib.DTO.BookingDetail
+namespace ClassLib.DTO.Booking
 {
-    internal class c
+    public class AddBooking
     {
+        
     }
 }
