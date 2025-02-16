@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace ClassLib.Models;
 
@@ -24,12 +25,12 @@ public partial class User
     public DateTime CreatedAt { get; set; }
 
     public string Status { get; set; } = null!;
-
+    [JsonIgnore]
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
-
+    [JsonIgnore]
     public virtual ICollection<Child> Children { get; set; } = new List<Child>();
-
+    [JsonIgnore]
     public virtual ICollection<VaccinesTracking> VaccinesTrackingAdministeredByNavigations { get; set; } = new List<VaccinesTracking>();
-
+    [JsonIgnore]
     public virtual ICollection<VaccinesTracking> VaccinesTrackingUsers { get; set; } = new List<VaccinesTracking>();
 }
