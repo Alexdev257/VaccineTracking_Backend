@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClassLib.DTO.Payment
+namespace ClassLib.Service.Momo
 {
-    internal class r
+    public interface IMomoService
     {
     }
 }
