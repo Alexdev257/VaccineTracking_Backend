@@ -45,35 +45,36 @@ namespace SWP391_BackEnd
             //Automapper
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+
             // read Jwt form appsetting.json
-            // var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-            // var key = Encoding.ASCII.GetBytes(jwtSettings["SecretKey"]!);
+            var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+            var key = Encoding.ASCII.GetBytes(jwtSettings["SecretKey"]!);
 
             //JWT
-            // builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //     .AddJwtBearer(otp 
-            //     {
-            //         otp.RequireHttpsMetadata = false;
-            //         otp.SaveToken = true;
-            //         otp.TokenValidationParameters = new TokenValidationParameters
-            //         {
-            //             //ValidateIssuerSigningKey = true,
-            //             //IssuerSigningKey = new SymmetricSecurityKey(key),
-            //             //ValidateIssuer = true,
-            //             //ValidateAudience = true,
-            //             //ValidIssuer = jwtSettings["Issuer"],
-            //             //ValidAudience = jwtSettings["Audience"]
-            //             ValidateIssuer = true,
-            //             ValidateAudience = true,
-            //             ValidateLifetime = true,
-            //             ValidateIssuerSigningKey = true,
-            //             ValidIssuer = jwtSettings["Issuer"],
-            //             ValidAudience = jwtSettings["Audience"],
-            //             IssuerSigningKey = new SymmetricSecurityKey(key)
-            //         };
-            //     });
-
-            // builder.Services.AddAuthorization();
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(otp =>
+                 {
+                otp.RequireHttpsMetadata = false;
+                otp.SaveToken = true;
+                otp.TokenValidationParameters = new TokenValidationParameters
+                {
+                    //ValidateIssuerSigningKey = true,
+                    //IssuerSigningKey = new SymmetricSecurityKey(key),
+                    //ValidateIssuer = true,
+                    //ValidateAudience = true,
+                    //ValidIssuer = jwtSettings["Issuer"],
+                    //ValidAudience = jwtSettings["Audience"]
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings["Issuer"],
+                    ValidAudience = jwtSettings["Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                };
+            });
+            
+             builder.Services.AddAuthorization();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

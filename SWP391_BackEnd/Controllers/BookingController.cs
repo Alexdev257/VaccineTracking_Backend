@@ -22,6 +22,12 @@ namespace SWP391_BackEnd.Controllers
         {
             var bookings =await _bookingService.GetByQuerry(query);
             return Ok(bookings);
+        public async Task<IActionResult> Get( [FromQuery] BookingQuerryObject bqo)
+        {
+            var bookings = await _bookingService.GetByQuerry(bqo);
+
+          if(bookings == null) return NotFound();
+          return Ok(bookings);
         }
 
         [HttpPost]
