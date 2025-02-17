@@ -1,4 +1,5 @@
-﻿using ClassLib.Helpers;
+﻿using ClassLib.DTO.Booking;
+using ClassLib.Helpers;
 using ClassLib.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,10 @@ namespace SWP391_BackEnd.Controllers
 
 
         [HttpGet]
+        public async Task<IActionResult> GetByQuerry([FromQuery] BookingQuerryObject query)
+        {
+            var bookings =await _bookingService.GetByQuerry(query);
+            return Ok(bookings);
         public async Task<IActionResult> Get( [FromQuery] BookingQuerryObject bqo)
         {
             var bookings = await _bookingService.GetByQuerry(bqo);
@@ -25,5 +30,11 @@ namespace SWP391_BackEnd.Controllers
           return Ok(bookings);
         }
 
+        [HttpPost]
+        public IActionResult AddBooking([FromBody] AddBooking addBooking)
+        {
+            var booking = _bookingService.AddBooking(addBooking);
+            return Ok(booking);
+        }
     }
 }
