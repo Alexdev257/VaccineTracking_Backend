@@ -47,12 +47,12 @@ namespace SWP391_BackEnd
 
             // Test FE
             builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll",
-        policy => policy.AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader());
-});
+                {
+                    options.AddPolicy("AllowAll",
+                                policy => policy.AllowAnyOrigin()
+                                .AllowAnyMethod()
+                                .AllowAnyHeader());
+                });
 
 
             // read Jwt form appsetting.json
