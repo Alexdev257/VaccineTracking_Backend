@@ -31,7 +31,7 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<BookingRepository>();
             builder.Services.AddScoped<BookingService>();
-
+            builder.Services.AddScoped<PaymentRepository>();
             // Add Json NewtonSoft to show more information
             builder.Services.AddControllers()
                 .AddNewtonsoftJson(options =>
