@@ -25,6 +25,9 @@ namespace ClassLib.Service
         public async Task<Booking?> AddBooking(AddBooking addBooking)
         {
             return await _bookingRepository.AddBooking(addBooking);
+        public async Task<List<Booking>?> GettAll()
+        {
+            return await _bookingRepository.GetAll();
         }
     }
 }
