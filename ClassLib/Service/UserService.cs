@@ -56,9 +56,10 @@ namespace ClassLib.Service
                     }
                     else
                     {
+                        var (accessToken, refreshToken) = _jwtHelper.generateToken(user);
                         var userRes = _mapper.Map<LoginResponse>(user);
-                        var token = _jwtHelper.generateToken(userRes);
-                        userRes.Token = token;
+                        userRes.AccessToken = accessToken;
+                        userRes.RefreshToken = refreshToken;
                         return userRes;
                     }
                 }

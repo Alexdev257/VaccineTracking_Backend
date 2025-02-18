@@ -47,7 +47,7 @@ namespace SWP391_BackEnd.Controllers
             try
             {
                 var LoginResponse = await _userService.loginAsync(loginRequest);
-                return Ok(new { msg = "Login successfully", loginRes = LoginResponse });
+                return Ok(new { msg = "Login successfully", loginResponse = LoginResponse });
             }
             catch (ArgumentException e)
             {
