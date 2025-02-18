@@ -36,6 +36,8 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<VaccineService>();
 
             builder.Services.AddScoped<PaymentRepository>();
+            // builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
+            // builder.Services.AddScoped<IMomoService, MomoService>();
             // Add Json NewtonSoft to show more information
             builder.Services.AddControllers()
                 .AddNewtonsoftJson(options =>
@@ -131,7 +133,7 @@ namespace SWP391_BackEnd
             // Update Json Soft
 
             // Auto Mapper Configurations
-//             builder.Services.AddAutoMapper(typeof(Program).Assembly);
+            //             builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
             // Connect Momo Api
             builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
@@ -147,7 +149,7 @@ namespace SWP391_BackEnd
             // Test FE
             app.UseCors("AllowAll");
 
-            
+
 
 
 
