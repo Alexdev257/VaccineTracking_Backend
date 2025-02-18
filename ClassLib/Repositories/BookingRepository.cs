@@ -12,9 +12,9 @@ namespace ClassLib.Repositories
 {
     public class BookingRepository
     {
-        private readonly DbSwpVaccineTracking2Context _context;
+        private readonly DbSwpVaccineTrackingContext _context;
         private readonly PaymentRepository _paymentRepository;
-        public BookingRepository(DbSwpVaccineTracking2Context context, PaymentRepository paymentRepository)
+        public BookingRepository(DbSwpVaccineTrackingContext context, PaymentRepository paymentRepository)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _paymentRepository = paymentRepository ?? throw new ArgumentException(nameof(paymentRepository));
@@ -61,7 +61,7 @@ namespace ClassLib.Repositories
                         booking = bookingQuerryObject.isDescending ? booking.OrderByDescending(x => x.ParentId) : booking.OrderBy(x => x.ParentId);
                         break;
                     case "TotalPrice":
-                        booking = bookingQuerryObject.isDescending ? booking.OrderByDescending(x => x.TotalPrice) : booking.OrderBy(x => x.TotalPrice);
+                        //booking = bookingQuerryObject.isDescending ? booking.OrderByDescending(x => x.TotalPrice) : booking.OrderBy(x => x.TotalPrice);
                         break;
                     case "CreatedAt":
                         booking = bookingQuerryObject.isDescending ? booking.OrderByDescending(x => x.CreatedAt) : booking.OrderBy(x => x.CreatedAt);
@@ -83,11 +83,11 @@ namespace ClassLib.Repositories
             var booking = new Booking
             {
                 ParentId = addBooking.ParentId,
-                AdvisoryDetail = addBooking.AdvisoryDetail,
-                TotalPrice = addBooking.TotalPrice,
-                ArrivedAt = addBooking.ArrivedAt,
-                CreatedAt = DateOnly.FromDateTime(DateTime.Now),
-                Payment = await _paymentRepository.getByID(addBooking.paymentId),
+                //AdvisoryDetail = addBooking.AdvisoryDetail,
+                //TotalPrice = addBooking.TotalPrice,
+                //ArrivedAt = addBooking.ArrivedAt,
+                //CreatedAt = DateOnly.FromDateTime(DateTime.Now),
+                //Payment = await _paymentRepository.getByID(addBooking.paymentId),
                 Status = "Pending"
             };
 

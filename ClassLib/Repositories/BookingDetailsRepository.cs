@@ -9,8 +9,8 @@ namespace ClassLib.Repositories
 {
     public class BookingDetailsRepository
     {
-        private readonly DbSwpVaccineTracking2Context _context;
-        public BookingDetailsRepository(DbSwpVaccineTracking2Context context){
+        private readonly DbSwpVaccineTrackingContext _context;
+        public BookingDetailsRepository(DbSwpVaccineTrackingContext context){
             _context = context ?? throw new ArgumentException(nameof(context));
         }
         // public async Task<List<BookingDetail>> AddBookingDetails(AddBookingDetails addBookingDetails){

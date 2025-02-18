@@ -14,7 +14,7 @@ namespace ClassLib.Helpers
 
         public string? Status { get; set; }
 
-        public DateOnly? CreateDate { get; set; }
+        public DateTime? CreateDate { get; set; }
 
         public Boolean isDescending { get; set; }
 

@@ -13,9 +13,7 @@ public partial class Vaccine
 
     public string Description { get; set; } = null!;
 
-    public string Image { get; set; } = null!;
-
-    public int Price { get; set; }
+    public decimal Price { get; set; }
 
     public int DoesTimes { get; set; }
 
@@ -31,17 +29,15 @@ public partial class Vaccine
 
     public string Status { get; set; } = null!;
 
-    public int MiniumIntervalDate { get; set; }
+    public int? MinimumIntervalDate { get; set; }
 
-    public int MaxiumIntervalDate { get; set; }
+    public int? MaximumIntervalDate { get; set; }
 
-    public string Country { get; set; } = null!;
+    public string FromCountry { get; set; } = null!;
 
     public virtual Address Address { get; set; } = null!;
 
-    public virtual ICollection<BookingDetail> BookingDetails { get; set; } = new List<BookingDetail>();
-
     public virtual ICollection<VaccinesTracking> VaccinesTrackings { get; set; } = new List<VaccinesTracking>();
 
-    public virtual ICollection<VaccinesCombo> VaccineCombos { get; set; } = new List<VaccinesCombo>();
+    public virtual ICollection<VaccinesCombo> VacineCombos { get; set; } = new List<VaccinesCombo>();
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 namespace ClassLib.Models;
+
 public partial class Child
 {
     public int Id { get; set; }
@@ -17,8 +18,6 @@ public partial class Child
     public string Status { get; set; } = null!;
 
     public DateTime CreatedAt { get; set; }
-
-    public virtual ICollection<BookingDetail> BookingDetails { get; set; } = new List<BookingDetail>();
 
     public virtual User Parent { get; set; } = null!;
 

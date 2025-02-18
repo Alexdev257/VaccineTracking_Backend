@@ -13,7 +13,7 @@ namespace ClassLib.DTO.Booking
 
         public int TotalPrice { get; set; }
 
-        public DateOnly ArrivedAt { get; set; }
+        public DateTime ArrivedAt { get; set; }
 
         public int paymentId { get; set; }
 
