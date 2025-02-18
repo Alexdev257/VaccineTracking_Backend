@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ClassLib.DTO.Booking;
 using ClassLib.Helpers;
 using ClassLib.Models;
 
@@ -12,9 +13,11 @@ namespace ClassLib.Repositories
     public class BookingRepository
     {
         private readonly DbSwpVaccineTracking2Context _context;
-        public BookingRepository(DbSwpVaccineTracking2Context context)
+        private readonly PaymentRepository _paymentRepository;
+        public BookingRepository(DbSwpVaccineTracking2Context context, PaymentRepository paymentRepository)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            _paymentRepository = paymentRepository ?? throw new ArgumentException(nameof(paymentRepository));
         }
         public async Task<List<Booking>> GetAll()
         {
@@ -73,6 +76,25 @@ namespace ClassLib.Repositories
             }
 
             return await booking.ToListAsync();
+        }
+
+        public async Task<Booking?> AddBooking(AddBooking addBooking)
+        {
+            var booking = new Booking
+            {
+                ParentId = addBooking.ParentId,
+                AdvisoryDetail = addBooking.AdvisoryDetail,
+                TotalPrice = addBooking.TotalPrice,
+                ArrivedAt = addBooking.ArrivedAt,
+                CreatedAt = DateOnly.FromDateTime(DateTime.Now),
+                Payment = await _paymentRepository.getByID(addBooking.paymentId),
+                Status = "Pending"
+            };
+
+            _context.Bookings.Add(booking);
+            await _context.SaveChangesAsync();
+
+            return booking;
         }
 
     }

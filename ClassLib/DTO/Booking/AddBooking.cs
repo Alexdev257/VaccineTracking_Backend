@@ -7,6 +7,20 @@ namespace ClassLib.DTO.Booking
 {
     public class AddBooking
     {
-        
+        public int ParentId { get; set; }
+
+        public string AdvisoryDetail { get; set; } = null!;
+
+        public int TotalPrice { get; set; }
+
+        public DateOnly ArrivedAt { get; set; }
+
+        public int paymentId { get; set; }
+
+        public List<int>? ChildrenIds { get; set; }
+
+        public List<int>? vaccineIds { get; set; }
+
+        public List<int>? vaccineComboIds { get; set; }
     }
 }
