@@ -8,8 +8,8 @@ namespace ClassLib.DTO.Payment
 {
     public class MomoExecuteResponseModel
     {
-        public string OrderId { get; set; }
-        public string Amount { get; set; }
-        public string OrderInfo { get; set; }
+        public string OrderId { get; set; } = string.Empty;
+        public string Amount { get; set; } = string.Empty;
+        public string OrderInfo { get; set; } = string.Empty;
     }
 }

@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using ClassLib.DTO.Payment;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualBasic;
@@ -59,17 +60,16 @@ namespace ClassLib.Service.Momo
             return JsonConvert.DeserializeObject<MomoCreatePaymentResponseModel>(response.Content);
         }
 
-        public MomoExecuteResponseModel PaymentExecuteAsync(OrderInfoModel model)
+        public MomoExecuteResponseModel PaymentExecuteAsync(IQueryCollection collection)
         {
-
-            var amount = model.Amount.ToString();
-            var orderInfo = model.OrderInfo;
-            var orderId = model.OrderInfo;
+            var amount = collection.First(s => s.Key == "amount").Value;
+            var orderInfo = collection.First(s => s.Key == "orderInfo").Value;
+            var orderId = collection.First(s => s.Key == "orderId").Value;
             return new MomoExecuteResponseModel()
             {
-                Amount = amount,
-                OrderId = orderId,
-                OrderInfo = orderInfo
+                Amount = amount!,
+                OrderId = orderId!,
+                OrderInfo = orderInfo!
             };
         }
 
