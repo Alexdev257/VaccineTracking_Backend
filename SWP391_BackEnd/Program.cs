@@ -14,6 +14,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using ClassLib.Service.Vaccines;
 namespace SWP391_BackEnd
 {
     public class Program
@@ -31,6 +32,9 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<BookingRepository>();
             builder.Services.AddScoped<BookingService>();
+            builder.Services.AddScoped<VaccineRepository>();
+            builder.Services.AddScoped<VaccineService>();
+
             builder.Services.AddScoped<PaymentRepository>();
             // Add Json NewtonSoft to show more information
             builder.Services.AddControllers()
@@ -53,6 +57,12 @@ namespace SWP391_BackEnd
                                             .AllowAnyMethod()
                                             .AllowAnyHeader());
                     });
+                {
+                    options.AddPolicy("AllowAll",
+                                policy => policy.AllowAnyOrigin()
+                                .AllowAnyMethod()
+                                .AllowAnyHeader());
+                });
 
 
             // read Jwt form appsetting.json
@@ -127,7 +137,7 @@ namespace SWP391_BackEnd
             // Update Json Soft
 
             // Auto Mapper Configurations
-            builder.Services.AddAutoMapper(typeof(Program).Assembly);
+//             builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
             // Connect Momo Api
             builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
@@ -142,6 +152,10 @@ namespace SWP391_BackEnd
             var app = builder.Build();
             // Test FE
             app.UseCors("AllowAll");
+
+            
+
+
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
