@@ -9,6 +9,7 @@ using ClassLib.DTO.User;
 using ClassLib.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
 
 namespace ClassLib.Helpers
 {
@@ -21,7 +22,7 @@ namespace ClassLib.Helpers
             _configuration = configuration;
         }
 
-        public string generateToken(LoginResponse user)
+        public (string, string) generateToken(User user)
         {
             var secretKey = _configuration["JwtSettings:SecretKey"];
             var issuer = _configuration["JwtSettings:Issuer"];
@@ -34,20 +35,48 @@ namespace ClassLib.Helpers
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Name, user.Username),
-                    new Claim(ClaimTypes.Role, user.Role),
+                    //new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    ////new Claim(JwtRegisteredClaimNames.Email, user.Id.ToString()),
+                    //new Claim(ClaimTypes.Name, user.Username),
+                    //new Claim(ClaimTypes.Role, user.Role),
+
+                    //new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim("Id", user.Id.ToString()),
+                    new Claim("Username", user.Username),
+                    new Claim("Name", user.Name),
+                    //new Claim("Email", user.Email),
+                    new Claim("PhoneNumber", user.PhoneNumber),
+                    new Claim("Role", user.Role),
+                    //new Claim("Avartar", user.Avartar),
+
                 }),
 
                 // time to expire is 30 minutes
-                Expires = DateTime.UtcNow.AddMinutes(30),
+                //Expires = DateTime.UtcNow.AddMinutes(30),
+                Expires = DateTime.UtcNow.AddSeconds(20),
                 Issuer = issuer,
                 Audience = audience,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+
+            var accessToken = tokenHandler.WriteToken(token);
+            var refreshToken = generateRefreshToken();
+
+
+            return (accessToken, refreshToken);
+        }
+
+        public string generateRefreshToken()
+        {
+            var random = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(random);
+
+                return Convert.ToBase64String(random);
+            }
         }
     }
 }

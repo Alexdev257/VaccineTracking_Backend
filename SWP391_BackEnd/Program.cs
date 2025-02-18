@@ -51,6 +51,12 @@ namespace SWP391_BackEnd
 
             // Test FE
             builder.Services.AddCors(options =>
+                    {
+                        options.AddPolicy("AllowAll",
+                            policy => policy.AllowAnyOrigin()
+                                            .AllowAnyMethod()
+                                            .AllowAnyHeader());
+                    });
                 {
                     options.AddPolicy("AllowAll",
                                 policy => policy.AllowAnyOrigin()
@@ -131,7 +137,7 @@ namespace SWP391_BackEnd
             // Update Json Soft
 
             // Auto Mapper Configurations
-            builder.Services.AddAutoMapper(typeof(Program).Assembly);
+//             builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
             // Connect Momo Api
             builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
