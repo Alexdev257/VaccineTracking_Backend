@@ -8,16 +8,16 @@ namespace ClassLib.DTO.Payment
 {
     public class MomoCreatePaymentResponseModel
     {
-        public string RequestID { get; set; }
-        public string ErrorCode { get; set; }
-        public string OrderID { get; set; }
-        public string Message { get; set; }
-        public string LocalMessage { get; set; }
-        public string RequestType { get; set; }
-        public string PayUrl { get; set; }
-        public string Signature { get; set; }
-        public string QrCodeUrl { get; set; }
-        public string DeepLink { get; set; }
-        public string DeepLinkWebInApp { get; set; }
+        public string RequestID { get; set; } = string.Empty;
+        public string ErrorCode { get; set; } = string.Empty;
+        public string OrderID { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
+        public string LocalMessage { get; set; } = string.Empty;
+        public string RequestType { get; set; } = string.Empty;
+        public string PayUrl { get; set; } = string.Empty;
+        public string Signature { get; set; } = string.Empty;
+        public string QrCodeUrl { get; set; } = string.Empty;
+        public string DeepLink { get; set; } = string.Empty;
+        public string DeepLinkWebInApp { get; set; } = string.Empty;
     }
 }
