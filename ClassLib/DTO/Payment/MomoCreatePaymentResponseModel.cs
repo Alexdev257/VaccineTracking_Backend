@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ClassLib.DTO.Payment
 {
-    public class MomoCreatePaymentResponeModel
+    public class MomoCreatePaymentResponseModel
     {
         public string RequestID { get; set; }
         public string ErrorCode { get; set; }
