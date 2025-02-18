@@ -13,11 +13,9 @@ namespace ClassLib.Repositories
     public class BookingRepository
     {
         private readonly DbSwpVaccineTrackingContext _context;
-        private readonly PaymentRepository _paymentRepository;
-        public BookingRepository(DbSwpVaccineTrackingContext context, PaymentRepository paymentRepository)
+        public BookingRepository(DbSwpVaccineTrackingContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
-            _paymentRepository = paymentRepository ?? throw new ArgumentException(nameof(paymentRepository));
         }
         public async Task<List<Booking>> GetAll()
         {
