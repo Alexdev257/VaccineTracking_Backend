@@ -1,4 +1,5 @@
-﻿using ClassLib.Helpers;
+﻿using ClassLib.DTO.Booking;
+using ClassLib.Helpers;
 using ClassLib.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,5 +26,11 @@ namespace SWP391_BackEnd.Controllers
           return Ok(bookings);
         }
 
+        [HttpPost]
+        public IActionResult AddBooking([FromBody] AddBooking addBooking)
+        {
+            var booking = _bookingService.AddBooking(addBooking);
+            return Ok(booking);
+        }
     }
 }

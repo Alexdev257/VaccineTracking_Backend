@@ -35,6 +35,7 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<VaccineRepository>();
             builder.Services.AddScoped<VaccineService>();
 
+            builder.Services.AddScoped<PaymentRepository>();
             // Add Json NewtonSoft to show more information
             builder.Services.AddControllers()
                 .AddNewtonsoftJson(options =>
@@ -48,6 +49,15 @@ namespace SWP391_BackEnd
             //Automapper
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+            // Test FE
+            builder.Services.AddCors(options =>
+                {
+                    options.AddPolicy("AllowAll",
+                                policy => policy.AllowAnyOrigin()
+                                .AllowAnyMethod()
+                                .AllowAnyHeader());
+                });
+
 
             // read Jwt form appsetting.json
             var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -57,27 +67,27 @@ namespace SWP391_BackEnd
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(otp =>
                  {
-                otp.RequireHttpsMetadata = false;
-                otp.SaveToken = true;
-                otp.TokenValidationParameters = new TokenValidationParameters
-                {
-                    //ValidateIssuerSigningKey = true,
-                    //IssuerSigningKey = new SymmetricSecurityKey(key),
-                    //ValidateIssuer = true,
-                    //ValidateAudience = true,
-                    //ValidIssuer = jwtSettings["Issuer"],
-                    //ValidAudience = jwtSettings["Audience"]
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtSettings["Issuer"],
-                    ValidAudience = jwtSettings["Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(key)
-                };
-            });
-            
-             builder.Services.AddAuthorization();
+                     otp.RequireHttpsMetadata = false;
+                     otp.SaveToken = true;
+                     otp.TokenValidationParameters = new TokenValidationParameters
+                     {
+                         //ValidateIssuerSigningKey = true,
+                         //IssuerSigningKey = new SymmetricSecurityKey(key),
+                         //ValidateIssuer = true,
+                         //ValidateAudience = true,
+                         //ValidIssuer = jwtSettings["Issuer"],
+                         //ValidAudience = jwtSettings["Audience"]
+                         ValidateIssuer = true,
+                         ValidateAudience = true,
+                         ValidateLifetime = true,
+                         ValidateIssuerSigningKey = true,
+                         ValidIssuer = jwtSettings["Issuer"],
+                         ValidAudience = jwtSettings["Audience"],
+                         IssuerSigningKey = new SymmetricSecurityKey(key)
+                     };
+                 });
+
+            builder.Services.AddAuthorization();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -134,7 +144,8 @@ namespace SWP391_BackEnd
                     options.SerializerSettings.DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Utc;
                 });
             var app = builder.Build();
-
+            // Test FE
+            app.UseCors("AllowAll");
 
             
 
