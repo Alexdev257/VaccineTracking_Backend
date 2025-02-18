@@ -14,6 +14,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using ClassLib.Service.Vaccines;
 namespace SWP391_BackEnd
 {
     public class Program
@@ -31,6 +32,8 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<BookingRepository>();
             builder.Services.AddScoped<BookingService>();
+            builder.Services.AddScoped<VaccineRepository>();
+            builder.Services.AddScoped<VaccineService>();
 
             // Add Json NewtonSoft to show more information
             builder.Services.AddControllers()
@@ -131,6 +134,10 @@ namespace SWP391_BackEnd
                     options.SerializerSettings.DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Utc;
                 });
             var app = builder.Build();
+
+
+            
+
 
 
             // Configure the HTTP request pipeline.
