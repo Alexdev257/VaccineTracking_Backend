@@ -12,8 +12,8 @@ namespace ClassLib.Repositories
 {
     public class UserRepository
     {
-        private readonly DbSwpVaccineTracking2Context _context;
-        public UserRepository(DbSwpVaccineTracking2Context context)
+        private readonly DbSwpVaccineTrackingContext _context;
+        public UserRepository(DbSwpVaccineTrackingContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
@@ -30,7 +30,6 @@ namespace ClassLib.Repositories
 
         public async Task<User?> getUserByPhoneAsync(string PhoneNumber)
         {
-            // ngăn lỗi giữ lại dbcontext
             return await _context.Users.FirstOrDefaultAsync(u => u.PhoneNumber == PhoneNumber);
         }
 

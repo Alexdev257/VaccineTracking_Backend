@@ -9,13 +9,13 @@ namespace ClassLib.Repositories
 {
     public class PaymentRepository
     {
-        private readonly DbSwpVaccineTracking2Context _context;
-        public PaymentRepository(DbSwpVaccineTracking2Context context){
+        private readonly DbSwpVaccineTrackingContext _context;
+        public PaymentRepository(DbSwpVaccineTrackingContext context){
             _context = context;
         }
 
         public async Task<List<Payment>> getAll() => await _context.Payments.ToListAsync();
 
-        public async Task<Payment?> getByID(int id) => await _context.Payments.FirstOrDefaultAsync( i => i.Id == id);
+        //public async Task<Payment?> getByID(int id) => await _context.Payments.FirstOrDefaultAsync( i => i.Id == id);
     }
 }
