@@ -53,6 +53,7 @@ namespace SWP391_BackEnd
                                             .AllowAnyMethod()
                                             .AllowAnyHeader());
                     });
+                
 
 
             // read Jwt form appsetting.json
