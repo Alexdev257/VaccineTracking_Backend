@@ -35,9 +35,8 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<VaccineRepository>();
             builder.Services.AddScoped<VaccineService>();
 
-            builder.Services.AddScoped<PaymentRepository>();
-            // builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
-            // builder.Services.AddScoped<IMomoService, MomoService>();
+            builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
+            builder.Services.AddScoped<IMomoService, MomoService>();
             // Add Json NewtonSoft to show more information
             builder.Services.AddControllers()
                 .AddNewtonsoftJson(options =>
