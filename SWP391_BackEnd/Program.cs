@@ -15,6 +15,7 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using ClassLib.Service.Vaccines;
+using ClassLib.Service.PayPal;
 namespace SWP391_BackEnd
 {
     public class Program
@@ -101,7 +102,6 @@ namespace SWP391_BackEnd
                     Title = "Vaccine Tracking API",
                     Version = "v1"
                 });
-
                 // Thêm tùy chọn nhập Bearer Token vào Swagger UI
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
@@ -113,19 +113,19 @@ namespace SWP391_BackEnd
                 });
 
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[] {}
-        }
-    });
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                        }
+                });
             });
 
 
@@ -134,9 +134,11 @@ namespace SWP391_BackEnd
             // Auto Mapper Configurations
             //             builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
-            // Connect Momo Api
+            // Connect Payment API
             builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
-            //builder.Services.AddScoped<IMomoService, MomoService>;
+            builder.Services.AddScoped<IMomoService, MomoService>();
+            builder.Services.Configure<PaypalOptionModel>(builder.Configuration.GetSection("PaypalAPI"));
+            builder.Services.AddScoped<IPayPalService, PayPalService>();
 
 
             builder.Services.AddControllers().AddNewtonsoftJson(options =>
