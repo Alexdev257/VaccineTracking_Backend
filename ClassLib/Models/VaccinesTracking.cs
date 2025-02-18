@@ -7,17 +7,17 @@ public partial class VaccinesTracking
 {
     public int Id { get; set; }
 
-    public int VaccinesId { get; set; }
+    public int VaccineId { get; set; }
 
     public int UserId { get; set; }
 
     public int ChildId { get; set; }
 
-    public DateTime MiniumIntervalDate { get; set; }
+    public DateTime? MinimumIntervalDate { get; set; }
 
     public DateTime VaccinationDate { get; set; }
 
-    public DateTime MaxiumIntervalDate { get; set; }
+    public DateTime? MaximumIntervalDate { get; set; }
 
     public string Status { get; set; } = null!;
 
@@ -31,5 +31,5 @@ public partial class VaccinesTracking
 
     public virtual User User { get; set; } = null!;
 
-    public virtual Vaccine Vaccines { get; set; } = null!;
+    public virtual Vaccine Vaccine { get; set; } = null!;
 }
