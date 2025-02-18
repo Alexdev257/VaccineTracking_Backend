@@ -138,7 +138,7 @@ namespace SWP391_BackEnd
             builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
             builder.Services.AddScoped<IMomoService, MomoService>();
             builder.Services.Configure<PaypalOptionModel>(builder.Configuration.GetSection("PaypalAPI"));
-            builder.Services.AddScoped<IPayPalService, PayPalService>();
+            //builder.Services.AddScoped<IPayPalService, PayPalService>();
 
 
             builder.Services.AddControllers().AddNewtonsoftJson(options =>
