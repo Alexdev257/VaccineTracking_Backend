@@ -23,7 +23,7 @@ namespace SWP391_BackEnd
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddDbContext<DbSwpVaccineTracking2Context>(options =>
+            builder.Services.AddDbContext<DbSwpVaccineTrackingContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
@@ -57,7 +57,6 @@ namespace SWP391_BackEnd
                                             .AllowAnyMethod()
                                             .AllowAnyHeader());
                     });
-                
 
 
             // read Jwt form appsetting.json
