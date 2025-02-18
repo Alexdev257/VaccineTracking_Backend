@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace ClassLib.DTO.Vaccine
 {
-    internal class y
+    public class GetVaccine
     {
+        
     }
 }
