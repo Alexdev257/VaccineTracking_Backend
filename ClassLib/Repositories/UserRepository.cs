@@ -61,7 +61,7 @@ namespace ClassLib.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<RefreshToken?> getRefreshTokenByUserId(int userId)
+        public async Task<RefreshToken?> getRefreshTokenByUserId(int? userId)
         {
             return await _context.RefreshTokens.Where(r => r.UserId == userId && !r.IsUsed && !r.IsRevoked && r.ExpiredAt > DateTime.UtcNow)
                                                .OrderByDescending(r => r.IssuedAt)

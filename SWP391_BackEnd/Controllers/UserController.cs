@@ -119,7 +119,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-refresh-token")]
-        public async Task<IActionResult> GetRefreshToken(int userId)
+        public async Task<IActionResult> GetRefreshToken(int? userId)
         {
             try
             {
