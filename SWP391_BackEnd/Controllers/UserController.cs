@@ -19,11 +19,30 @@ namespace SWP391_BackEnd.Controllers
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
         }
 
-        [HttpGet("getAll")]
+        [HttpGet("getAllUser")]
         [Authorize]
         public async Task<ActionResult<IEnumerable<User>>> GetUser()
         {
             return await _userService.getAllService();
+        }
+
+        [HttpGet("getUserById")]
+        //[Authorize]
+        public async Task<ActionResult> GetUserById(int? id)
+        {
+            try
+            {
+                var userRes = await _userService.getUserByIdService(id);
+                return Ok(new { msg = "Get user successfully", user = userRes });
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return NotFound(new { error = e.Message });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { error = e.Message });
+            }
         }
 
         [HttpPost("register")]
@@ -62,5 +81,60 @@ namespace SWP391_BackEnd.Controllers
                 return StatusCode(500, new { error = "unauthenticated error", details = e });
             }
         }
+
+        //[HttpPost("refresh")]
+        //public async Task<IActionResult> refresh([FromBody] LoginResponse refreshRequest)
+        //{
+        //    try
+        //    {
+        //        var loginResponse = await _userService.refreshTokenAsync(refreshRequest);
+        //        return Ok(new { msg = "Refresh token successfully", loginResponse = loginResponse });
+        //    }
+        //    catch (UnauthorizedAccessException e)
+        //    {
+        //        return NotFound(new { error = e.Message });
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return StatusCode(500, new { error = "unauthenticated error", details = e });
+        //    }
+        //}
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> RefreshToken([FromBody] LoginResponse refreshRequest)
+        {
+            try
+            {
+                var loginResponse = await _userService.RefreshTokenService(refreshRequest);
+                return Ok(new { msg = "Token refreshed successfully", loginResponse });
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return Unauthorized(new { error = e.Message });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { error = "Internal server error", details = e.Message });
+            }
+        }
+
+        [HttpGet("get-refresh-token")]
+        public async Task<IActionResult> GetRefreshToken(int userId)
+        {
+            try
+            {
+                var refreshToken = await _userService.getRefreshTokenByUserIdService(userId);
+                return Ok(new { msg = "Get refresh token successfully", refreshToken });
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return NotFound(new { error = e.Message });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { error = "Internal server error", details = e.Message });
+            }
+        }
+
     }
 }
