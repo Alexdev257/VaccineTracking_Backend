@@ -122,7 +122,7 @@ namespace ClassLib.Service
                             IsUsed = false,
                             IsRevoked = false,
                             IssuedAt = DateTime.UtcNow,
-                            ExpiredAt = DateTime.UtcNow.AddMinutes(2),
+                            ExpiredAt = DateTime.UtcNow.AddDays(1),
 
                         };
                         await _userRepository.addRefreshToken(refreshTokenModel);
@@ -337,7 +337,7 @@ namespace ClassLib.Service
                     IsUsed = false,
                     IsRevoked = false,
                     IssuedAt = DateTime.UtcNow,
-                    ExpiredAt = DateTime.UtcNow.AddMinutes(2),
+                    ExpiredAt = DateTime.UtcNow.AddDays(1),
                 };
                 await _userRepository.addRefreshToken(refreshTokenModel);
 
@@ -354,7 +354,7 @@ namespace ClassLib.Service
             }
         }
 
-        public async Task<LoginResponse?> getRefreshTokenByUserIdService(int userId)
+        public async Task<LoginResponse?> getRefreshTokenByUserIdService(int? userId)
         {
             var refreshTokenModel = await _userRepository.getRefreshTokenByUserId(userId);
             if (refreshTokenModel == null)
