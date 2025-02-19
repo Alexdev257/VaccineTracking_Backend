@@ -15,6 +15,8 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using ClassLib.Service.Vaccines;
+using Microsoft.Extensions.Options;
+using ClassLib.Middlewares;
 namespace SWP391_BackEnd
 {
     public class Program
@@ -79,11 +81,25 @@ namespace SWP391_BackEnd
                          //ValidAudience = jwtSettings["Audience"]
                          ValidateIssuer = true,
                          ValidateAudience = true,
-                         ValidateLifetime = true,
+                         ValidateLifetime = true, // Bắt buộc kiểm tra hạn sử dụng của token
+                         ClockSkew = TimeSpan.Zero, // Không cho phép trễ hạn (default là 5 phút)
                          ValidateIssuerSigningKey = true,
                          ValidIssuer = jwtSettings["Issuer"],
                          ValidAudience = jwtSettings["Audience"],
                          IssuerSigningKey = new SymmetricSecurityKey(key)
+                     };
+
+                     // Xử lý lỗi token hết hạn và phản hồi 401 Unauthorized
+                     otp.Events = new JwtBearerEvents
+                     {
+                         OnAuthenticationFailed = context =>
+                         {
+                             if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+                             {
+                                 context.Response.Headers.Add("Token-Expired", "true");
+                             }
+                             return Task.CompletedTask;
+                         }
                      };
                  });
 
@@ -147,7 +163,9 @@ namespace SWP391_BackEnd
             // Test FE
             app.UseCors("AllowAll");
 
-            
+            //app.UseMiddleware<TokenExpiredMiddleware>();
+
+
 
 
 
