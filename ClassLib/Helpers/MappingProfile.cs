@@ -20,6 +20,8 @@ namespace ClassLib.Helpers
             CreateMap<LoginRequest, User>();
             CreateMap<User, LoginResponse>();
 
+            CreateMap<User, GetUserResponse>();
+
             CreateMap<Booking, UpdateBooking>();
 
         }

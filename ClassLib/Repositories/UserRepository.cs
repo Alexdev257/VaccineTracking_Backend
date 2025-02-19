@@ -33,10 +33,39 @@ namespace ClassLib.Repositories
             return await _context.Users.FirstOrDefaultAsync(u => u.PhoneNumber == PhoneNumber);
         }
 
+        public async Task<User?> getUserByIdAsync(int? Id)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Id == Id);
+        }
+
         public async Task addUserAsync(User user)
         {
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task addRefreshToken(RefreshToken refreshToken)
+        {
+            await _context.RefreshTokens.AddAsync(refreshToken);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<RefreshToken?> getRefreshTokenAsync(string refreshToken)
+        {
+            return await _context.RefreshTokens.FirstOrDefaultAsync(r => r.RefreshToken1 == refreshToken);
+        }
+
+        public async Task updateRefreshTokenAsync(RefreshToken refreshToken)
+        {
+            _context.RefreshTokens.Update(refreshToken);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<RefreshToken?> getRefreshTokenByUserId(int userId)
+        {
+            return await _context.RefreshTokens.Where(r => r.UserId == userId && !r.IsUsed && !r.IsRevoked && r.ExpiredAt > DateTime.UtcNow)
+                                               .OrderByDescending(r => r.IssuedAt)
+                                               .FirstOrDefaultAsync();;
         }
 
     }
