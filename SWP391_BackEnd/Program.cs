@@ -17,6 +17,7 @@ using Newtonsoft.Json;
 using ClassLib.Service.Vaccines;
 using Microsoft.Extensions.Options;
 using ClassLib.Middlewares;
+using ClassLib.Service.PayPal;
 namespace SWP391_BackEnd
 {
     public class Program
@@ -37,7 +38,8 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<VaccineRepository>();
             builder.Services.AddScoped<VaccineService>();
 
-            builder.Services.AddScoped<PaymentRepository>();
+            builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
+            builder.Services.AddScoped<IMomoService, MomoService>();
             // Add Json NewtonSoft to show more information
             builder.Services.AddControllers()
                 .AddNewtonsoftJson(options =>
@@ -116,7 +118,6 @@ namespace SWP391_BackEnd
                     Title = "Vaccine Tracking API",
                     Version = "v1"
                 });
-
                 // Thêm tùy chọn nhập Bearer Token vào Swagger UI
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
@@ -128,30 +129,32 @@ namespace SWP391_BackEnd
                 });
 
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[] {}
-        }
-    });
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                        }
+                });
             });
 
 
             // Update Json Soft
 
             // Auto Mapper Configurations
-//             builder.Services.AddAutoMapper(typeof(Program).Assembly);
+            //             builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
-            // Connect Momo Api
+            // Connect Payment API
             builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
-            //builder.Services.AddScoped<IMomoService, MomoService>;
+            builder.Services.AddScoped<IMomoService, MomoService>();
+            builder.Services.Configure<PaypalOptionModel>(builder.Configuration.GetSection("PaypalAPI"));
+            //builder.Services.AddScoped<IPayPalService, PayPalService>();
 
 
             builder.Services.AddControllers().AddNewtonsoftJson(options =>
@@ -164,7 +167,6 @@ namespace SWP391_BackEnd
             app.UseCors("AllowAll");
 
             //app.UseMiddleware<TokenExpiredMiddleware>();
-
 
 
 
