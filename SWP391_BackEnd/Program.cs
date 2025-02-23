@@ -18,6 +18,8 @@ using ClassLib.Service.Vaccines;
 using Microsoft.Extensions.Options;
 using ClassLib.Middlewares;
 using ClassLib.Service.PayPal;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 namespace SWP391_BackEnd
 {
     public class Program
@@ -38,8 +40,13 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<VaccineRepository>();
             builder.Services.AddScoped<VaccineService>();
 
+            //email
+            builder.Services.AddScoped<EmailRepository>();
+            builder.Services.AddScoped<EmailService>();
+
             builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
             builder.Services.AddScoped<IMomoService, MomoService>();
+
             // Add Json NewtonSoft to show more information
             builder.Services.AddControllers()
                 .AddNewtonsoftJson(options =>
@@ -142,6 +149,25 @@ namespace SWP391_BackEnd
                         new string[] {}
                         }
                 });
+            });
+
+            // read firebase from firebase-config.json
+            //var firebaseConfigPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "firebase-config.json");
+            //FirebaseApp.Create(new AppOptions()
+            //{
+            //    Credential = GoogleCredential.FromFile(firebaseConfigPath)
+            //});
+
+            //fix firebase
+            var firebaseConfigPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "firebase-config.json");
+            if (!File.Exists(firebaseConfigPath))
+            {
+                throw new Exception("Firebase config file not found!");
+            }
+
+            FirebaseApp.Create(new AppOptions()
+            {
+                Credential = GoogleCredential.FromFile(firebaseConfigPath)
             });
 
 

@@ -61,8 +61,8 @@ namespace ClassLib.Helpers
 
                 // time to expire is 30 minutes
                 //Expires = DateTime.UtcNow.AddMinutes(30),
-                //Expires = DateTime.UtcNow.AddSeconds(20),
-                Expires = DateTime.UtcNow.AddHours(3),
+                Expires = DateTime.UtcNow.AddSeconds(20),
+                //Expires = DateTime.UtcNow.AddHours(3),
                 Issuer = issuer,
                 Audience = audience,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
