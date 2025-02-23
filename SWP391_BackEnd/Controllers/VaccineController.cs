@@ -1,4 +1,5 @@
-﻿using ClassLib.Service.Vaccines;
+﻿using ClassLib.DTO.Vaccine;
+using ClassLib.Service.Vaccines;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SWP391_BackEnd.Controllers
@@ -23,6 +24,36 @@ namespace SWP391_BackEnd.Controllers
                 return NotFound("No vaccines found.");
             }
             return Ok(vaccines);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetVaccines(int id)
+        {
+            var vaccine = await _vaccineService.GetVaccineById(id);
+            if (vaccine == null)
+            {
+                return NotFound("No vaccine found.");
+            }
+            return Ok(vaccine);
+        }
+        [HttpPost]
+        public async Task<IActionResult> CreateVaccine([FromBody] CreateVaccine rq)
+        {
+            var vaccine = await _vaccineService.CreateVaccine(rq);
+            return Ok(vaccine);
+        }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateVaccine([FromBody] UpdateVaccine rq, int id)
+        {
+            var vaccine = await _vaccineService.UpdateVaccine(rq, id);
+            return Ok(vaccine);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteVaccine(int id)
+        {
+            var result = await _vaccineService.DeleteVaccine(id);
+            return Ok(result);
         }
     }
 }
