@@ -18,6 +18,7 @@ using ClassLib.Service.Vaccines;
 using Microsoft.Extensions.Options;
 using ClassLib.Middlewares;
 using ClassLib.Service.PayPal;
+using ClassLib.Service.VaccineCombo;
 namespace SWP391_BackEnd
 {
     public class Program
@@ -37,6 +38,8 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<BookingService>();
             builder.Services.AddScoped<VaccineRepository>();
             builder.Services.AddScoped<VaccineService>();
+            builder.Services.AddScoped<VaccineComboRepository>();
+            builder.Services.AddScoped<VaccineComboService>();
 
             builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
             builder.Services.AddScoped<IMomoService, MomoService>();

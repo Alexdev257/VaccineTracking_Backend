@@ -46,7 +46,7 @@ public partial class DbSwpVaccineTrackingContext : DbContext
         //=> optionsBuilder.UseSqlServer("Server=LAPTOP-8UGAAJKM\\SQLEXPRESS01;Database=DB_SWP_Vaccine_Tracking;User Id=sa;Password=12345;TrustServerCertificate=True;");
         //=> optionsBuilder.UseSqlServer("Server=LAPTOP-8UGAAJKM\\SQLEXPRESS01;Database=DB_SWP_Vaccine_Tracking;User Id=sa;Password=12345;TrustServerCertificate=True;");
         //=> optionsBuilder.UseSqlServer( "data source=TieHung\\SQLEXPRESS;initial catalog=DB_SWP_Vaccine_Tracking;user id=sa;password=123456;TrustServerCertificate=True" );
-        => optionsBuilder.UseSqlServer("data source=DESKTOP-LIE3GLO\\SQLEXPRESS;initial catalog=DB_SWP_Vaccine_Tracking2;user id=sa;password=123456;TrustServerCertificate=True");
+        => optionsBuilder.UseSqlServer("data source=DESKTOP-LIE3GLO\\SQLEXPRESS;initial catalog=DB_SWP_Vaccine_Tracking;user id=sa;password=123456;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -359,12 +359,11 @@ public partial class DbSwpVaccineTrackingContext : DbContext
             entity.ToTable("vaccines_combo");
 
             entity.Property(e => e.Id)
-                .ValueGeneratedNever()
                 .HasColumnName("id");
             entity.Property(e => e.ComboName)
                 .HasMaxLength(255)
                 .HasColumnName("combo_name");
-            entity.Property(e => e.Disount).HasColumnName("disount");
+            entity.Property(e => e.Discount).HasColumnName("discount");
             entity.Property(e => e.FinalPrice)
                 .HasColumnType("decimal(16, 2)")
                 .HasColumnName("final_price");

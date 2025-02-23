@@ -8,11 +8,10 @@ namespace ClassLib.DTO.VaccineCombo
 {
     public class CreateVaccineCombo
     {
-        public int Id { get; set; }
 
         public string ComboName { get; set; } = null!;
 
-        public int Disount { get; set; }
+        public int Discount { get; set; }
 
         public decimal TotalPrice { get; set; }
 

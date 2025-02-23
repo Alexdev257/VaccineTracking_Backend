@@ -44,7 +44,9 @@ namespace ClassLib.Service.VaccineCombo
             {
                 throw new ArgumentException(nameof(currentVaccineCombo));
             }
-            return await _vaccineComboRepository.UpdateVaccine(currentVaccineCombo, _mapper.Map<VaccinesCombo>(rq));
+            var u = _mapper.Map<VaccinesCombo>(rq);
+            u.Id = currentVaccineCombo.Id;
+            return await _vaccineComboRepository.UpdateVaccine(currentVaccineCombo, u);
         }
         //xóa
         public async Task<bool> DeleteVaccineCombo(int id)
