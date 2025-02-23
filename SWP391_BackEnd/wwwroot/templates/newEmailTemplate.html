@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification | [Brand Name]</title>
+    <style>
+        /* Reset CSS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .email-icon {
+            font-size: 3rem;
+            color: #2563eb;
+            margin-bottom: 1rem;
+        }
+
+        .title {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .otp-section {
+            background: #f1f5f9;
+            padding: 5px;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .otp-code {
+            font-size: 2.5rem;
+            letter-spacing: 0.5rem;
+            color: #2563eb;
+            font-weight: 700;
+            margin: 1rem 0;
+        }
+
+        .instruction {
+            color: #4b5563;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 4px solid #ffeeba;
+            margin: 1.5rem 0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .button {
+            display: inline-block;
+            background: #2563eb;
+            color: white !important;
+            padding: 0.8rem 2rem;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 1rem 0;
+            transition: background 0.3s ease;
+        }
+
+            .button:hover {
+                background: #1d4ed8;
+            }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="brand-header">
+            <div class="email-icon">📧</div>
+            <h1 class="title">Email Verification</h1>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <p>Hello <strong>{{UserName}}</strong>,</p>
+            <p class="instruction">Please use the following OTP code to complete your email verification:</p>
+
+            <div class="otp-section">
+                <div class="otp-code">{{VerifyCode}}</div>
+
+            </div>
+            <p style="text-align: end;">Valid for <strong>15 minutes</strong></p>
+            <div class="warning">
+                ⚠️ Important: Never share this code with anyone. Our support team will never ask for your OTP.
+            </div>
+
+            <p class="instruction">If you didn't request this code, please ignore this email or contact support.</p>
+
+
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2024 [Brand Name]. All rights reserved.</p>
+            <p>This is an automated email, please do not reply.</p>
+        </div>
+    </div>
+</body>
+
+</html>

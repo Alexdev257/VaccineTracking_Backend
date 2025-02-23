@@ -26,7 +26,8 @@ namespace SWP391_BackEnd.Controllers
                 return BadRequest(new { message = "Email Information is missing!" });
             }
 
-            string templatePath = Path.Combine(_env.WebRootPath, "templates", "emailTemplate.html");
+            //string templatePath = Path.Combine(_env.WebRootPath, "templates", "emailTemplate.html");
+            string templatePath = Path.Combine(_env.WebRootPath, "templates", "newEmailTemplate.html");
 
             var placeholders = new Dictionary<string, string>
             {
