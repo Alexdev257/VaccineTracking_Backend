@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using AutoMapper;
 using Azure.Core;
@@ -12,8 +14,14 @@ using ClassLib.DTO.User;
 using ClassLib.Helpers;
 using ClassLib.Models;
 using ClassLib.Repositories;
+using FirebaseAdmin;
+using FirebaseAdmin.Auth;
+using Google.Apis.Auth.OAuth2;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace ClassLib.Service
 {
@@ -22,12 +30,27 @@ namespace ClassLib.Service
         private readonly UserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly JwtHelper _jwtHelper;
+        //private readonly FirebaseAuth _firebaseAuth;
+        //private readonly HttpClient _httpClient;
+        //private readonly string _firebaseApiKey;
 
-        public UserService(UserRepository userRepository, IMapper mapper, JwtHelper jwtHelper)
+        private readonly IConfiguration _configuration;
+
+        public UserService(UserRepository userRepository, IMapper mapper, JwtHelper jwtHelper, IConfiguration configuration)
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _jwtHelper = jwtHelper;
+
+            //var firebaseConfigPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/firebase-config.json");
+            //FirebaseApp.Create(new AppOptions()
+            //{
+            //    Credential = GoogleCredential.FromFile(firebaseConfigPath)
+            //});
+            //_firebaseAuth = FirebaseAuth.DefaultInstance;
+            //_httpClient = new HttpClient();
+            //_firebaseApiKey = configuration["Firebase:ApiKey"];
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
 
@@ -72,17 +95,28 @@ namespace ClassLib.Service
                 throw new Exception("Exist phone number. Please choosee another.");
             }
 
-            string encryptPassword = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);
+            try
+            {
+                string encryptPassword = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);
+                var user = _mapper.Map<User>(registerRequest);
+                //user.Id = 1;
+                user.Password = encryptPassword;
+                user.Role = "User";
+                user.CreatedAt = DateTime.UtcNow;
+                user.Status = "Active";
 
-            var user = _mapper.Map<User>(registerRequest);
-            user.Password = encryptPassword;
-            user.Role = "User";
-            user.CreatedAt = DateTime.UtcNow;
-            user.Status = "Active";
-
-            await _userRepository.addUserAsync(user);
-            var result = _mapper.Map<RegisterResponse>(user);
-            return result;
+                await _userRepository.addUserAsync(user);
+                var result = _mapper.Map<RegisterResponse>(user);
+                return result;
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new Exception($"Lỗi khi lưu dữ liệu: {ex.InnerException?.Message ?? ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi không xác định: {ex.Message}");
+            }
         }
 
         public async Task<LoginResponse?> loginAsync(LoginRequest loginRequest)
@@ -95,8 +129,8 @@ namespace ClassLib.Service
             }
             else
             {
-                
-                if (user == null) 
+
+                if (user == null)
                 {
                     throw new UnauthorizedAccessException("Account does not exist.");
                 }
@@ -290,7 +324,7 @@ namespace ClassLib.Service
                 }
 
                 var refreshToken = await _userRepository.getRefreshTokenAsync(refreshRequest.RefreshToken);
-                if(refreshToken == null)
+                if (refreshToken == null)
                 {
                     throw new UnauthorizedAccessException("Refresh token not found.");
                 }
@@ -300,7 +334,7 @@ namespace ClassLib.Service
                     throw new UnauthorizedAccessException("Refresh token has been used.");
                 }
 
-                if(refreshToken.IsRevoked)
+                if (refreshToken.IsRevoked)
                 {
                     throw new UnauthorizedAccessException("Refresh token has been revoked.");
                 }
@@ -366,6 +400,274 @@ namespace ClassLib.Service
                 AccessToken = refreshTokenModel.AccessToken,
                 RefreshToken = refreshTokenModel.RefreshToken1
             };
+        }
+
+        /*public async Task<string> sendOtpAsync(string phoneNumber)
+        {
+            var user = await _userRepository.getUserByPhoneAsync(phoneNumber);
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found.");
+            }
+            try
+            {
+                var firebaseAuth = FirebaseAuth.DefaultInstance;
+                var verificationId = await firebaseAuth.CreateSessionCookieAsync(phoneNumber, new FirebaseAdmin.Auth.SessionCookieOptions
+                {
+                    ExpiresIn = TimeSpan.FromMinutes(5),
+                });
+                return verificationId;
+            }
+            catch (Exception e)
+            {
+                throw new Exception("An error occurred during send OTP: " + e.Message);
+            }
+        }
+
+        public async Task<LoginResponse?> verifyOtpAsync(string phoneNumber, string otp)
+        {
+            try
+            {
+                var firebaseAuth = FirebaseAuth.DefaultInstance;
+                var signInResult = await firebaseAuth.VerifyPhoneNumberAsync(phoneNumber, otp);
+            }
+            catch (Exception e)
+            {
+                throw new Exception("An error occurred during verify OTP: " + e.Message);
+            }
+        }*/
+
+        /*public async Task<string> sendOtpAsync(string phoneNumber)
+        {
+            var user = await _userRepository.getUserByPhoneAsync(phoneNumber);
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found.");
+            }
+            var url = $"https://identitytoolkit.googleapis.com/v1/accounts:sendVerificationCode?key={_firebaseApiKey}";
+
+            var payload = new { phoneNumber = phoneNumber };
+            var response = await _httpClient.PostAsJsonAsync(url, payload);
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception("An error occurred during send OTP: " + jsonResponse);
+            }
+
+            var result = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonResponse);
+            return result["sessionInfo"];
+        }
+
+        public async Task<LoginResponse> verifyOtpAsync(string sessionInfo, string otp)
+        {
+            var url = $"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPhoneNumber?key={_firebaseApiKey}";
+
+            var payload = new { sessionInfo = sessionInfo, code = otp };
+            var response = await _httpClient.PostAsJsonAsync(url, payload);
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception("An error occurred during verify OTP: " + jsonResponse);
+            }
+
+            var result = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonResponse);
+            string phoneNumber = result["phoneNumber"];
+
+            var user = await _userRepository.getUserByPhoneAsync(phoneNumber);
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found.");
+            }
+
+            var (tokenId, accessToken, refreshToken) = _jwtHelper.generateToken(user);
+            var userRes = _mapper.Map<LoginResponse>(user);
+            userRes.AccessToken = accessToken;
+            userRes.RefreshToken = refreshToken;
+            var refreshTokenModel = new RefreshToken
+            {
+                Id = long.Parse(tokenId),
+                UserId = user.Id,
+                //AccessToken = "abc not luu",
+                AccessToken = accessToken,
+                RefreshToken1 = refreshToken,
+                IsUsed = false,
+                IsRevoked = false,
+                IssuedAt = DateTime.UtcNow,
+                ExpiredAt = DateTime.UtcNow.AddDays(1),
+
+            };
+
+            await _userRepository.addRefreshToken(refreshTokenModel);
+            return userRes;
+        }*/
+
+        public async Task<bool> VerifyRecaptchaAsync(string userIp)
+        {
+            var secretKey = _configuration["GoogleRecaptcha:SecretKey"];
+            var requestUrl = $"https://www.google.com/recaptcha/api/siteverify?secret={secretKey}&remoteip={userIp}";
+            using var httpClient = new HttpClient();
+            var response = await httpClient.GetStringAsync(requestUrl);
+            var jsonResponse = JObject.Parse(response);
+
+            return jsonResponse["success"]?.Value<bool>() == true;
+        }
+        public async Task<string?> SendOtpAsync(string phoneNumber)
+        {
+            /*var firebaseAuth = FirebaseAuth.DefaultInstance;
+            var session = await firebaseAuth.CreateSessionCookieAsync(phoneNumber, new FirebaseAdmin.Auth.SessionCookieOptions
+            {
+                ExpiresIn = TimeSpan.FromMinutes(5),
+            });
+            return session;
+
+            using (var httpClient = new HttpClient())
+            {
+                var firebaseApiKey = _configuration["Firebase:APIKey"]; // Lấy API Key từ appsettings.json
+                var requestUrl = $"https://identitytoolkit.googleapis.com/v1/accounts:sendVerificationCode?key={firebaseApiKey}";
+
+                var requestBody = new
+                {
+                    phoneNumber = phoneNumber,
+                    recaptchaToken = "RECAPTCHA_TOKEN" // Tùy chọn, nếu bạn sử dụng Google Recaptcha
+                };
+
+                var content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
+
+                var response = await httpClient.PostAsync(requestUrl, content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception($"Lỗi gửi OTP: {responseString}");
+                }
+
+                var responseJson = JsonConvert.DeserializeObject<JObject>(responseString);
+                return responseJson?["sessionInfo"]?.ToString();
+            }*/
+
+            //string phoneNumber = phoneNumber1;
+            if (phoneNumber.StartsWith("0"))
+            {
+                phoneNumber = "+84" + phoneNumber.Substring(1);
+            }
+            //if (phoneNumber.StartsWith("+"){
+            //    phoneNumber = phoneNumber;
+            //}
+
+            if (string.IsNullOrEmpty(phoneNumber))
+                throw new ArgumentNullException(nameof(phoneNumber), "Phone number cannot be null or empty.");
+
+            // Kiểm tra _configuration có bị null không
+            if (_configuration == null)
+                throw new Exception("_configuration is not initialized.");
+
+            var firebaseApiKey = _configuration["Firebase:APIKey"];
+            if (string.IsNullOrEmpty(firebaseApiKey))
+                throw new Exception("Firebase API Key is missing in appsettings.json.");
+
+            var requestUrl = $"https://identitytoolkit.googleapis.com/v1/accounts:sendVerificationCode?key={firebaseApiKey}";
+
+            var requestBody = new
+            {
+                phoneNumber = phoneNumber,
+                //recaptchaToken = "RECAPTCHA_TOKEN" // Tùy chọn, nếu bạn sử dụng Google Recaptcha
+            };
+
+            using (var httpClient = new HttpClient())
+            {
+                var jsonRequest = JsonConvert.SerializeObject(requestBody);
+                var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+
+                Console.WriteLine($"Sending OTP to {phoneNumber} - Request: {jsonRequest}");
+
+                HttpResponseMessage response;
+                try
+                {
+                    response = await httpClient.PostAsync(requestUrl, content);
+                }
+                catch (HttpRequestException httpEx)
+                {
+                    throw new Exception($"Lỗi khi gửi yêu cầu đến Firebase: {httpEx.Message}");
+                }
+
+                var responseString = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Firebase Response: {responseString}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception($"Lỗi gửi OTP: {response.StatusCode} - {responseString}");
+                }
+
+                var responseJson = JsonConvert.DeserializeObject<JObject>(responseString);
+                var sessionInfo = responseJson?["sessionInfo"]?.ToString();
+
+                if (string.IsNullOrEmpty(sessionInfo))
+                {
+                    throw new Exception("Không nhận được sessionInfo từ Firebase.");
+                }
+
+                return sessionInfo;
+            }
+        }
+
+        /*public async Task<LoginResponse> VerifyOtpAsync(VerifyOtpRequest request)
+        {
+            var firebaseAuth = FirebaseAuth.DefaultInstance;
+            var decodedToken = await firebaseAuth.VerifyIdTokenAsync(request.IdToken);
+
+            var user = await _userRepository.getUserByPhoneAsync(request.PhoneNumber);
+            if (user == null) throw new Exception("User not found!");
+
+            var (tokenId, accessToken, refreshToken) = _jwtHelper.generateToken(user);
+            var userRes = _mapper.Map<LoginResponse>(user);
+            userRes.AccessToken = accessToken;
+            userRes.RefreshToken = refreshToken;
+            var refreshTokenModel = new RefreshToken
+            {
+                Id = long.Parse(tokenId),
+                UserId = user.Id,
+                //AccessToken = "abc not luu",
+                AccessToken = accessToken,
+                RefreshToken1 = refreshToken,
+                IsUsed = false,
+                IsRevoked = false,
+                IssuedAt = DateTime.UtcNow,
+                ExpiredAt = DateTime.UtcNow.AddDays(1),
+
+            };
+            await _userRepository.addRefreshToken(refreshTokenModel);
+
+            return userRes;
+        }*/
+
+        public async Task<string?> VerifyOtpAsync(string sessionInfo, string otp)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                var firebaseApiKey = _configuration["Firebase:APIKey"];
+                var requestUrl = $"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPhoneNumber?key={firebaseApiKey}";
+
+                var requestBody = new
+                {
+                    sessionInfo = sessionInfo,
+                    code = otp
+                };
+
+                var content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
+
+                var response = await httpClient.PostAsync(requestUrl, content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception($"Lỗi xác thực OTP: {responseString}");
+                }
+
+                var responseJson = JsonConvert.DeserializeObject<JObject>(responseString);
+                return responseJson?["idToken"]?.ToString(); // ID Token dùng để xác thực người dùng
+            }
         }
 
 

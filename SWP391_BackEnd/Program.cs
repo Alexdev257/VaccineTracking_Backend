@@ -18,6 +18,8 @@ using ClassLib.Service.Vaccines;
 using Microsoft.Extensions.Options;
 using ClassLib.Middlewares;
 using ClassLib.Service.PayPal;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using ClassLib.Service.VaccineCombo;
 namespace SWP391_BackEnd
 {
@@ -52,6 +54,47 @@ namespace SWP391_BackEnd
 
             // add jwthelper
             builder.Services.AddScoped<JwtHelper>();
+
+            //Automapper
+            builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+            // Test FE
+            builder.Services.AddCors(options =>
+                    {
+                        options.AddPolicy("AllowAll",
+                            policy => policy.AllowAnyOrigin()
+                                            .AllowAnyMethod()
+                                            .AllowAnyHeader());
+                    });
+
+
+            // read Jwt form appsetting.json
+            var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+            var key = Encoding.ASCII.GetBytes(jwtSettings["SecretKey"]!);
+
+            //JWT
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(otp =>
+                 {
+                     otp.RequireHttpsMetadata = false;
+                     otp.SaveToken = true;
+                     otp.TokenValidationParameters = new TokenValidationParameters
+                     {
+                         //ValidateIssuerSigningKey = true,
+                         //IssuerSigningKey = new SymmetricSecurityKey(key),
+                         //ValidateIssuer = true,
+                         //ValidateAudience = true,
+                         //ValidIssuer = jwtSettings["Issuer"],
+                         //ValidAudience = jwtSettings["Audience"]
+                         ValidateIssuer = true,
+                         ValidateAudience = true,
+                         ValidateLifetime = true, // Bắt buộc kiểm tra hạn sử dụng của token
+                         ClockSkew = TimeSpan.Zero, // Không cho phép trễ hạn (default là 5 phút)
+                         ValidateIssuerSigningKey = true,
+                         ValidIssuer = jwtSettings["Issuer"],
+                         ValidAudience = jwtSettings["Audience"],
+                         IssuerSigningKey = new SymmetricSecurityKey(key)
+                     };
 
             //Automapper
             builder.Services.AddAutoMapper(typeof(MappingProfile));
@@ -145,6 +188,25 @@ namespace SWP391_BackEnd
                         new string[] {}
                         }
                 });
+            });
+
+            // read firebase from firebase-config.json
+            //var firebaseConfigPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "firebase-config.json");
+            //FirebaseApp.Create(new AppOptions()
+            //{
+            //    Credential = GoogleCredential.FromFile(firebaseConfigPath)
+            //});
+
+            //fix firebase
+            var firebaseConfigPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "firebase-config.json");
+            if (!File.Exists(firebaseConfigPath))
+            {
+                throw new Exception("Firebase config file not found!");
+            }
+
+            FirebaseApp.Create(new AppOptions()
+            {
+                Credential = GoogleCredential.FromFile(firebaseConfigPath)
             });
 
 

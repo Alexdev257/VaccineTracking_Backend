@@ -1,4 +1,5 @@
-﻿using ClassLib.DTO.User;
+﻿using Azure.Core;
+using ClassLib.DTO.User;
 using ClassLib.Models;
 using ClassLib.Service;
 using Microsoft.AspNetCore.Authorization;
@@ -26,12 +27,16 @@ namespace SWP391_BackEnd.Controllers
             return await _userService.getAllService();
         }
 
-        [HttpGet("getUserById")]
+        [HttpGet("getUserById/{id}")]
         //[Authorize]
         public async Task<ActionResult> GetUserById(int? id)
         {
             try
             {
+                //if (!int.TryParse(HttpContext.GetRouteValue("id")?.ToString(), out int id))
+                //{
+                //    return BadRequest(new { message = "Invalid ID format" });
+                //}
                 var userRes = await _userService.getUserByIdService(id);
                 return Ok(new { msg = "Get user successfully", user = userRes });
             }
@@ -118,7 +123,7 @@ namespace SWP391_BackEnd.Controllers
             }
         }
 
-        [HttpGet("get-refresh-token")]
+        [HttpGet("get-refresh-token/{userId}")]
         public async Task<IActionResult> GetRefreshToken(int? userId)
         {
             try
@@ -135,6 +140,84 @@ namespace SWP391_BackEnd.Controllers
                 return StatusCode(500, new { error = "Internal server error", details = e.Message });
             }
         }
+
+        /*[HttpPost("send-otp")]
+        public async Task<IActionResult> SendOtp(string request)
+        {
+            if (string.IsNullOrEmpty(request))
+                return BadRequest("Số điện thoại không được để trống");
+
+            var verificationId = await _userService.sendOtpAsync(request);
+            return Ok(new { VerificationId = verificationId });
+        }
+
+        [HttpPost("send-otp")]
+        public async Task<IActionResult> SendOtp(string phoneNumber)
+        {
+            if (string.IsNullOrEmpty(phoneNumber))
+                return BadRequest("Số điện thoại không được để trống");
+            try
+            {
+                var sessionInfo = await _userService.SendOtpAsync(phoneNumber);
+                return Ok(new { sessionInfo });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> verifyOtp([FromBody] VerifyOtpRequest request)
+        {
+            if (string.IsNullOrEmpty(request.PhoneNumber) || string.IsNullOrEmpty(request.IdToken))
+                return BadRequest("Số điện thoại và mã OTP không được để trống");
+            try
+            {
+                var loginResponse = await _userService.VerifyOtpAsync(request);
+                return Ok(new { msg = "OTP verified successfully", loginResponse });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { error = e.Message });
+            }
+        }*/
+
+        [HttpPost("send-otp")]
+        public async Task<IActionResult> SendOtp(string phoneNumber)
+        {
+
+            if (string.IsNullOrEmpty(phoneNumber))
+                return BadRequest("Số điện thoại không được để trống");
+
+            try
+            {
+                var sessionInfo = await _userService.SendOtpAsync(phoneNumber);
+                return Ok(new { sessionInfo });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpRequest request)
+        {
+            if (string.IsNullOrEmpty(request.SessionInfo) || string.IsNullOrEmpty(request.Otp))
+                return BadRequest("SessionInfo và OTP không được để trống");
+
+            try
+            {
+                var idToken = await _userService.VerifyOtpAsync(request.SessionInfo, request.Otp);
+                return Ok(new { msg = "OTP verified successfully", idToken });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { error = e.Message });
+            }
+        }
+
 
     }
 }

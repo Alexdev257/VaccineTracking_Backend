@@ -9,7 +9,7 @@ public partial class VaccinesCombo
 
     public string ComboName { get; set; } = null!;
 
-    public int Discount { get; set; }
+    public int Disount { get; set; }
 
     public decimal TotalPrice { get; set; }
 
