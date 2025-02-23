@@ -363,7 +363,7 @@ public partial class DbSwpVaccineTrackingContext : DbContext
             entity.Property(e => e.ComboName)
                 .HasMaxLength(255)
                 .HasColumnName("combo_name");
-            entity.Property(e => e.Discount).HasColumnName("discount");
+            entity.Property(e => e.Disount).HasColumnName("discount");
             entity.Property(e => e.FinalPrice)
                 .HasColumnType("decimal(16, 2)")
                 .HasColumnName("final_price");
