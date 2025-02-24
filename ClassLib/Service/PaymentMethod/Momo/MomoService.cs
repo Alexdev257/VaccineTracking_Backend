@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using ClassLib.DTO.Payment;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
-using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using RestSharp;
 
@@ -65,11 +58,13 @@ namespace ClassLib.Service.Momo
             var amount = collection.First(s => s.Key == "amount").Value;
             var orderInfo = collection.First(s => s.Key == "orderInfo").Value;
             var orderId = collection.First(s => s.Key == "orderId").Value;
+            var message = collection.First(s => s.Key == "message").Value;
             return new MomoExecuteResponseModel()
             {
                 Amount = amount!,
                 OrderId = orderId!,
-                OrderInfo = orderInfo!
+                OrderInfo = orderInfo!,
+                Message = message!
             };
         }
 
