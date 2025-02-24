@@ -44,8 +44,6 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<EmailRepository>();
             builder.Services.AddScoped<EmailService>();
 
-            builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
-            builder.Services.AddScoped<IMomoService, MomoService>();
             // Add Json NewtonSoft to show more information
             builder.Services.AddControllers()
                 .AddNewtonsoftJson(options =>
@@ -184,9 +182,9 @@ namespace SWP391_BackEnd
 
 
             // Connect Payment API
-            builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
             builder.Services.AddScoped<IMomoService, MomoService>();
             builder.Services.Configure<PaypalOptionModel>(builder.Configuration.GetSection("PaypalAPI"));
+            builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
             //builder.Services.AddScoped<IPayPalService, PayPalService>();
             builder.Services.AddHttpClient();
 

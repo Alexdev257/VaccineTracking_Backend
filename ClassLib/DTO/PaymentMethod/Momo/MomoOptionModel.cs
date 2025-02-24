@@ -13,7 +13,6 @@ namespace ClassLib.DTO.Payment
         public string AccessKey { get; set; } = string.Empty;
         public string ReturnUrl { get; set; } = string.Empty;
         public string NotifyUrl { get; set; } = string.Empty;
-        public string PartnerCode { get; set; } = string.Empty;
-        public string RequestType { get; set; } = string.Empty;
+        public string PartnerCode { get; set; } = string.Empty;        public string RequestType { get; set; } = string.Empty;
     }
 }
