@@ -40,7 +40,6 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<VaccineService>();
             builder.Services.AddScoped<VaccineComboRepository>();
             builder.Services.AddScoped<VaccineComboService>();
-            builder.Services.AddScoped<ChildRepository>();
 
             builder.Services.AddScoped<EmailRepository>();
             builder.Services.AddScoped<EmailService>();
