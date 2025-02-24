@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace ClassLib.DTO.Request
 {
-    internal class BookingRequest
+    public class BookingRequest
     {
+
     }
 }
