@@ -33,6 +33,9 @@ namespace SWP391_BackEnd
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
+            //IMemoryCache giúp lưu trữ dữ liệu trong bộ nhớ RAM của ứng dụng.
+            builder.Services.AddMemoryCache();
+
             //// Add services to the container.
             builder.Services.AddScoped<UserRepository>();
             builder.Services.AddScoped<UserService>();

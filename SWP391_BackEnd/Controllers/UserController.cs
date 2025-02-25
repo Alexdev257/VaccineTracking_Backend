@@ -218,6 +218,54 @@ namespace SWP391_BackEnd.Controllers
             }
         }
 
+        [HttpPut("update-user/{id}")]
+        public async Task<IActionResult> updateUserController(int id, [FromBody] UpdateUserRequest request)
+        {
+            var rs = await _userService.updateUserAsync(id, request);
+            if (!rs)
+            {
+                return BadRequest(new { message = "Update user failed" });
+            }
+            return Ok(new { message = "Update user successfully" });
+        }
 
+        [HttpDelete("delete-user/{id}")]
+        public async Task<IActionResult> deleteUserController(int id)
+        {
+            var rs = await _userService.deleteUserAsync(id);
+            if (!rs)
+            {
+                return BadRequest(new { message = "Delete user failed" });
+            }
+            return Ok(new { message = "Delete user successfully" });
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> changePasswordController([FromBody] ForgotPasswordRequest request)
+        {
+            var rs = await _userService.forgotPasswordAsync(request);
+            if (!rs)
+            {
+                return BadRequest(new { message = "Change password failed" });
+            }
+            return Ok(new { message = "Send verify code successfully" });
+        }
+
+        [HttpPost("verify-forgot-password")]
+        public async Task<IActionResult> verifyForgotPasswordCode([FromBody] VerifyForgotPasswordRequest request)
+        {
+             if(string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.VerifyCode))
+            {
+                return BadRequest("Phone number or verify code are not be blank");
+            }
+            var rs = await _userService.verifyForgotPasswordCodeAsync(request);
+            if (!rs)
+            {
+                return BadRequest("Invalid or expired OTP");
+            }
+
+            return Ok("Change password successfully");
+
+        }
     }
 }
