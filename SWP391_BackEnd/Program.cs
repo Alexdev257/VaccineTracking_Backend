@@ -34,11 +34,12 @@ namespace SWP391_BackEnd
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
+            //IMemoryCache giúp lưu trữ dữ liệu trong bộ nhớ RAM của ứng dụng.
+            builder.Services.AddMemoryCache();
+
             //// Add services to the container.
             builder.Services.AddScoped<UserRepository>();
             builder.Services.AddScoped<UserService>();
-            builder.Services.AddScoped<BookingRepository>();
-            builder.Services.AddScoped<BookingService>();
             builder.Services.AddScoped<VaccineRepository>();
             builder.Services.AddScoped<VaccineService>();
             builder.Services.AddScoped<VaccineComboRepository>();
@@ -77,7 +78,7 @@ namespace SWP391_BackEnd
 
 
 
-            
+
 
             // Test FE
             builder.Services.AddCors(options =>
@@ -195,7 +196,7 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<IMomoService, MomoService>();
             builder.Services.Configure<PaypalOptionModel>(builder.Configuration.GetSection("PaypalAPI"));
             //builder.Services.AddScoped<IPayPalService, PayPalService>();
-
+            builder.Services.AddHttpClient();
 
             builder.Services.AddControllers().AddNewtonsoftJson(options =>
                 {
