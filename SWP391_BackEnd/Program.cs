@@ -21,6 +21,7 @@ using ClassLib.Service.PayPal;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using ClassLib.Service.VaccineCombo;
+using ClassLib.Service.Addresses;
 namespace SWP391_BackEnd
 {
     public class Program
@@ -42,6 +43,10 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<VaccineService>();
             builder.Services.AddScoped<VaccineComboRepository>();
             builder.Services.AddScoped<VaccineComboService>();
+
+            builder.Services.AddScoped<AddressRepository>();
+            builder.Services.AddScoped<AddressService>();
+
 
             builder.Services.AddScoped<EmailRepository>();
             builder.Services.AddScoped<EmailService>();

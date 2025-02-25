@@ -60,5 +60,10 @@ namespace ClassLib.Service.Vaccines
             }
             return await _vaccineRepository.DeleteVaccine(currentVaccine);
         }
+        //lay theo tuoi
+        public async Task<List<Vaccine>> GetVaccinesByAge(int age)
+        {
+            return await _vaccineRepository.GetVaccinesByAge(age);
+        }
     }
 }

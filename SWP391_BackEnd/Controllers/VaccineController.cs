@@ -55,5 +55,15 @@ namespace SWP391_BackEnd.Controllers
             var result = await _vaccineService.DeleteVaccine(id);
             return Ok(result);
         }
+        [HttpGet("by-age/{age}")]
+        public async Task<IActionResult> GetVaccinesByAge(int age)
+        {
+            var vaccines = await _vaccineService.GetVaccinesByAge(age);
+            if (vaccines == null || vaccines.Count == 0)
+            {
+                return NotFound("No vaccines found for this age.");
+            }
+            return Ok(vaccines);
+        }
     }
 }
