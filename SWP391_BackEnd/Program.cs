@@ -21,6 +21,7 @@ using ClassLib.Service.PayPal;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using ClassLib.Service.VaccineCombo;
+using ClassLib.Service.Addresses;
 namespace SWP391_BackEnd
 {
     public class Program
@@ -33,6 +34,9 @@ namespace SWP391_BackEnd
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
+            //IMemoryCache giúp lưu trữ dữ liệu trong bộ nhớ RAM của ứng dụng.
+            builder.Services.AddMemoryCache();
+
             //// Add services to the container.
             builder.Services.AddScoped<UserRepository>();
             builder.Services.AddScoped<UserService>();
@@ -40,6 +44,10 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<VaccineService>();
             builder.Services.AddScoped<VaccineComboRepository>();
             builder.Services.AddScoped<VaccineComboService>();
+
+            builder.Services.AddScoped<AddressRepository>();
+            builder.Services.AddScoped<AddressService>();
+
 
             builder.Services.AddScoped<EmailRepository>();
             builder.Services.AddScoped<EmailService>();

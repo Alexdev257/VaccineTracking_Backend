@@ -48,5 +48,11 @@ namespace ClassLib.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
+        public async Task<List<Vaccine>> GetVaccinesByAge(int age)
+        {
+            return await _context.Vaccines
+                .Where(v => age > v.SuggestAgeMin && age < v.SuggestAgeMax)
+                .ToListAsync();
+        }
     }
 }

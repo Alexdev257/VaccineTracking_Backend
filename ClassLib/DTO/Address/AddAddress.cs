@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace ClassLib.DTO.Address
 {
-    internal class Class1
+    public class AddAddress
     {
+        public string Name { get; set; } = null!;
     }
 }
