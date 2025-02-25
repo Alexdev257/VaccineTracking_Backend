@@ -61,10 +61,10 @@ namespace ClassLib.Service.Momo
             var message = collection.First(s => s.Key == "message").Value;
             return new MomoExecuteResponseModel()
             {
-                Amount = amount!,
-                OrderId = orderId!,
-                OrderInfo = orderInfo!,
-                Message = message!
+                //Amount = amount!,
+                //OrderId = orderId!,
+                //OrderInfo = orderInfo!,
+                //Message = message!
             };
         }
 
