@@ -5,7 +5,6 @@ using ClassLib.Helpers;
 //using ClassLib.Repositories; // Import UserRepo
 //using ClassLib.Service;    // Import UserService
 using AutoMapper;
-using ClassLib.DTO.Payment;
 using ClassLib.Models;
 using ClassLib.Service.Momo;
 using Microsoft.EntityFrameworkCore;
@@ -189,11 +188,6 @@ namespace SWP391_BackEnd
             //});
 
 
-            // Connect Payment API
-            builder.Services.AddScoped<IMomoService, MomoService>();
-            builder.Services.Configure<PaypalOptionModel>(builder.Configuration.GetSection("PaypalAPI"));
-            builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
-            //builder.Services.AddScoped<IPayPalService, PayPalService>();
             builder.Services.AddHttpClient();
 
             builder.Services.AddControllers().AddNewtonsoftJson(options =>
