@@ -22,6 +22,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using ClassLib.DTO.Email;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Caching.Memory;
+using static System.Net.WebRequestMethods;
 
 namespace ClassLib.Service
 {
@@ -35,8 +39,11 @@ namespace ClassLib.Service
         //private readonly string _firebaseApiKey;
 
         private readonly IConfiguration _configuration;
+        private readonly EmailService _emailService;
+        private readonly IWebHostEnvironment _env;
+        private readonly IMemoryCache _cache;
 
-        public UserService(UserRepository userRepository, IMapper mapper, JwtHelper jwtHelper, IConfiguration configuration)
+        public UserService(UserRepository userRepository, IMapper mapper, JwtHelper jwtHelper, IConfiguration configuration, EmailService emailService, IWebHostEnvironment env, IMemoryCache cache)
         {
             _userRepository = userRepository;
             _mapper = mapper;
@@ -51,6 +58,9 @@ namespace ClassLib.Service
             //_httpClient = new HttpClient();
             //_firebaseApiKey = configuration["Firebase:ApiKey"];
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _emailService = emailService;
+            _env = env;
+            _cache = cache;
         }
 
 
@@ -670,7 +680,88 @@ namespace ClassLib.Service
             }
         }
 
+        public async Task<bool> updateUserAsync(int userId, UpdateUserRequest request)
+        {
+            var user = await _userRepository.getUserByIdAsync(userId);
+            if(user == null)
+            {
+                throw new UnauthorizedAccessException("User not found.");
+                //return false;
+            }
 
+            user.Username = request.Username;
+            user.Name = request.Name;
+            user.DateOfBirth = request.DateOfBirth;
+            user.Gmail = request.Gmail;
+            user.PhoneNumber = request.PhoneNumber;
+            return await _userRepository.updateUser(user);
+        }
+
+        public async Task<bool> deleteUserAsync(int userId)
+        {
+            var user = await _userRepository.getUserByIdAsync(userId);
+            //var user = new User
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found.");
+            }
+            return await _userRepository.deleteUser(user);
+
+        }
+
+        public async Task<bool> forgotPasswordAsync(ForgotPasswordRequest request)
+        {
+            var user = await _userRepository.getUserByUsernameAsync(request.Username);
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found.");
+            }
+            string templatePath = Path.Combine(_env.WebRootPath, "templates", "newEmailTemplate.html");
+
+            var verifyCode = VerifyCodeHelper.GenerateSixRandomCode();
+            _cache.Set("VerifyCodeKey", verifyCode, TimeSpan.FromMinutes(5));
+            _cache.Set("UserNameKey",request.Username , TimeSpan.FromMinutes(5));
+            _cache.Set("NewPasswordKey", request.newPassword, TimeSpan.FromMinutes(5));
+            var placeholders = new Dictionary<string, string>
+            {
+                { "UserName", user.Name},
+                { "VerifyCode", verifyCode}
+            };
+
+            return await _emailService.sendEmailService(user.Gmail, "ResetPassword", templatePath, placeholders);
+
+        }
+
+        public async Task<bool> verifyForgotPasswordCodeAsync(VerifyForgotPasswordRequest request)
+        {
+            if (_cache.TryGetValue("VerifyCodeKey", out string? storedVerifyCode))
+            {
+                //if (verifyCodeKey.ExpirationTime < DateTime.UtcNow)
+                //{
+                //    return Unauthorized("Verify code has expired.");
+                //}
+                if (storedVerifyCode == request.VerifyCode)
+                {
+                    string hashPassword = BCrypt.Net.BCrypt.HashPassword(_cache.Get<string>("NewPasswordKey"));
+                    string username = _cache.Get<string>("UserNameKey");
+                    await _userRepository.updateUserPassword(username, hashPassword);
+                    _cache.Remove("VerifyCodeKey");
+                    _cache.Remove("UserNameKey");
+                    _cache.Remove("NewPasswordKey");
+                    return true;
+                }
+                else
+                {
+                    throw new UnauthorizedAccessException("Invalid verify code.");
+                    //return false;
+                }
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("Verify code has expired.");
+                //return false;
+            }
+        }
 
 
 
