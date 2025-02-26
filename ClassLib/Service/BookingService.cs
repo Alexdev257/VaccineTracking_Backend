@@ -17,10 +17,10 @@ namespace ClassLib.Service
             this._bookingRepository = bookingRepository ?? throw new ArgumentNullException(nameof(bookingRepository));
         }
 
-        public async Task<List<Booking>?> GetByQuerry(BookingQuerryObject query)
+        /*public async Task<List<Booking>?> GetByQuerry(BookingQuerryObject query)
         {
             return await _bookingRepository.GetByQuerry(query);
-        }
+        }*/
 
         public async Task<Booking?> AddBooking(AddBooking addBooking)
         {

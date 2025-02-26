@@ -35,7 +35,5 @@ public partial class User
 
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
-    public virtual ICollection<VaccinesTracking> VaccinesTrackingAdministeredByNavigations { get; set; } = new List<VaccinesTracking>();
-
-    public virtual ICollection<VaccinesTracking> VaccinesTrackingUsers { get; set; } = new List<VaccinesTracking>();
+    public virtual ICollection<VaccinesTracking> VaccinesTrackings { get; set; } = new List<VaccinesTracking>();
 }
