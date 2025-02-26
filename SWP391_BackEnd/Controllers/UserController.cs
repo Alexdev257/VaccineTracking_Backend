@@ -243,20 +243,24 @@ namespace SWP391_BackEnd.Controllers
         [HttpPost("forgot-password")]
         public async Task<IActionResult> changePasswordController([FromBody] ForgotPasswordRequest request)
         {
-            var rs = await _userService.forgotPasswordAsync(request);
-            if (!rs)
+            try
             {
-                return BadRequest(new { message = "Change password failed" });
+                var rs = await _userService.forgotPasswordAsync(request);
+                return Ok(new { message = "Send verify code successfully" });
             }
-            return Ok(new { message = "Send verify code successfully" });
+            catch (Exception e)
+            {
+                return NotFound(new { message = e.Message });
+            }
+            
         }
 
-        [HttpPost("verify-forgot-password")]
+            [HttpPost("verify-forgot-password")]
         public async Task<IActionResult> verifyForgotPasswordCode([FromBody] VerifyForgotPasswordRequest request)
         {
-            if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.VerifyCode))
+            if (string.IsNullOrEmpty(request.VerifyCode))
             {
-                return BadRequest("Phone number or verify code are not be blank");
+                return BadRequest("Verify code are not be blank");
             }
             var rs = await _userService.verifyForgotPasswordCodeAsync(request);
             if (!rs)
@@ -264,8 +268,23 @@ namespace SWP391_BackEnd.Controllers
                 return BadRequest("Invalid or expired OTP");
             }
 
-            return Ok("Change password successfully");
+            return Ok("Verify successfully");
 
+        }
+
+        [HttpPost("change-password")]
+        public async Task<IActionResult> changePasswordController([FromBody] ChangePasswordRequest request)
+        {
+            if (string.IsNullOrEmpty(request.NewPassword))
+            {
+                return BadRequest("New password are not be blank");
+            }
+            var rs = await _userService.changePasswordAsync(request);
+            if (!rs)
+            {
+                return BadRequest("Change password failed");
+            }
+            return Ok("Change password successfully");
         }
     }
 }

@@ -90,9 +90,9 @@ namespace ClassLib.Repositories
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> updateUserPassword(string username, string newHashPassword)
+        public async Task<bool> updateUserPassword(string gmail, string newHashPassword)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Gmail == gmail);
             if (user == null)
             {
                 return false;
