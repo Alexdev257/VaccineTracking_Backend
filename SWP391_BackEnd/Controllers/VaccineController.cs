@@ -15,7 +15,7 @@ namespace SWP391_BackEnd.Controllers
             _vaccineService = vaccineService ?? throw new ArgumentNullException(nameof(vaccineService));
         }
 
-        [HttpGet]
+        [HttpGet("getAllVacines")]
         public async Task<IActionResult> GetVaccines()
         {
             var vaccines = await _vaccineService.GetAllVaccines();
@@ -26,7 +26,7 @@ namespace SWP391_BackEnd.Controllers
             return Ok(vaccines);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("getVacineById{id}")]
         public async Task<IActionResult> GetVaccines(int id)
         {
             var vaccine = await _vaccineService.GetVaccineById(id);
@@ -36,24 +36,34 @@ namespace SWP391_BackEnd.Controllers
             }
             return Ok(vaccine);
         }
-        [HttpPost]
+        [HttpPost("createVaccine")]
         public async Task<IActionResult> CreateVaccine([FromBody] CreateVaccine rq)
         {
             var vaccine = await _vaccineService.CreateVaccine(rq);
             return Ok(vaccine);
         }
-        [HttpPut("{id}")]
+        [HttpPut("updateVaccineById{id}")]
         public async Task<IActionResult> UpdateVaccine([FromBody] UpdateVaccine rq, int id)
         {
             var vaccine = await _vaccineService.UpdateVaccine(rq, id);
             return Ok(vaccine);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("deleteVaccineById{id}")]
         public async Task<IActionResult> DeleteVaccine(int id)
         {
             var result = await _vaccineService.DeleteVaccine(id);
             return Ok(result);
+        }
+        [HttpGet("by-age/{age}")]
+        public async Task<IActionResult> GetVaccinesByAge(int age)
+        {
+            var vaccines = await _vaccineService.GetVaccinesByAge(age);
+            if (vaccines == null || vaccines.Count == 0)
+            {
+                return NotFound("No vaccines found for this age.");
+            }
+            return Ok(vaccines);
         }
     }
 }

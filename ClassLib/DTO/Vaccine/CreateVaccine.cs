@@ -8,7 +8,6 @@ namespace ClassLib.DTO.Vaccine
 {
     public class CreateVaccine
     {
-        public int Id { get; set; }
 
         public string Name { get; set; } = null!;
 
@@ -19,6 +18,8 @@ namespace ClassLib.DTO.Vaccine
         public decimal Price { get; set; }
 
         public int DoesTimes { get; set; }
+
+        public string FromCountry { get; set; } = null!;
 
         public int SuggestAgeMin { get; set; }
 

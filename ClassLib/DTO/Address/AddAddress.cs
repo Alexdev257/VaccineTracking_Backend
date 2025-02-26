@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClassLib.DTO.PaymentMethod
+namespace ClassLib.DTO.Address
 {
-    internal class h
+    public class AddAddress
     {
+        public string Name { get; set; } = null!;
     }
 }

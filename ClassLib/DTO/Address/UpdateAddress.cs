@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClassLib.DTO.Request
+namespace ClassLib.DTO.Address
 {
-    public class BookingRequest
+    public class UpdateAddress
     {
 
+        public string Name { get; set; } = null!;
     }
 }

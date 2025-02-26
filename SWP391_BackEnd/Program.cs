@@ -5,7 +5,6 @@ using ClassLib.Helpers;
 //using ClassLib.Repositories; // Import UserRepo
 //using ClassLib.Service;    // Import UserService
 using AutoMapper;
-using ClassLib.DTO.Payment;
 using ClassLib.Models;
 using ClassLib.Service.Momo;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +20,7 @@ using ClassLib.Service.PayPal;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using ClassLib.Service.VaccineCombo;
+using ClassLib.Service.Addresses;
 namespace SWP391_BackEnd
 {
     public class Program
@@ -39,18 +39,18 @@ namespace SWP391_BackEnd
             //// Add services to the container.
             builder.Services.AddScoped<UserRepository>();
             builder.Services.AddScoped<UserService>();
-            builder.Services.AddScoped<BookingRepository>();
-            builder.Services.AddScoped<BookingService>();
             builder.Services.AddScoped<VaccineRepository>();
             builder.Services.AddScoped<VaccineService>();
             builder.Services.AddScoped<VaccineComboRepository>();
             builder.Services.AddScoped<VaccineComboService>();
 
+            builder.Services.AddScoped<AddressRepository>();
+            builder.Services.AddScoped<AddressService>();
+
+
             builder.Services.AddScoped<EmailRepository>();
             builder.Services.AddScoped<EmailService>();
 
-            builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
-            builder.Services.AddScoped<IMomoService, MomoService>();
             // Add Json NewtonSoft to show more information
             builder.Services.AddControllers()
                 .AddNewtonsoftJson(options =>
@@ -75,7 +75,7 @@ namespace SWP391_BackEnd
 
 
 
-            
+
 
             // Test FE
             builder.Services.AddCors(options =>
@@ -188,12 +188,7 @@ namespace SWP391_BackEnd
             //});
 
 
-            // Connect Payment API
-            builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
-            builder.Services.AddScoped<IMomoService, MomoService>();
-            builder.Services.Configure<PaypalOptionModel>(builder.Configuration.GetSection("PaypalAPI"));
-            //builder.Services.AddScoped<IPayPalService, PayPalService>();
-
+            builder.Services.AddHttpClient();
 
             builder.Services.AddControllers().AddNewtonsoftJson(options =>
                 {

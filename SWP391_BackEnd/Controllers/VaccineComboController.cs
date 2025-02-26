@@ -18,7 +18,7 @@ namespace SWP391_BackEnd.Controllers
             _vaccineComboService = vaccineComboService ?? throw new ArgumentNullException(nameof(vaccineComboService));
         }
         
-        [HttpGet]
+        [HttpGet ("getVaccineCombo")]
         public async Task<IActionResult> GetVaccineCombos()
         {
             var combos = await _vaccineComboService.GetAllVaccineCombo();
@@ -29,7 +29,7 @@ namespace SWP391_BackEnd.Controllers
             return Ok(combos);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("getVaccineById{id}")]
         public async Task<IActionResult> GetVaccineCombo(int id)
         {
             var combo = await _vaccineComboService.GetVaccineComboById(id);
@@ -40,22 +40,22 @@ namespace SWP391_BackEnd.Controllers
             return Ok(combo);
         }
 
-        [HttpPost]
+        [HttpPost("createVaccineByID")]
         public async Task<IActionResult> CreateVaccine([FromBody] CreateVaccineCombo rq)
         {
             var combo = await _vaccineComboService.CreateVaccineCombo(rq);
             return Ok(combo);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("updateVaccineById{id}")]
         public async Task<IActionResult> UpdateVaccine([FromBody] UpdateVaccineCombo rq, int id)
         {
             var combo = await _vaccineComboService.UpdateVaccineCombo(rq, id);
             return Ok(combo);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteVaccine(int id)
+        [HttpDelete("deleteVaccineCombo{id}")]
+        public async Task<IActionResult> DeleteVaccineCombo(int id)
         {
             var result = await _vaccineComboService.DeleteVaccineCombo(id);
             return Ok(result);
