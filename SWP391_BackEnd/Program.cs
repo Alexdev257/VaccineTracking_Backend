@@ -39,6 +39,8 @@ namespace SWP391_BackEnd
             // Add services to the container.
             builder.Services.AddScoped<UserRepository>();
             builder.Services.AddScoped<UserService>();
+            builder.Services.AddScoped<ChildRepository>();
+            builder.Services.AddScoped<ChildService>();
             builder.Services.AddScoped<VaccineRepository>();
             builder.Services.AddScoped<VaccineService>();
             builder.Services.AddScoped<VaccineComboRepository>();
