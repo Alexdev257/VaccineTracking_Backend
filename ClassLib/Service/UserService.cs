@@ -102,9 +102,14 @@ namespace ClassLib.Service
             var existPhone = await _userRepository.getUserByUsernameAsync(registerRequest.PhoneNumber);
             if (existPhone != null)
             {
-                throw new Exception("Exist phone number. Please choosee another.");
+                throw new Exception("Exist phone number. Please choose another.");
             }
 
+            var existGmail = await _userRepository.getUserByGmailAsync(registerRequest.Gmail);
+            if (existGmail != null)
+            {
+                throw new Exception("Exist gmail. Please choose another.");
+            }
             try
             {
                 string encryptPassword = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);

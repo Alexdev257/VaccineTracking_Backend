@@ -19,12 +19,6 @@ public partial class DbSwpVaccineTrackingContext : DbContext
 
     public virtual DbSet<Booking> Bookings { get; set; }
 
-    public virtual DbSet<BookingChildId> BookingChildIds { get; set; }
-
-    public virtual DbSet<BookingComboId> BookingComboIds { get; set; }
-
-    public virtual DbSet<BookingIdVaccineId> BookingIdVaccineIds { get; set; }
-
     public virtual DbSet<Child> Children { get; set; }
 
     public virtual DbSet<Payment> Payments { get; set; }
@@ -43,10 +37,7 @@ public partial class DbSwpVaccineTrackingContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        //=> optionsBuilder.UseSqlServer("Server=LAPTOP-8UGAAJKM\\SQLEXPRESS01;Database=DB_SWP_Vaccine_Tracking;User Id=sa;Password=12345;TrustServerCertificate=True;");
-        //=> optionsBuilder.UseSqlServer("Server=LAPTOP-8UGAAJKM\\SQLEXPRESS01;Database=DB_SWP_Vaccine_Tracking;User Id=sa;Password=12345;TrustServerCertificate=True;");
-        //=> optionsBuilder.UseSqlServer( "data source=TieHung\\SQLEXPRESS;initial catalog=DB_SWP_Vaccine_Tracking;user id=sa;password=123456;TrustServerCertificate=True" );
-        => optionsBuilder.UseSqlServer("data source=DESKTOP-LIE3GLO\\SQLEXPRESS;initial catalog=DB_SWP_Vaccine_Tracking;user id=sa;password=123456;TrustServerCertificate=True");
+        => optionsBuilder.UseSqlServer("Server=LAPTOP-8UGAAJKM\\SQLEXPRESS01;Database=DB_SWP_Vaccine_Tracking;User Id=sa;Password=12345;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -54,11 +45,9 @@ public partial class DbSwpVaccineTrackingContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("address_id_primary");
 
-            entity.ToTable("address");
+            entity.ToTable("Address");
 
-            entity.Property(e => e.Id)
-                //.ValueGeneratedNever()
-                .HasColumnName("id");
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Name)
                 .HasMaxLength(255)
                 .HasColumnName("name");
@@ -68,17 +57,15 @@ public partial class DbSwpVaccineTrackingContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("booking_id_primary");
 
-            entity.ToTable("booking");
+            entity.ToTable("Booking");
 
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("id");
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AdvisoryDetails)
                 .HasMaxLength(255)
                 .HasColumnName("advisory_details");
             entity.Property(e => e.ArrivedAt)
                 .HasColumnType("datetime")
-                .HasColumnName("arrived-at");
+                .HasColumnName("arrived_at");
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("created_at");
@@ -91,77 +78,72 @@ public partial class DbSwpVaccineTrackingContext : DbContext
                 .HasForeignKey(d => d.ParentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("booking_parent_id_foreign");
-        });
 
-        modelBuilder.Entity<BookingChildId>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToTable("Booking_ChildID");
+            entity.HasMany(d => d.Children).WithMany(p => p.Bookings)
+                .UsingEntity<Dictionary<string, object>>(
+                    "BookingChildId",
+                    r => r.HasOne<Child>().WithMany()
+                        .HasForeignKey("ChildId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("booking_childid_child_id_foreign"),
+                    l => l.HasOne<Booking>().WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("booking_childid_booking_id_foreign"),
+                    j =>
+                    {
+                        j.HasKey("BookingId", "ChildId").HasName("booking_childid_pk");
+                        j.ToTable("Booking_ChildID");
+                        j.IndexerProperty<int>("BookingId").HasColumnName("booking_id");
+                        j.IndexerProperty<int>("ChildId").HasColumnName("child_id");
+                    });
 
-            entity.Property(e => e.BookingId).HasColumnName("booking_id");
-            entity.Property(e => e.ChildId).HasColumnName("child_id");
+            entity.HasMany(d => d.Combos).WithMany(p => p.Bookings)
+                .UsingEntity<Dictionary<string, object>>(
+                    "BookingCombo",
+                    r => r.HasOne<VaccinesCombo>().WithMany()
+                        .HasForeignKey("ComboId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("booking_combo_combo_id_foreign"),
+                    l => l.HasOne<Booking>().WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("booking_combo_booking_id_foreign"),
+                    j =>
+                    {
+                        j.HasKey("BookingId", "ComboId").HasName("booking_combo_pk");
+                        j.ToTable("Booking_Combo");
+                        j.IndexerProperty<int>("BookingId").HasColumnName("booking_id");
+                        j.IndexerProperty<int>("ComboId").HasColumnName("combo_id");
+                    });
 
-            entity.HasOne(d => d.Booking).WithMany()
-                .HasForeignKey(d => d.BookingId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("booking_childid_booking_id_foreign");
-
-            entity.HasOne(d => d.Child).WithMany()
-                .HasForeignKey(d => d.ChildId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("booking_childid_child_id_foreign");
-        });
-
-        modelBuilder.Entity<BookingComboId>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToTable("Booking_ComboId");
-
-            entity.Property(e => e.BookingId).HasColumnName("booking_id");
-            entity.Property(e => e.ComboId).HasColumnName("combo_id");
-
-            entity.HasOne(d => d.Booking).WithMany()
-                .HasForeignKey(d => d.BookingId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("booking_comboid_booking_id_foreign");
-
-            entity.HasOne(d => d.Combo).WithMany()
-                .HasForeignKey(d => d.ComboId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("booking_comboid_combo_id_foreign");
-        });
-
-        modelBuilder.Entity<BookingIdVaccineId>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToTable("BookingId_VaccineId");
-
-            entity.Property(e => e.BookingId).HasColumnName("booking_id");
-            entity.Property(e => e.VaccineId).HasColumnName("vaccine_id");
-
-            entity.HasOne(d => d.Booking).WithMany()
-                .HasForeignKey(d => d.BookingId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("bookingid_vaccineid_booking_id_foreign");
-
-            entity.HasOne(d => d.Vaccine).WithMany()
-                .HasForeignKey(d => d.VaccineId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("bookingid_vaccineid_vaccine_id_foreign");
+            entity.HasMany(d => d.Vaccines).WithMany(p => p.Bookings)
+                .UsingEntity<Dictionary<string, object>>(
+                    "BookingVaccine",
+                    r => r.HasOne<Vaccine>().WithMany()
+                        .HasForeignKey("VaccineId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("booking_vaccine_vaccine_id_foreign"),
+                    l => l.HasOne<Booking>().WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("booking_vaccine_booking_id_foreign"),
+                    j =>
+                    {
+                        j.HasKey("BookingId", "VaccineId").HasName("booking_vaccine_pk");
+                        j.ToTable("Booking_Vaccine");
+                        j.IndexerProperty<int>("BookingId").HasColumnName("booking_id");
+                        j.IndexerProperty<int>("VaccineId").HasColumnName("vaccine_id");
+                    });
         });
 
         modelBuilder.Entity<Child>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("child_id_primary");
 
-            entity.ToTable("child");
+            entity.ToTable("Child");
 
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("id");
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("created_at");
@@ -185,16 +167,19 @@ public partial class DbSwpVaccineTrackingContext : DbContext
 
         modelBuilder.Entity<Payment>(entity =>
         {
-            entity.HasKey(e => e.BookingId).HasName("payment_booking_id_primary");
+            entity
+                .HasNoKey()
+                .ToTable("Payment");
 
-            entity.ToTable("payment");
+            entity.HasIndex(e => e.BookingId, "payment_booking_id_unique").IsUnique();
 
-            entity.Property(e => e.BookingId)
-                .ValueGeneratedNever()
-                .HasColumnName("booking_id");
+            entity.Property(e => e.BookingId).HasColumnName("booking_id");
             entity.Property(e => e.PaymentDate)
                 .HasColumnType("datetime")
                 .HasColumnName("payment_date");
+            entity.Property(e => e.PaymentId)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("payment_id");
             entity.Property(e => e.PaymentMethod).HasColumnName("payment_method");
             entity.Property(e => e.Status)
                 .HasMaxLength(255)
@@ -203,12 +188,7 @@ public partial class DbSwpVaccineTrackingContext : DbContext
                 .HasColumnType("decimal(16, 2)")
                 .HasColumnName("total_price");
 
-            entity.HasOne(d => d.Booking).WithOne(p => p.Payment)
-                .HasForeignKey<Payment>(d => d.BookingId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("payment_booking_id_foreign");
-
-            entity.HasOne(d => d.PaymentMethodNavigation).WithMany(p => p.Payments)
+            entity.HasOne(d => d.PaymentMethodNavigation).WithMany()
                 .HasForeignKey(d => d.PaymentMethod)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("payment_payment_method_foreign");
@@ -218,11 +198,9 @@ public partial class DbSwpVaccineTrackingContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("payment_method_id_primary");
 
-            entity.ToTable("payment_method");
+            entity.ToTable("Payment_Method");
 
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("id");
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Decription)
                 .HasMaxLength(255)
                 .HasColumnName("decription");
@@ -233,9 +211,9 @@ public partial class DbSwpVaccineTrackingContext : DbContext
 
         modelBuilder.Entity<RefreshToken>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("refreshtoken_id_primary");
+            entity.HasKey(e => e.Id).HasName("refresh_token_id_primary");
 
-            entity.ToTable("RefreshToken");
+            entity.ToTable("Refresh_Token");
 
             entity.Property(e => e.Id)
                 .ValueGeneratedNever()
@@ -259,22 +237,22 @@ public partial class DbSwpVaccineTrackingContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.RefreshTokens)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("refreshtoken_user_id_foreign");
+                .HasConstraintName("refresh_token_user_id_foreign");
         });
 
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("user_id_primary");
 
-            entity.ToTable("user");
+            entity.ToTable("User");
+
+            entity.HasIndex(e => e.Gmail, "user_gmail_unique").IsUnique();
 
             entity.HasIndex(e => e.PhoneNumber, "user_phone_number_unique").IsUnique();
 
             entity.HasIndex(e => e.Username, "user_username_unique").IsUnique();
 
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("id");
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Avatar)
                 .HasMaxLength(255)
                 .HasColumnName("avatar");
@@ -310,12 +288,9 @@ public partial class DbSwpVaccineTrackingContext : DbContext
 
         modelBuilder.Entity<Vaccine>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("vaccine_id_primary");
+            entity.HasKey(e => e.Id).HasName("vaccines_id_primary");
 
-            entity.ToTable("vaccine");
-
-            entity.Property(e => e.Id)
-                .HasColumnName("id");
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AddressId).HasColumnName("address_ID");
             entity.Property(e => e.Description)
                 .HasMaxLength(255)
@@ -348,21 +323,20 @@ public partial class DbSwpVaccineTrackingContext : DbContext
             entity.HasOne(d => d.Address).WithMany(p => p.Vaccines)
                 .HasForeignKey(d => d.AddressId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("vaccine_address_id_foreign");
+                .HasConstraintName("vaccines_address_id_foreign");
         });
 
         modelBuilder.Entity<VaccinesCombo>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("vaccines_combo_id_primary");
 
-            entity.ToTable("vaccines_combo");
+            entity.ToTable("Vaccines_Combo");
 
-            entity.Property(e => e.Id)
-                .HasColumnName("id");
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.ComboName)
                 .HasMaxLength(255)
                 .HasColumnName("combo_name");
-            entity.Property(e => e.Disount).HasColumnName("discount");
+            entity.Property(e => e.Discount).HasColumnName("discount");
             entity.Property(e => e.FinalPrice)
                 .HasColumnType("decimal(16, 2)")
                 .HasColumnName("final_price");
@@ -386,8 +360,8 @@ public partial class DbSwpVaccineTrackingContext : DbContext
                         .HasConstraintName("vaccinescombo_vaccines_vacine_combo_foreign"),
                     j =>
                     {
-                        j.HasKey("VacineCombo", "VaccineId").HasName("vaccinescombo_vaccines_primary");
-                        j.ToTable("vaccinesCombo_vaccines");
+                        j.HasKey("VacineCombo", "VaccineId").HasName("vaccinescombo_vaccines_pk");
+                        j.ToTable("VaccinesCombo_Vaccines");
                         j.IndexerProperty<int>("VacineCombo").HasColumnName("vacine_combo");
                         j.IndexerProperty<int>("VaccineId").HasColumnName("vaccine_id");
                     });
@@ -397,11 +371,9 @@ public partial class DbSwpVaccineTrackingContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("vaccines_tracking_id_primary");
 
-            entity.ToTable("vaccines_tracking");
+            entity.ToTable("Vaccines_Tracking");
 
-            entity.Property(e => e.Id)
-                .ValueGeneratedNever()
-                .HasColumnName("id");
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AdministeredBy).HasColumnName("administered_by");
             entity.Property(e => e.ChildId).HasColumnName("child_id");
             entity.Property(e => e.MaximumIntervalDate)
@@ -410,6 +382,7 @@ public partial class DbSwpVaccineTrackingContext : DbContext
             entity.Property(e => e.MinimumIntervalDate)
                 .HasColumnType("datetime")
                 .HasColumnName("minimum_interval_date");
+            entity.Property(e => e.PreviousVaccination).HasColumnName("previous_vaccination");
             entity.Property(e => e.Reaction)
                 .HasMaxLength(255)
                 .HasColumnName("reaction");
@@ -422,19 +395,12 @@ public partial class DbSwpVaccineTrackingContext : DbContext
                 .HasColumnName("vaccination_date");
             entity.Property(e => e.VaccineId).HasColumnName("vaccine_id");
 
-            entity.HasOne(d => d.AdministeredByNavigation).WithMany(p => p.VaccinesTrackingAdministeredByNavigations)
-                .HasForeignKey(d => d.AdministeredBy)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("vaccines_tracking_administered_by_foreign");
-
             entity.HasOne(d => d.Child).WithMany(p => p.VaccinesTrackings)
                 .HasForeignKey(d => d.ChildId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("vaccines_tracking_child_id_foreign");
 
-            entity.HasOne(d => d.User).WithMany(p => p.VaccinesTrackingUsers)
+            entity.HasOne(d => d.User).WithMany(p => p.VaccinesTrackings)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("vaccines_tracking_user_id_foreign");
 
             entity.HasOne(d => d.Vaccine).WithMany(p => p.VaccinesTrackings)

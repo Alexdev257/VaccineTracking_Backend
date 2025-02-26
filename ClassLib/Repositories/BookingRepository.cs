@@ -23,7 +23,7 @@ namespace ClassLib.Repositories
             return await _context.Bookings.ToListAsync();
         }
 
-        public async Task<List<Booking>?> GetByQuerry(BookingQuerryObject bookingQuerryObject)
+        /*public async Task<List<Booking>?> GetByQuerry(BookingQuerryObject bookingQuerryObject)
         {
             var booking = _context.Bookings
                           .Include(x => x.Parent)
@@ -76,7 +76,7 @@ namespace ClassLib.Repositories
             }
 
             return await booking.ToListAsync();
-        }
+        }*/
 
         public async Task<Booking?> AddBooking(AddBooking addBooking)
         {

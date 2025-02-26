@@ -19,5 +19,9 @@ public partial class Booking
 
     public virtual User Parent { get; set; } = null!;
 
-    public virtual Payment? Payment { get; set; }
+    public virtual ICollection<Child> Children { get; set; } = new List<Child>();
+
+    public virtual ICollection<VaccinesCombo> Combos { get; set; } = new List<VaccinesCombo>();
+
+    public virtual ICollection<Vaccine> Vaccines { get; set; } = new List<Vaccine>();
 }

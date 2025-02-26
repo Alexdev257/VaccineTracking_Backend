@@ -33,6 +33,11 @@ namespace ClassLib.Repositories
             return await _context.Users.FirstOrDefaultAsync(u => u.PhoneNumber == PhoneNumber);
         }
 
+        public async Task<User?> getUserByGmailAsync(string gmail)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Gmail == gmail);
+        }
+
         public async Task<User?> getUserByIdAsync(int Id)
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Id == Id);

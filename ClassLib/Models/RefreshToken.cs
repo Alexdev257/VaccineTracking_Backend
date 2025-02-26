@@ -11,7 +11,7 @@ public partial class RefreshToken
 
     public string RefreshToken1 { get; set; } = null!;
 
-    public string? AccessToken { get; set; }
+    public string AccessToken { get; set; } = null!;
 
     public bool IsUsed { get; set; }
 

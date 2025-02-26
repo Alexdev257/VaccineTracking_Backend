@@ -5,6 +5,8 @@ namespace ClassLib.Models;
 
 public partial class Payment
 {
+    public int PaymentId { get; set; }
+
     public int BookingId { get; set; }
 
     public int PaymentMethod { get; set; }
@@ -14,8 +16,6 @@ public partial class Payment
     public DateTime PaymentDate { get; set; }
 
     public string Status { get; set; } = null!;
-
-    public virtual Booking Booking { get; set; } = null!;
 
     public virtual PaymentMethod PaymentMethodNavigation { get; set; } = null!;
 }
