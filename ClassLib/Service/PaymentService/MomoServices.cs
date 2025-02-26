@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -25,7 +26,7 @@ namespace PaymentAPI.Services
         {
             orderInfo.OrderId = DateTime.Now.Ticks.ToString();
             var rawData =
-                $"partnerCode={_momoConfig.Value.PartnerCode}&accessKey={_momoConfig.Value.AccessKey}&requestId={orderInfo.OrderId}&amount={orderInfo.Amount}&orderId={orderInfo.OrderId}&orderInfo={orderInfo.OrderDescription}&returnUrl={_momoConfig.Value.ReturnUrl}&notifyUrl={_momoConfig.Value.NotifyUrl}&extraData=";
+                $"partnerCode={_momoConfig.Value.PartnerCode}&accessKey={_momoConfig.Value.AccessKey}&requestId={orderInfo.OrderId}&amount={orderInfo.Amount}&orderId={orderInfo.OrderId}&orderInfo={orderInfo.OrderDescription}&returnUrl={_momoConfig.Value.ReturnUrl}&notifyUrl={_momoConfig.Value.NotifyUrl}&extraData={orderInfo.BookingID}";
             var signature = ComputeHmacSha256(rawData, _momoConfig.Value.SecretKey);
 
             var client = new RestClient(_momoConfig.Value.MomoApiUrl);
@@ -42,7 +43,7 @@ namespace PaymentAPI.Services
                 amount = orderInfo.Amount.ToString(),
                 orderInfo = orderInfo.OrderDescription,
                 requestId = orderInfo.OrderId,
-                extraData = "",
+                extraData = $"{orderInfo.BookingID}",
                 signature = signature
             };
 
@@ -64,7 +65,7 @@ namespace PaymentAPI.Services
             var orderId = collection.FirstOrDefault(s => s.Key == "orderId").Value;
             var message = collection.FirstOrDefault(s => s.Key == "message").Value;
             var trancasionID = collection.FirstOrDefault(s => s.Key == "transId").Value;
-            //var BookingID = collection.FirstOrDefault(s => s.Key == "BookingID").Value;
+            var bookingID = collection.FirstOrDefault(s => s.Key == "extraData").Value;
             return await Task.FromResult(new RespondModel()
             {
                 Amount = amount!,
@@ -72,7 +73,7 @@ namespace PaymentAPI.Services
                 OrderDescription = orderInfo!,
                 Message = message!,
                 TrancasionID = trancasionID!,
-                //BookingID = BookingID!
+                BookingID = bookingID!
             });
         }
 
