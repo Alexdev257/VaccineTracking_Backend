@@ -18,7 +18,7 @@ namespace SWP391_BackEnd.Controllers
             _addressService = addressService;
         }
 
-        [HttpGet ("getAllAddress")]
+        [HttpGet("getAllAddress")]
         public async Task<ActionResult<IEnumerable<Address>>> GetAllAddresses()
         {
             return await _addressService.GetAllAddresses();
@@ -32,7 +32,7 @@ namespace SWP391_BackEnd.Controllers
             return address;
         }
 
-        [HttpPost ("addAddresses")]
+        [HttpPost("addAddresses")]
         public async Task<ActionResult<Address>> AddAddress([FromBody] AddAddress addAddress)
         {
             if (addAddress == null) return BadRequest();
