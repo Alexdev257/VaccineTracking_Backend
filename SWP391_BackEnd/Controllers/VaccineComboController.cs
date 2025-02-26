@@ -17,8 +17,8 @@ namespace SWP391_BackEnd.Controllers
         {
             _vaccineComboService = vaccineComboService ?? throw new ArgumentNullException(nameof(vaccineComboService));
         }
-        
-        [HttpGet ("getVaccineCombo")]
+
+        [HttpGet("getVaccineCombo")]
         public async Task<IActionResult> GetVaccineCombos()
         {
             var combos = await _vaccineComboService.GetAllVaccineCombo();

@@ -254,7 +254,7 @@ namespace SWP391_BackEnd.Controllers
         [HttpPost("verify-forgot-password")]
         public async Task<IActionResult> verifyForgotPasswordCode([FromBody] VerifyForgotPasswordRequest request)
         {
-             if(string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.VerifyCode))
+            if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.VerifyCode))
             {
                 return BadRequest("Phone number or verify code are not be blank");
             }

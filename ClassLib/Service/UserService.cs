@@ -688,7 +688,7 @@ namespace ClassLib.Service
         public async Task<bool> updateUserAsync(int userId, UpdateUserRequest request)
         {
             var user = await _userRepository.getUserByIdAsync(userId);
-            if(user == null)
+            if (user == null)
             {
                 throw new UnauthorizedAccessException("User not found.");
                 //return false;
@@ -725,7 +725,7 @@ namespace ClassLib.Service
 
             var verifyCode = VerifyCodeHelper.GenerateSixRandomCode();
             _cache.Set("VerifyCodeKey", verifyCode, TimeSpan.FromMinutes(5));
-            _cache.Set("UserNameKey",request.Username , TimeSpan.FromMinutes(5));
+            _cache.Set("UserNameKey", request.Username, TimeSpan.FromMinutes(5));
             _cache.Set("NewPasswordKey", request.newPassword, TimeSpan.FromMinutes(5));
             var placeholders = new Dictionary<string, string>
             {

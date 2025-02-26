@@ -75,7 +75,7 @@ namespace ClassLib.Repositories
         {
             return await _context.RefreshTokens.Where(r => r.UserId == userId && !r.IsUsed && !r.IsRevoked && r.ExpiredAt > DateTime.UtcNow)
                                                .OrderByDescending(r => r.IssuedAt)
-                                               .FirstOrDefaultAsync();;
+                                               .FirstOrDefaultAsync(); ;
         }
 
         public async Task<bool> updateUser(User user)

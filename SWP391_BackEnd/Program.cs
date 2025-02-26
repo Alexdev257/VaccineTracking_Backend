@@ -5,7 +5,7 @@ using ClassLib.Helpers;
 //using ClassLib.Repositories; // Import UserRepo
 //using ClassLib.Service;    // Import UserService
 using AutoMapper;
-using ClassLib.Models;
+using ClassLib.Models; 
 using ClassLib.Service.Momo;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,7 +16,7 @@ using Newtonsoft.Json;
 using ClassLib.Service.Vaccines;
 using Microsoft.Extensions.Options;
 using ClassLib.Middlewares;
-using ClassLib.Service.PayPal;
+//using ClassLib.Service.PayPal;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using ClassLib.Service.VaccineCombo;
@@ -30,13 +30,13 @@ namespace SWP391_BackEnd
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddDbContext<DbSwpVaccineTrackingContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); 
 
 
             //IMemoryCache giúp lưu trữ dữ liệu trong bộ nhớ RAM của ứng dụng.
             builder.Services.AddMemoryCache();
 
-            //// Add services to the container.
+            // Add services to the container.
             builder.Services.AddScoped<UserRepository>();
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<VaccineRepository>();
@@ -49,7 +49,7 @@ namespace SWP391_BackEnd
 
 
             builder.Services.AddScoped<EmailRepository>();
-            builder.Services.AddScoped<EmailService>();
+            builder.Services.AddScoped<EmailService>(); 
 
             // Add Json NewtonSoft to show more information
             builder.Services.AddControllers()
@@ -59,10 +59,10 @@ namespace SWP391_BackEnd
                 });
 
             // add jwthelper
-            builder.Services.AddScoped<JwtHelper>();
+            builder.Services.AddScoped<JwtHelper>(); 
 
             //Automapper
-            builder.Services.AddAutoMapper(typeof(MappingProfile));
+            builder.Services.AddAutoMapper(typeof(MappingProfile)); 
 
             // Test FE
             builder.Services.AddCors(options =>
