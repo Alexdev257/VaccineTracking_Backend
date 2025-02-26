@@ -58,7 +58,7 @@ namespace PaymentAPI.Services
                 RedirectUrls = new RedirectUrls()
                 {
                     ReturnUrl =
-                        $"{urlCallBack}?payment_method=PayPal&success=1&order_id={paypalOrderId}&amount={ConvertVndToDollar((double)orderInfo.Amount).ToString()}&order_description={orderInfo.OrderDescription}",
+                        $"{urlCallBack}?payment_method=PayPal&success=1&order_id={paypalOrderId}&amount={ConvertVndToDollar((double)orderInfo.Amount).ToString()}&order_description={orderInfo.OrderDescription}&BookingID={orderInfo.BookingID}",
                     CancelUrl =
                         $"{urlCallBack}?payment_method=PayPal&success=0&order_id={paypalOrderId}"
                 },
@@ -106,7 +106,7 @@ namespace PaymentAPI.Services
                 Amount = amount!,
                 OrderId = orderId!,
                 OrderDescription = orderInfo!,
-                Message = message!,
+                Message = (message == "1") ? "Success" : "Failed",
                 TrancasionID = trancasionID!,
                 BookingID = BookingID!
             });
