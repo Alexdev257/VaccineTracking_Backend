@@ -12,11 +12,11 @@ namespace PaymentAPI.Controller
 {
     [ApiController]
     [Route("[controller]")]
-    public class PaymentControllers : ControllerBase
+    public class PaymentController : ControllerBase
     {
         private readonly IDictionary<string, IPaymentServices> _payment;
 
-        public PaymentControllers(IEnumerable<IPaymentServices> payment)
+        public PaymentController(IEnumerable<IPaymentServices> payment)
         {
             _payment = payment.ToDictionary(s => s.PaymentName().ToLower());
         }
