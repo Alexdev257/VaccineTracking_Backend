@@ -20,7 +20,13 @@ namespace ClassLib.Repositories
 
         public async Task<List<User>> getAll()
         {
-            return await _context.Users.ToListAsync();
+            //return await _context.Users.ToListAsync();
+            return await _context.Users
+        .Include(u => u.Bookings)
+        .Include(u => u.Children)
+        //.Include(u => u.RefreshTokens)
+        .Include(u => u.VaccinesTrackings)
+        .ToListAsync();
         }
 
         public async Task<User?> getUserByUsernameAsync(string Username)

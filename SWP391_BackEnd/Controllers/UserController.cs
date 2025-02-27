@@ -20,14 +20,14 @@ namespace SWP391_BackEnd.Controllers
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
         }
 
-        [HttpGet("getAllUser")]
+        [HttpGet("get-all-user")]
         [Authorize]
         public async Task<ActionResult<IEnumerable<User>>> GetUser()
         {
             return await _userService.getAllService();
         }
 
-        [HttpGet("getUserById/{id}")]
+        [HttpGet("get-user-by-id/{id}")]
         //[Authorize]
         public async Task<ActionResult> GetUserById(int? id)
         {
@@ -221,23 +221,46 @@ namespace SWP391_BackEnd.Controllers
         [HttpPut("update-user/{id}")]
         public async Task<IActionResult> updateUserController(int id, [FromBody] UpdateUserRequest request)
         {
-            var rs = await _userService.updateUserAsync(id, request);
-            if (!rs)
+            try
             {
-                return BadRequest(new { message = "Update user failed" });
+                var rs = await _userService.updateUserAsync(id, request);
+                if (!rs)
+                {
+                    return BadRequest(new { message = "Update user failed" });
+                }
+                return Ok(new { message = "Update user successfully" });
             }
-            return Ok(new { message = "Update user successfully" });
+            catch (ArgumentNullException e)
+            {
+                return NotFound(new { message = e.Message });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+            
         }
 
         [HttpDelete("delete-user/{id}")]
         public async Task<IActionResult> deleteUserController(int id)
         {
-            var rs = await _userService.deleteUserAsync(id);
-            if (!rs)
+            try
             {
-                return BadRequest(new { message = "Delete user failed" });
+                var rs = await _userService.deleteUserAsync(id);
+                if (!rs)
+                {
+                    return BadRequest(new { message = "Delete user failed" });
+                }
+                return Ok(new { message = "Delete user successfully" });
             }
-            return Ok(new { message = "Delete user successfully" });
+            catch (ArgumentNullException e)
+            {
+                return NotFound(new { message = e.Message });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
         }
 
         [HttpPost("forgot-password")]
@@ -285,6 +308,32 @@ namespace SWP391_BackEnd.Controllers
                 return BadRequest("Change password failed");
             }
             return Ok("Change password successfully");
+        }
+
+        [HttpPatch("disable-user/{id}")]
+        public async Task<IActionResult> disableUserController(int id)
+        {
+            try
+            {
+                var rs = await _userService.disableUserAsync(id);
+                if (!rs)
+                {
+                    return BadRequest(new { message = "Disable user failed" });
+                }
+                return Ok(new { message = "Disable user successfully" });
+            }
+            catch (ArgumentNullException e)
+            {
+                return NotFound(new { message = e.Message });
+            }
+            catch(InvalidOperationException e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
         }
     }
 }

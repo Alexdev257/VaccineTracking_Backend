@@ -21,7 +21,7 @@ namespace ClassLib.Repositories
             return await _context.Children.ToListAsync();
         }
 
-        public async Task<Child?> GetById(int id)
+        public async Task<Child?> GetChildById(int id)
         {
             return await _context.Children.FirstOrDefaultAsync(c => c.Id == id);
         }
@@ -30,6 +30,45 @@ namespace ClassLib.Repositories
         {
             return await _context.Children.Where(c => c.ParentId == parentId).ToListAsync();
         }
+
+        public async Task<bool> CreateChild(Child child)
+        {
+            await _context.Children.AddAsync(child);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> UpdateChild(Child child)
+        {
+            _context.Children.Update(child);
+            return await _context.SaveChangesAsync() > 0;
+            
+        }
+
+        public async Task<bool> HardDeleteChild(int id)
+        {
+            var child = await GetChildById(id);
+            if (child == null)
+            {
+                return false;
+            }
+            _context.Children.Remove(child);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> SoftDeleteChild(int id)
+        {
+            var child = await GetChildById(id);
+            if (child == null)
+            {
+                return false;
+            }
+            //child.IsDeleted = true;
+            _context.Children.Update(child);
+            return await _context.SaveChangesAsync() > 0;
+
+        }
+
+         
 
 
     }

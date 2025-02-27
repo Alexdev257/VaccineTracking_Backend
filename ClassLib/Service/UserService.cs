@@ -155,6 +155,10 @@ namespace ClassLib.Service
                     {
                         throw new UnauthorizedAccessException("Incorrect password.");
                     }
+                    else if (user.Status == "Inactive")
+                    {
+                        throw new UnauthorizedAccessException("Account is inactive.");
+                    }
                     else
                     {
                         var (tokenId, accessToken, refreshToken) = _jwtHelper.generateToken(user);
@@ -687,10 +691,25 @@ namespace ClassLib.Service
 
         public async Task<bool> updateUserAsync(int userId, UpdateUserRequest request)
         {
+            if (string.IsNullOrWhiteSpace(userId.ToString()))
+            {
+                throw new ArgumentNullException("Id can not blank");
+            }
+            {
+
+            }
+            if (string.IsNullOrWhiteSpace(request.Username) ||
+                string.IsNullOrWhiteSpace(request.Name) ||
+                string.IsNullOrWhiteSpace(request.DateOfBirth.ToString()) ||
+                string.IsNullOrWhiteSpace(request.Gmail) ||
+                string.IsNullOrWhiteSpace(request.PhoneNumber))
+            {
+                throw new ArgumentNullException("Please fill all field.");
+            }
             var user = await _userRepository.getUserByIdAsync(userId);
             if (user == null)
             {
-                throw new UnauthorizedAccessException("User not found.");
+                throw new Exception("User not found.");
                 //return false;
             }
 
@@ -704,11 +723,15 @@ namespace ClassLib.Service
 
         public async Task<bool> deleteUserAsync(int userId)
         {
+            if (string.IsNullOrWhiteSpace(userId.ToString()))
+            {
+                throw new ArgumentNullException("Id can not blank");
+            }
             var user = await _userRepository.getUserByIdAsync(userId);
             //var user = new User
             if (user == null)
             {
-                throw new UnauthorizedAccessException("User not found.");
+                throw new Exception("User not found.");
             }
             return await _userRepository.deleteUser(user);
 
@@ -790,7 +813,29 @@ namespace ClassLib.Service
                 return check;
             }
         }
-        
+
+        public async Task<bool> disableUserAsync(int id)
+        {
+            if (string.IsNullOrWhiteSpace(id.ToString()))
+            {
+                throw new ArgumentNullException("Id can not blank");
+            }
+            var user = await _userRepository.getUserByIdAsync(id);
+            if (user == null)
+            {
+                throw new Exception("User not found.");
+            }
+            else
+            {
+                if (user.Status != "Active")
+                {
+                    throw new InvalidOperationException("User is already inactive.");
+                }
+            }
+            user.Status = "Inactive";
+            return await _userRepository.updateUser(user);
+        }
+
 
 
 
