@@ -23,6 +23,8 @@ using ClassLib.Service.VaccineCombo;
 using ClassLib.Service.Addresses;
 using PaymentAPI.Services;
 using PaymentAPI.Model;
+using SWP391_BackEnd.Controllers;
+using ClassLib.Repositories.BookingDetails;
 namespace SWP391_BackEnd
 {
     public class Program
@@ -41,10 +43,13 @@ namespace SWP391_BackEnd
             // Add services to the container.
             builder.Services.AddScoped<UserRepository>();
             builder.Services.AddScoped<UserService>();
+
             builder.Services.AddScoped<ChildRepository>();
             builder.Services.AddScoped<ChildService>();
+
             builder.Services.AddScoped<VaccineRepository>();
             builder.Services.AddScoped<VaccineService>();
+
             builder.Services.AddScoped<VaccineComboRepository>();
             builder.Services.AddScoped<VaccineComboService>();
 
@@ -55,6 +60,14 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<EmailRepository>();
             builder.Services.AddScoped<EmailService>();
 
+            builder.Services.AddScoped<BookingRepository>();
+            builder.Services.AddScoped<BookingService>();
+
+            builder.Services.AddScoped<PaymentRepository>();
+
+            builder.Services.AddScoped<BookingComboIdReponsitory>();
+            builder.Services.AddScoped<BookingIdVaccineIdReponsitory>();
+            builder.Services.AddScoped<BookingChildIdRepository>();
 
             builder.Services.AddScoped<IPaymentServices, VnPayServices>();
             builder.Services.AddScoped<IPaymentServices, MomoServices>();
