@@ -40,7 +40,7 @@ namespace SWP391_BackEnd.Controllers
             return Ok(combo);
         }
 
-        [HttpPost("createVaccineByID")]
+        [HttpPost("createVaccine")]
         public async Task<IActionResult> CreateVaccine([FromBody] CreateVaccineCombo rq)
         {
             var combo = await _vaccineComboService.CreateVaccineCombo(rq);
