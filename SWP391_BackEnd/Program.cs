@@ -5,7 +5,6 @@ using ClassLib.Helpers;
 //using ClassLib.Repositories; // Import UserRepo
 //using ClassLib.Service;    // Import UserService
 using AutoMapper;
-using ClassLib.DTO.Payment;
 using ClassLib.Models;
 using ClassLib.Service.Momo;
 using Microsoft.EntityFrameworkCore;
@@ -17,11 +16,15 @@ using Newtonsoft.Json;
 using ClassLib.Service.Vaccines;
 using Microsoft.Extensions.Options;
 using ClassLib.Middlewares;
-using ClassLib.Service.PayPal;
+//using ClassLib.Service.PayPal;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using ClassLib.Service.VaccineCombo;
 using ClassLib.Service.Addresses;
+using PaymentAPI.Services;
+using PaymentAPI.Model;
+using SWP391_BackEnd.Controllers;
+using ClassLib.Repositories.BookingDetails;
 namespace SWP391_BackEnd
 {
     public class Program
@@ -37,11 +40,16 @@ namespace SWP391_BackEnd
             //IMemoryCache giúp lưu trữ dữ liệu trong bộ nhớ RAM của ứng dụng.
             builder.Services.AddMemoryCache();
 
-            //// Add services to the container.
+            // Add services to the container.
             builder.Services.AddScoped<UserRepository>();
             builder.Services.AddScoped<UserService>();
+
+            builder.Services.AddScoped<ChildRepository>();
+            builder.Services.AddScoped<ChildService>();
+
             builder.Services.AddScoped<VaccineRepository>();
             builder.Services.AddScoped<VaccineService>();
+
             builder.Services.AddScoped<VaccineComboRepository>();
             builder.Services.AddScoped<VaccineComboService>();
 
@@ -52,8 +60,23 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<EmailRepository>();
             builder.Services.AddScoped<EmailService>();
 
-            builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
-            builder.Services.AddScoped<IMomoService, MomoService>();
+            builder.Services.AddScoped<BookingRepository>();
+            builder.Services.AddScoped<BookingService>();
+
+            builder.Services.AddScoped<PaymentRepository>();
+
+            builder.Services.AddScoped<BookingComboIdReponsitory>();
+            builder.Services.AddScoped<BookingIdVaccineIdReponsitory>();
+            builder.Services.AddScoped<BookingChildIdRepository>();
+
+            builder.Services.AddScoped<IPaymentServices, VnPayServices>();
+            builder.Services.AddScoped<IPaymentServices, MomoServices>();
+            builder.Services.AddScoped<IPaymentServices, PaypalServices>();
+
+            builder.Services.Configure<VnPayConfigFromJson>(builder.Configuration.GetSection("VnpayAPI"));
+            builder.Services.Configure<MomoConfigFromJSON>(builder.Configuration.GetSection("MomoAPI"));
+            builder.Services.Configure<PaypalConfigFromJson>(builder.Configuration.GetSection("PaypalAPI"));
+
             // Add Json NewtonSoft to show more information
             builder.Services.AddControllers()
                 .AddNewtonsoftJson(options =>
@@ -191,11 +214,6 @@ namespace SWP391_BackEnd
             //});
 
 
-            // Connect Payment API
-            builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
-            builder.Services.AddScoped<IMomoService, MomoService>();
-            builder.Services.Configure<PaypalOptionModel>(builder.Configuration.GetSection("PaypalAPI"));
-            //builder.Services.AddScoped<IPayPalService, PayPalService>();
             builder.Services.AddHttpClient();
 
             builder.Services.AddControllers().AddNewtonsoftJson(options =>

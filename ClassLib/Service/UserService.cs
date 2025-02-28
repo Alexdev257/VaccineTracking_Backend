@@ -102,9 +102,14 @@ namespace ClassLib.Service
             var existPhone = await _userRepository.getUserByUsernameAsync(registerRequest.PhoneNumber);
             if (existPhone != null)
             {
-                throw new Exception("Exist phone number. Please choosee another.");
+                throw new Exception("Exist phone number. Please choose another.");
             }
 
+            var existGmail = await _userRepository.getUserByGmailAsync(registerRequest.Gmail);
+            if (existGmail != null)
+            {
+                throw new Exception("Exist gmail. Please choose another.");
+            }
             try
             {
                 string encryptPassword = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);
@@ -149,6 +154,10 @@ namespace ClassLib.Service
                     if (!BCrypt.Net.BCrypt.Verify(loginRequest.Password, user.Password))
                     {
                         throw new UnauthorizedAccessException("Incorrect password.");
+                    }
+                    else if (user.Status == "Inactive")
+                    {
+                        throw new UnauthorizedAccessException("Account is inactive.");
                     }
                     else
                     {
@@ -682,10 +691,25 @@ namespace ClassLib.Service
 
         public async Task<bool> updateUserAsync(int userId, UpdateUserRequest request)
         {
-            var user = await _userRepository.getUserByIdAsync(userId);
-            if(user == null)
+            if (string.IsNullOrWhiteSpace(userId.ToString()))
             {
-                throw new UnauthorizedAccessException("User not found.");
+                throw new ArgumentNullException("Id can not blank");
+            }
+            {
+
+            }
+            if (string.IsNullOrWhiteSpace(request.Username) ||
+                string.IsNullOrWhiteSpace(request.Name) ||
+                string.IsNullOrWhiteSpace(request.DateOfBirth.ToString()) ||
+                string.IsNullOrWhiteSpace(request.Gmail) ||
+                string.IsNullOrWhiteSpace(request.PhoneNumber))
+            {
+                throw new ArgumentNullException("Please fill all field.");
+            }
+            var user = await _userRepository.getUserByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception("User not found.");
                 //return false;
             }
 
@@ -699,11 +723,15 @@ namespace ClassLib.Service
 
         public async Task<bool> deleteUserAsync(int userId)
         {
+            if (string.IsNullOrWhiteSpace(userId.ToString()))
+            {
+                throw new ArgumentNullException("Id can not blank");
+            }
             var user = await _userRepository.getUserByIdAsync(userId);
             //var user = new User
             if (user == null)
             {
-                throw new UnauthorizedAccessException("User not found.");
+                throw new Exception("User not found.");
             }
             return await _userRepository.deleteUser(user);
 
@@ -711,17 +739,18 @@ namespace ClassLib.Service
 
         public async Task<bool> forgotPasswordAsync(ForgotPasswordRequest request)
         {
-            var user = await _userRepository.getUserByUsernameAsync(request.Username);
+            var user = await _userRepository.getUserByGmailAsync(request.Gmail);
             if (user == null)
             {
-                throw new UnauthorizedAccessException("User not found.");
+                throw new Exception("User not found.");
             }
             string templatePath = Path.Combine(_env.WebRootPath, "templates", "newEmailTemplate.html");
 
             var verifyCode = VerifyCodeHelper.GenerateSixRandomCode();
             _cache.Set("VerifyCodeKey", verifyCode, TimeSpan.FromMinutes(5));
-            _cache.Set("UserNameKey",request.Username , TimeSpan.FromMinutes(5));
-            _cache.Set("NewPasswordKey", request.newPassword, TimeSpan.FromMinutes(5));
+            _cache.Set("GmailKey", request.Gmail, TimeSpan.FromMinutes(5));
+            //_cache.Set("UserNameKey", request.Username, TimeSpan.FromMinutes(5));
+            //_cache.Set("NewPasswordKey", request.newPassword, TimeSpan.FromMinutes(5));
             var placeholders = new Dictionary<string, string>
             {
                 { "UserName", user.Name},
@@ -734,34 +763,79 @@ namespace ClassLib.Service
 
         public async Task<bool> verifyForgotPasswordCodeAsync(VerifyForgotPasswordRequest request)
         {
+            bool check = false;
             if (_cache.TryGetValue("VerifyCodeKey", out string? storedVerifyCode))
             {
-                //if (verifyCodeKey.ExpirationTime < DateTime.UtcNow)
-                //{
-                //    return Unauthorized("Verify code has expired.");
-                //}
+                
                 if (storedVerifyCode == request.VerifyCode)
                 {
-                    string hashPassword = BCrypt.Net.BCrypt.HashPassword(_cache.Get<string>("NewPasswordKey"));
-                    string username = _cache.Get<string>("UserNameKey");
-                    await _userRepository.updateUserPassword(username, hashPassword);
+                    //string hashPassword = BCrypt.Net.BCrypt.HashPassword(_cache.Get<string>("NewPasswordKey"));
                     _cache.Remove("VerifyCodeKey");
-                    _cache.Remove("UserNameKey");
-                    _cache.Remove("NewPasswordKey");
-                    return true;
+                    check = true;
+                    return check;
                 }
                 else
                 {
                     throw new UnauthorizedAccessException("Invalid verify code.");
-                    //return false;
+                    return check;
                 }
             }
             else
             {
                 throw new UnauthorizedAccessException("Verify code has expired.");
-                //return false;
+                return check;
             }
         }
+
+        public async Task<bool> changePasswordAsync(ChangePasswordRequest request)
+        {
+            bool check = false;
+            if(_cache.TryGetValue("GmailKey", out string? storedGmail))
+            {
+                var user = await _userRepository.getUserByGmailAsync(storedGmail);
+                if (user == null)
+                {
+                    throw new UnauthorizedAccessException("User not found.");
+                }
+                else
+                {
+                    string hashPassword = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+                    user.Password = hashPassword;
+                    await _userRepository.updateUserPassword(storedGmail, hashPassword);
+                    _cache.Remove("GmailKey");
+                    check = true;
+                    return check;
+                }
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("Gmail has expired.");
+                return check;
+            }
+        }
+
+        public async Task<bool> disableUserAsync(int id)
+        {
+            if (string.IsNullOrWhiteSpace(id.ToString()))
+            {
+                throw new ArgumentNullException("Id can not blank");
+            }
+            var user = await _userRepository.getUserByIdAsync(id);
+            if (user == null)
+            {
+                throw new Exception("User not found.");
+            }
+            else
+            {
+                if (user.Status != "Active")
+                {
+                    throw new InvalidOperationException("User is already inactive.");
+                }
+            }
+            user.Status = "Inactive";
+            return await _userRepository.updateUser(user);
+        }
+
 
 
 

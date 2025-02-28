@@ -39,5 +39,7 @@ public partial class Vaccine
 
     public virtual ICollection<VaccinesTracking> VaccinesTrackings { get; set; } = new List<VaccinesTracking>();
 
+    public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+
     public virtual ICollection<VaccinesCombo> VacineCombos { get; set; } = new List<VaccinesCombo>();
 }

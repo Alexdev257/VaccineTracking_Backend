@@ -22,4 +22,6 @@ public partial class Child
     public virtual User Parent { get; set; } = null!;
 
     public virtual ICollection<VaccinesTracking> VaccinesTrackings { get; set; } = new List<VaccinesTracking>();
+
+    public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 }

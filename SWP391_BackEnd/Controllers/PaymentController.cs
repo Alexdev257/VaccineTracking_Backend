@@ -1,43 +1,49 @@
-﻿using ClassLib.DTO.Payment;
-using ClassLib.Service.Momo;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using PaymentAPI.Model;
+using PaymentAPI.Services;
 
-namespace SWP391_BackEnd.Controllers
+namespace PaymentAPI.Controller
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("[controller]")]
     public class PaymentController : ControllerBase
     {
-        private readonly IMomoService _momoService;
+        private readonly IDictionary<string, IPaymentServices> _payment;
 
-        public PaymentController(IMomoService momoService)
+        public PaymentController(IEnumerable<IPaymentServices> payment)
         {
-            _momoService = momoService;
+            _payment = payment.ToDictionary(s => s.PaymentName().ToLower());
         }
 
-        [HttpPost("{paymentName}/create")]
-        public async Task<IActionResult> CreatePaymentUrl([FromRoute] string paymentName, [FromBody] OrderInfoModel model)
+        [HttpPost("create/{payment_name}")]
+        public async Task<IActionResult> CreatePaymentURL([FromRoute] string payment_name, [FromBody] OrderInfoModel orderInfoModel)
         {
-            if( paymentName == "momo" )
+            if (!_payment.TryGetValue(payment_name.ToLower(), out var paymentService))
             {
-                var response = await _momoService.CreatePaymentAsync( model );
-                return Ok( new
-                {
-                    PayUrl = response.PayUrl
-                } );
+                return BadRequest("Invalid payment method.");
             }
-            else if( paymentName == "paypal" )
-            {
 
-            }
-            return BadRequest("Invalid payment method");
+            var paymentUrl = await paymentService.CreatePaymentURL(orderInfoModel, HttpContext);
+            return Ok(new { PayURL = paymentUrl });
         }
-
-        [HttpGet("callback")]
-        public IActionResult PaymentCallBack()
+        [HttpGet("callback/{payment_name}")]
+        public async Task<IActionResult> Callback([FromRoute] string payment_name)
         {
-            var response = _momoService.PaymentExecuteAsync(Request.Query);
-            return Ok(response);  // Return JSON response
+            if (!_payment.TryGetValue(payment_name.ToLower(), out var paymentService))
+            {
+                return BadRequest("Invalid payment method.");
+            }
+
+            var response = await paymentService.GetPaymentStatus(Request.Query);
+            return Ok(response);
         }
+
+
     }
 }

@@ -20,7 +20,13 @@ namespace ClassLib.Repositories
 
         public async Task<List<User>> getAll()
         {
-            return await _context.Users.ToListAsync();
+            //return await _context.Users.ToListAsync();
+            return await _context.Users
+        .Include(u => u.Bookings)
+        .Include(u => u.Children)
+        //.Include(u => u.RefreshTokens)
+        .Include(u => u.VaccinesTrackings)
+        .ToListAsync();
         }
 
         public async Task<User?> getUserByUsernameAsync(string Username)
@@ -31,6 +37,11 @@ namespace ClassLib.Repositories
         public async Task<User?> getUserByPhoneAsync(string PhoneNumber)
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.PhoneNumber == PhoneNumber);
+        }
+
+        public async Task<User?> getUserByGmailAsync(string gmail)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Gmail == gmail);
         }
 
         public async Task<User?> getUserByIdAsync(int Id)
@@ -70,7 +81,7 @@ namespace ClassLib.Repositories
         {
             return await _context.RefreshTokens.Where(r => r.UserId == userId && !r.IsUsed && !r.IsRevoked && r.ExpiredAt > DateTime.UtcNow)
                                                .OrderByDescending(r => r.IssuedAt)
-                                               .FirstOrDefaultAsync();;
+                                               .FirstOrDefaultAsync(); ;
         }
 
         public async Task<bool> updateUser(User user)
@@ -85,9 +96,9 @@ namespace ClassLib.Repositories
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> updateUserPassword(string username, string newHashPassword)
+        public async Task<bool> updateUserPassword(string gmail, string newHashPassword)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Gmail == gmail);
             if (user == null)
             {
                 return false;

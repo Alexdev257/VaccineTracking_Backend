@@ -16,28 +16,27 @@ namespace ClassLib.Repositories.BookingDetails
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<List<BookingChildId>> GetAll()
+        public async Task<bool> Add(Booking booking, List<int> childId)
         {
-            return await _context.BookingChildIds.ToListAsync();
-        }
-
-        public async Task<BookingChildId?> GetById(int id)
-        {
-            return await _context.BookingChildIds.FirstOrDefaultAsync(x => x.BookingId == id);
-        }
-
-        public async Task<bool> Add(Booking booking, int[] childId){
-            foreach (var item in childId)
+            try
             {
-                var bookingChildId = new BookingChildId
+                foreach (var id in childId)
                 {
-                    BookingId = booking.Id,
-                    ChildId = item
-                };
-                _context.BookingChildIds.Add(bookingChildId);
+                    var child = await _context.Children.FindAsync(id);
+                    if (child == null)
+                    {
+                        return false;
+                    }
+                    booking.Children.Add(child);
+                }
+                await _context.SaveChangesAsync();
+                return true;
             }
-            await _context.SaveChangesAsync();
-            return true;
+            catch (Exception e)
+            {
+                System.Console.WriteLine(e.Message);
+                return false;
+            }
         }
     }
 }

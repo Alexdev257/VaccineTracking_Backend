@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace ClassLib.DTO.User
 {
-    public class ForgotPasswordRequest
+    public class ChangePasswordRequest
     {
-        public string Gmail { get; set; } = null!;
-        //public string newPassword { get; set; } = null!;
+        public string NewPassword { get; set; } = null!;
     }
 }

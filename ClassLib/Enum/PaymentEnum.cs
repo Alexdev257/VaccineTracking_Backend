@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ClassLib.DTO.Payment
+namespace ClassLib.Enum
 {
-    public class CreatePayment
+    public enum PaymentEnum
     {
-        
+        Momo = 2,
+        VnPay = 3,
+        Paypal = 4
     }
 }

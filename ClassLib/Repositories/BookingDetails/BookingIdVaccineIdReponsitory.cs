@@ -16,29 +16,27 @@ namespace ClassLib.Repositories
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<List<BookingIdVaccineId>> GetAll()
+        public async Task<bool> Add(Booking booking, List<int> vaccineId)
         {
-            return await _context.BookingIdVaccineIds.ToListAsync();
-        }
-
-        public async Task<BookingIdVaccineId?> GetById(int id)
-        {
-            return await _context.BookingIdVaccineIds.FirstOrDefaultAsync(x => x.BookingId == id);
-        }
-
-        public async Task<bool> Add(Booking booking, int[] vaccineId)
-        {
-            foreach (var item in vaccineId)
+            try
             {
-                var bookingIdVaccineId = new BookingIdVaccineId
+                foreach (var id in vaccineId)
                 {
-                    BookingId = booking.Id,
-                    VaccineId = item
-                };
-                _context.BookingIdVaccineIds.Add(bookingIdVaccineId);
+                    var vaccine = await _context.Vaccines.FindAsync(id);
+                    if (vaccine == null)
+                    {
+                        return false;
+                    }
+                    booking.Vaccines.Add(vaccine);
+                }
+                await _context.SaveChangesAsync();
+                return true;
             }
-            await _context.SaveChangesAsync();
-            return true;
+            catch (Exception e)
+            {
+                System.Console.WriteLine(e.Message);
+                return false;
+            }
         }
     }
 }

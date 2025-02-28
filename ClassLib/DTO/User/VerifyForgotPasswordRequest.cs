@@ -8,7 +8,7 @@ namespace ClassLib.DTO.User
 {
     public class VerifyForgotPasswordRequest
     {
-        public string Username { get; set; } = null!;
+        //public string Username { get; set; } = null!;
         //public string newPassword { get; set; } = null!;
         public string VerifyCode { get; set; } = null!;
     }
