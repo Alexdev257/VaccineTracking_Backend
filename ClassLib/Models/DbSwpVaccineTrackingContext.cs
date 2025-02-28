@@ -167,19 +167,17 @@ public partial class DbSwpVaccineTrackingContext : DbContext
 
         modelBuilder.Entity<Payment>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("Payment");
+            entity.HasKey(e => e.PaymentId).HasName("PK__Payment__ED1FC9EAC7D11908");
+
+            entity.ToTable("Payment");
 
             entity.HasIndex(e => e.BookingId, "payment_booking_id_unique").IsUnique();
 
+            entity.Property(e => e.PaymentId).HasColumnName("payment_id");
             entity.Property(e => e.BookingId).HasColumnName("booking_id");
             entity.Property(e => e.PaymentDate)
                 .HasColumnType("datetime")
                 .HasColumnName("payment_date");
-            entity.Property(e => e.PaymentId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("payment_id");
             entity.Property(e => e.PaymentMethod).HasColumnName("payment_method");
             entity.Property(e => e.Status)
                 .HasMaxLength(255)
@@ -188,7 +186,7 @@ public partial class DbSwpVaccineTrackingContext : DbContext
                 .HasColumnType("decimal(16, 2)")
                 .HasColumnName("total_price");
 
-            entity.HasOne(d => d.PaymentMethodNavigation).WithMany()
+            entity.HasOne(d => d.PaymentMethodNavigation).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.PaymentMethod)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("payment_payment_method_foreign");
