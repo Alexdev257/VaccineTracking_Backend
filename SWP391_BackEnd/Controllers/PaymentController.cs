@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ClassLib.DTO.Payment;
 using ClassLib.Models;
+using ClassLib.Repositories;
 using ClassLib.Service;
 using ClassLib.Service.PaymentService;
 using Microsoft.AspNetCore.Mvc;
@@ -19,12 +20,14 @@ namespace SWP391_BackEnd.Controllers
         private readonly IDictionary<string, IPaymentServices> _payment;
         private readonly BookingService _bookingService;
 
-        public PaymentController(IEnumerable<IPaymentServices> payment, BookingService bookingService)
+        public PaymentController(IEnumerable<IPaymentServices> payment
+                                , BookingService bookingService)
         {
             _bookingService = bookingService;
             _payment = payment.ToDictionary(s => s.PaymentName().ToLower());
         }
 
+        // Create payment URL
         [HttpPost("create/{payment_name}")]
         public async Task<IActionResult> CreatePaymentURL([FromRoute] string payment_name, [FromBody] OrderInfoModel orderInfoModel)
         {
@@ -36,6 +39,8 @@ namespace SWP391_BackEnd.Controllers
             var paymentUrl = await paymentService.CreatePaymentURL(orderInfoModel, HttpContext);
             return Ok(paymentUrl);
         }
+
+        // Get payment status + Update booking status
         [HttpGet("callback/{payment_name}")]
         public async Task<IActionResult> Callback([FromRoute] string payment_name)
         {

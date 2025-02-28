@@ -5,17 +5,15 @@ using System.Threading.Tasks;
 
 namespace ClassLib.DTO.Booking
 {
-    public class GetBookingForUser
+    public class BookingResponse
     {
-        public int TotalPrice { get; set; }
-        
+        public int ParentId { get; set; }
+
         public string AdvisoryDetail { get; set; } = null!;
 
-        public DateOnly CreatedAt { get; set; }
+        public DateTime ArrivedAt { get; set; }
 
-        public DateOnly ArrivedAt { get; set; }
-
-        public string Status { get; set; } = null!;
+        public int paymentId { get; set; }
 
         public List<int>? ChildrenIds { get; set; }
 
