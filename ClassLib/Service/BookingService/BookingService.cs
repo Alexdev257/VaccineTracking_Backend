@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ClassLib.DTO.Booking;
+using ClassLib.DTO.Payment;
 using ClassLib.Helpers;
 using ClassLib.Models;
 using ClassLib.Repositories;
-using PaymentAPI.Model;
 
 namespace ClassLib.Service
 {
@@ -40,6 +40,11 @@ namespace ClassLib.Service
                 OrderDescription = booking.AdvisoryDetails,
                 Amount = addBooking.TotalPrice
             };
+        }
+
+        public async Task<Booking?> UpdateBookingStatus(string bookingId, string msg)
+        {
+            return await _bookingRepository.UpdateBooking(bookingId, msg);
         }
     }
 }

@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using ClassLib.DTO.Payment;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using PaymentAPI.Model;
 using PayPal.Core;
 using PayPal.v1.Payments;
 
-namespace PaymentAPI.Services
+namespace ClassLib.Service.PaymentService
 {
     public class PaypalServices : IPaymentServices
     {
