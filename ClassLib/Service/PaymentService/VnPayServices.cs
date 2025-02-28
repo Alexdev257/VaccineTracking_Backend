@@ -4,11 +4,11 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using ClassLib.DTO.Payment;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using PaymentAPI.Model;
 
-namespace PaymentAPI.Services
+namespace ClassLib.Service.PaymentService
 {
     public class VnPayServices : IPaymentServices
     {
@@ -56,7 +56,7 @@ namespace PaymentAPI.Services
                 Amount = amount!,
                 OrderId = orderId!,
                 OrderDescription = orderInfo!,
-                Message = message!,
+                Message = (message == "00") ? "Success" : "Fail",
                 TrancasionID = trancasionID!,
                 BookingID = booking
             });

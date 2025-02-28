@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PaymentAPI.Model
+namespace ClassLib.DTO.Payment
 {
     public class VnPayConfigFromJson
     {
