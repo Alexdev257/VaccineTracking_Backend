@@ -34,7 +34,7 @@ namespace PaymentAPI.Services
             pay.AddRequestData("vnp_CurrCode", _vnpayConfig.Value.CurrCode);
             pay.AddRequestData("vnp_IpAddr", pay.GetIpAddress(context));
             pay.AddRequestData("vnp_Locale", _vnpayConfig.Value.Locale);
-            pay.AddRequestData("vnp_OrderInfo", $"{orderInfo.GuestName} {orderInfo.OrderDescription} {orderInfo.Amount}");
+            pay.AddRequestData("vnp_OrderInfo", $"{orderInfo.GuestName} {orderInfo.OrderDescription} {orderInfo.Amount} {orderInfo.GuestPhone} {orderInfo.GuestEmail} bookingID{orderInfo.BookingID}");
             pay.AddRequestData("vnp_OrderType", "other");
             pay.AddRequestData("vnp_ReturnUrl", _vnpayConfig.Value.ReturnUrl);
             pay.AddRequestData("vnp_TxnRef", tick);
@@ -50,13 +50,15 @@ namespace PaymentAPI.Services
             var orderId = collection.FirstOrDefault(s => s.Key == "vnp_TxnRef").Value;
             var message = collection.FirstOrDefault(s => s.Key == "vnp_ResponseCode").Value;
             var trancasionID = collection.FirstOrDefault(s => s.Key == "vnp_TransactionNo").Value;
+            var booking = orderInfo.ToString().Split("bookingID")[1];
             return await Task.FromResult(new RespondModel()
             {
                 Amount = amount!,
                 OrderId = orderId!,
                 OrderDescription = orderInfo!,
                 Message = message!,
-                TrancasionID = trancasionID!
+                TrancasionID = trancasionID!,
+                BookingID = booking
             });
         }
 
