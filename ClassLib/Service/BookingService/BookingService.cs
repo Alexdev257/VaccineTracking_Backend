@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using ClassLib.DTO.Booking;
 using ClassLib.DTO.Payment;
 using ClassLib.Helpers;
@@ -16,8 +17,8 @@ namespace ClassLib.Service
         private readonly UserRepository _userRepository;
         public BookingService(BookingRepository bookingRepository, UserRepository userRepository)
         {
-            this._bookingRepository = bookingRepository ?? throw new ArgumentNullException(nameof(bookingRepository));
-            this._userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            _bookingRepository = bookingRepository ?? throw new ArgumentNullException(nameof(bookingRepository));
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
         public async Task<List<Booking>?> GetByQuerry(BookingQuerryObject query)
@@ -27,7 +28,14 @@ namespace ClassLib.Service
 
         public async Task<OrderInfoModel?> AddBooking(AddBooking addBooking)
         {
-            var booking = await _bookingRepository.AddBooking(addBooking);
+            Booking booking = new (){
+                ParentId = addBooking.ParentId,
+                AdvisoryDetails = addBooking.AdvisoryDetail,
+                ArrivedAt = addBooking.ArrivedAt,
+                CreatedAt = DateTime.Now,
+                Status = "Pending"
+            };
+            await _bookingRepository.AddBooking(booking, addBooking.ChildrenIds, addBooking.vaccineIds, addBooking.vaccineComboIds);
             var user = await _userRepository.getUserByIdAsync(addBooking.ParentId);
 
             return new OrderInfoModel

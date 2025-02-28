@@ -17,6 +17,13 @@ namespace ClassLib.Repositories
 
         public async Task<List<Payment>> getAll() => await _context.Payments.ToListAsync();
 
-        //public async Task<Payment?> getByID(int id) => await _context.Payments.FirstOrDefaultAsync( i => i.Id == id);
+        public async Task<Payment> getById(int id) => await _context.Payments.FindAsync(id);
+
+        public async Task<Payment> create(Payment payment)
+        {
+            _context.Payments.Add(payment);
+            await _context.SaveChangesAsync();
+            return payment;
+        }
     }
 }

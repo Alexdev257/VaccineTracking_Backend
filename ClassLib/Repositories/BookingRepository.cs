@@ -3,12 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure.Core;
 using ClassLib.DTO.Booking;
 using ClassLib.Enum;
 using ClassLib.Helpers;
 using ClassLib.Models;
 using ClassLib.Repositories.BookingDetails;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ClassLib.Repositories
 {
@@ -84,24 +86,16 @@ namespace ClassLib.Repositories
             return await booking.ToListAsync();
         }
 
-        public async Task<Booking?> AddBooking(AddBooking addBooking)
+        public async Task<Booking?> AddBooking(Booking booking, List<int> ChildrenIDs, List<int> VaccineIDs, List<int> VaccineComboIDs)
         {
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
-                var booking = new Booking
-                {
-                    ParentId = addBooking.ParentId,
-                    AdvisoryDetails = addBooking.AdvisoryDetail,
-                    CreatedAt = DateTime.Now,
-                    ArrivedAt = addBooking.ArrivedAt,
-                    Status = BookingEnum.Pending.ToString()
-                };
                 _context.Bookings.Add(booking);
-                await _bookingChildIdRepository.Add(booking, addBooking.ChildrenIds);
-                await _bookingIdVaccineIdReponsitory.Add(booking, addBooking.vaccineIds);
-                await _bookingComboIdReponsitory.Add(booking, addBooking.vaccineComboIds);
+                if (!ChildrenIDs.IsNullOrEmpty()) await _bookingChildIdRepository.Add(booking, ChildrenIDs);
+                if (!VaccineIDs.IsNullOrEmpty()) await _bookingIdVaccineIdReponsitory.Add(booking, VaccineIDs);
+                if (!VaccineComboIDs.IsNullOrEmpty()) await _bookingComboIdReponsitory.Add(booking, VaccineComboIDs);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
                 return booking;
