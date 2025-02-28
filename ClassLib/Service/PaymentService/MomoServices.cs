@@ -6,6 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using ClassLib.DTO.Payment;
+using ClassLib.Enum;
+using ClassLib.Models;
+using ClassLib.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -18,9 +21,15 @@ namespace ClassLib.Service.PaymentService
     {
         private readonly IOptions<MomoConfigFromJSON> _momoConfig;
 
-        public MomoServices(IOptions<MomoConfigFromJSON> momoConfig)
+        private readonly PaymentRepository _paymentRepository;
+
+        private readonly PaymentMethodRepository _paymentMethodRepository;
+
+        public MomoServices(IOptions<MomoConfigFromJSON> momoConfig, PaymentRepository paymentRepository, PaymentMethodRepository paymentMethodRepository)
         {
             _momoConfig = momoConfig;
+            _paymentRepository = paymentRepository;
+            _paymentMethodRepository = paymentMethodRepository;
         }
          public async Task<string> CreatePaymentURL(OrderInfoModel orderInfo, HttpContext context)
         {
@@ -66,6 +75,17 @@ namespace ClassLib.Service.PaymentService
             var message = collection.FirstOrDefault(s => s.Key == "message").Value;
             var trancasionID = collection.FirstOrDefault(s => s.Key == "transId").Value;
             var bookingID = collection.FirstOrDefault(s => s.Key == "extraData").Value;
+
+            Payment payment = new Payment()
+            {
+                PaymentDate = DateTime.Now,
+                TotalPrice = decimal.Parse(amount!),
+                PaymentMethod = (await _paymentMethodRepository.getPaymentMethodByName("momo")).Id,
+                Status = message == "Success" ? "Success" : "Failed",
+                BookingId = int.Parse(bookingID!)
+            };
+            await _paymentRepository.AddPayment(payment);
+
             return await Task.FromResult(new RespondModel()
             {
                 Amount = amount!,

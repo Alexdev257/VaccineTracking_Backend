@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 using AutoMapper;
 using ClassLib.DTO.Booking;
 using ClassLib.DTO.Payment;
+using ClassLib.DTO.VaccineTracking;
 using ClassLib.Helpers;
 using ClassLib.Models;
 using ClassLib.Repositories;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ClassLib.Service
 {
@@ -15,10 +17,13 @@ namespace ClassLib.Service
     {
         private readonly BookingRepository _bookingRepository;
         private readonly UserRepository _userRepository;
-        public BookingService(BookingRepository bookingRepository, UserRepository userRepository)
+
+        private readonly VaccinesTrackingService _vaccineTrackingService;
+        public BookingService(BookingRepository bookingRepository, UserRepository userRepository, VaccinesTrackingService vaccinesTrackingService)
         {
-            _bookingRepository = bookingRepository ?? throw new ArgumentNullException(nameof(bookingRepository));
-            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            _bookingRepository = bookingRepository;
+            _userRepository = userRepository;
+            _vaccineTrackingService = vaccinesTrackingService;
         }
 
         public async Task<List<Booking>?> GetByQuerry(BookingQuerryObject query)
@@ -28,19 +33,36 @@ namespace ClassLib.Service
 
         public async Task<OrderInfoModel?> AddBooking(AddBooking addBooking)
         {
-            Booking booking = new (){
+            Booking booking = new()
+            {
                 ParentId = addBooking.ParentId,
                 AdvisoryDetails = addBooking.AdvisoryDetail,
                 ArrivedAt = addBooking.ArrivedAt,
                 CreatedAt = DateTime.Now,
                 Status = "Pending"
             };
-            await _bookingRepository.AddBooking(booking, addBooking.ChildrenIds, addBooking.vaccineIds, addBooking.vaccineComboIds);
+
+            await _bookingRepository.AddBooking(booking, addBooking.ChildrenIds!, addBooking.vaccineIds, addBooking.vaccineComboIds);
             var user = await _userRepository.getUserByIdAsync(addBooking.ParentId);
+
+            AddVaccinesTrackingRequest addVaccinesTrackingRequest = new()
+            {
+                UserId = addBooking.ParentId,
+                VaccinationDate = addBooking.ArrivedAt,
+                AdministeredBy = 1
+            };
+            System.Console.WriteLine(addBooking.vaccineIds);
+            System.Console.WriteLine(addBooking.vaccineComboIds);
+            if (!addBooking.vaccineIds.IsNullOrEmpty())
+                await _vaccineTrackingService.AddVaccinesToVaccinesTrackingAsync(addVaccinesTrackingRequest, addBooking.vaccineIds, addBooking.ChildrenIds);
+            if (!addBooking.vaccineComboIds.IsNullOrEmpty())
+                await _vaccineTrackingService.AddVaccinesComboToVaccinesTrackingAsync(addVaccinesTrackingRequest, addBooking.vaccineComboIds, addBooking.ChildrenIds);
+
+
 
             return new OrderInfoModel
             {
-                GuestName = user?.Name,
+                GuestName = user?.Name!,
                 GuestEmail = user?.Gmail,
                 GuestPhone = user?.PhoneNumber,
                 BookingID = booking.Id.ToString(),

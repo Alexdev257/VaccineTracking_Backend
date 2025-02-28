@@ -20,15 +20,18 @@ namespace ClassLib.Repositories
         private readonly BookingChildIdRepository _bookingChildIdRepository;
         private readonly BookingIdVaccineIdReponsitory _bookingIdVaccineIdReponsitory;
         private readonly BookingComboIdReponsitory _bookingComboIdReponsitory;
+        private readonly VaccinesTrackingRepository _vaccinesTrackingRepository;
         public BookingRepository(DbSwpVaccineTrackingContext context,
                                  BookingChildIdRepository bookingChildIdRepository,
                                  BookingIdVaccineIdReponsitory bookingIdVaccineIdReponsitory,
-                                 BookingComboIdReponsitory bookingComboIdReponsitory)
+                                 BookingComboIdReponsitory bookingComboIdReponsitory,
+                                 VaccinesTrackingRepository vaccinesTrackingRepository)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _bookingChildIdRepository = bookingChildIdRepository ?? throw new ArgumentNullException(nameof(bookingChildIdRepository));
             _bookingIdVaccineIdReponsitory = bookingIdVaccineIdReponsitory ?? throw new ArgumentNullException(nameof(bookingIdVaccineIdReponsitory));
             _bookingComboIdReponsitory = bookingComboIdReponsitory ?? throw new ArgumentNullException(nameof(bookingComboIdReponsitory));
+            _vaccinesTrackingRepository = vaccinesTrackingRepository ?? throw new ArgumentNullException(nameof(vaccinesTrackingRepository));
         }
         public async Task<List<Booking>> GetAll()
         {
