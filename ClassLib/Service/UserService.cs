@@ -715,6 +715,7 @@ namespace ClassLib.Service
             //user.Username = request.Username;
             user.Name = request.Name;
             user.DateOfBirth = request.DateOfBirth;
+             user.Gender = request.Gender;
             user.Gmail = request.Gmail;
             user.PhoneNumber = request.PhoneNumber;
             return await _userRepository.updateUser(user);
