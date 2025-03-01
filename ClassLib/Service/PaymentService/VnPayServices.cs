@@ -5,6 +5,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using ClassLib.DTO.Payment;
+using ClassLib.Enum;
+using ClassLib.Models;
+using ClassLib.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
@@ -15,9 +18,15 @@ namespace ClassLib.Service.PaymentService
         private readonly IOptions<VnPayConfigFromJson> _vnpayConfig;
         private readonly string TimeZoneID = "SE Asia Standard Time";
 
-        public VnPayServices(IOptions<VnPayConfigFromJson> vnpayConfig)
+        private readonly PaymentRepository _paymentRepository;
+
+        private readonly PaymentMethodRepository _paymentMethodRepository;
+
+        public VnPayServices(IOptions<VnPayConfigFromJson> vnpayConfig, PaymentRepository paymentRepository, PaymentMethodRepository paymentMethodRepository)
         {
             _vnpayConfig = vnpayConfig;
+            _paymentRepository = paymentRepository;
+            _paymentMethodRepository = paymentMethodRepository;
         }
         public Task<string> CreatePaymentURL(OrderInfoModel orderInfo, HttpContext context)
         {
@@ -51,6 +60,17 @@ namespace ClassLib.Service.PaymentService
             var message = collection.FirstOrDefault(s => s.Key == "vnp_ResponseCode").Value;
             var trancasionID = collection.FirstOrDefault(s => s.Key == "vnp_TransactionNo").Value;
             var booking = orderInfo.ToString().Split("bookingID")[1];
+
+            Payment payment = new Payment()
+            {
+                PaymentMethod = (await _paymentMethodRepository.getPaymentMethodByName("vnpay")).Id,
+                TotalPrice = int.Parse(amount),
+                BookingId = int.Parse(booking),
+                PaymentDate = DateTime.Now,
+                Status = (message == "00") ? "Success" : "Fail",
+            };
+            await _paymentRepository.AddPayment(payment);
+
             return await Task.FromResult(new RespondModel()
             {
                 Amount = amount!,
