@@ -173,7 +173,9 @@ public partial class DbSwpVaccineTrackingContext : DbContext
 
             entity.HasIndex(e => e.BookingId, "payment_booking_id_unique").IsUnique();
 
-            entity.Property(e => e.PaymentId).HasColumnName("payment_id");
+            entity.Property(e => e.PaymentId)
+                .HasMaxLength(255)
+                .HasColumnName("payment_id");
             entity.Property(e => e.BookingId).HasColumnName("booking_id");
             entity.Property(e => e.PaymentDate)
                 .HasColumnType("datetime")
