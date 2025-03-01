@@ -40,8 +40,8 @@ namespace SWP391_BackEnd.Controllers
             OrderInfoModel orderInfo = await _bookingService.AddBooking(addBooking);
 
             var client = _httpClientFactory.CreateClient();
+
             var paymentApi = $"http://localhost:5272/api/Payment/create/{((PaymentEnum)addBooking.paymentId).ToString()}";
-            System.Console.WriteLine(paymentApi);
 
             var jsonRequest = JsonConvert.SerializeObject(orderInfo);
 
@@ -49,16 +49,13 @@ namespace SWP391_BackEnd.Controllers
 
             var response = await client.PostAsync(paymentApi, content);
 
-            //return Ok(new { message = "Booking initiated, waiting for payment confirmation." });
-
-
             if (response.IsSuccessStatusCode)
             {
                 var responseData = await response.Content.ReadAsStringAsync();
 
                 if (!string.IsNullOrEmpty(responseData))
                 {
-                    return Redirect(responseData); // Redirect user to payment gateway
+                    return Ok(responseData); 
                 }
             }
 

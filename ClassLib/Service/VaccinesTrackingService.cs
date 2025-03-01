@@ -127,7 +127,7 @@ namespace ClassLib.Service
                             }
 
                             var previousTracking = await _vaccinesTrackingRepository.GetVaccinesTrackingByIdAsync(previousVaccination);
-                            if (previousTracking == null || previousTracking.VaccinationDate == null)
+                            if (previousTracking == null )
                             {
                                 throw new Exception($"Error: Previous vaccination record (ID: {previousVaccination}) is invalid.");
                             }

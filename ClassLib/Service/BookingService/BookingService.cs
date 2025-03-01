@@ -51,12 +51,10 @@ namespace ClassLib.Service
                 VaccinationDate = addBooking.ArrivedAt,
                 AdministeredBy = 1
             };
-            System.Console.WriteLine(addBooking.vaccineIds);
-            System.Console.WriteLine(addBooking.vaccineComboIds);
             if (!addBooking.vaccineIds.IsNullOrEmpty())
-                await _vaccineTrackingService.AddVaccinesToVaccinesTrackingAsync(addVaccinesTrackingRequest, addBooking.vaccineIds, addBooking.ChildrenIds);
+                await _vaccineTrackingService.AddVaccinesToVaccinesTrackingAsync(addVaccinesTrackingRequest, addBooking.vaccineIds, addBooking.ChildrenIds!);
             if (!addBooking.vaccineComboIds.IsNullOrEmpty())
-                await _vaccineTrackingService.AddVaccinesComboToVaccinesTrackingAsync(addVaccinesTrackingRequest, addBooking.vaccineComboIds, addBooking.ChildrenIds);
+                await _vaccineTrackingService.AddVaccinesComboToVaccinesTrackingAsync(addVaccinesTrackingRequest, addBooking.vaccineComboIds, addBooking.ChildrenIds!);
 
 
 
