@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 
 namespace ClassLib.Models;
@@ -41,5 +41,5 @@ public partial class Vaccine
 
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 
-    public virtual ICollection<VaccinesCombo> VaccinesCombos { get; set; } = new List<VaccinesCombo>();
+    public virtual ICollection<VaccinesCombo> VacineCombos { get; set; } = new List<VaccinesCombo>();
 }
