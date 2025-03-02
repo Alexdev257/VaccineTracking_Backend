@@ -21,10 +21,10 @@ using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using ClassLib.Service.VaccineCombo;
 using ClassLib.Service.Addresses;
-using PaymentAPI.Services;
-using PaymentAPI.Model;
 using SWP391_BackEnd.Controllers;
 using ClassLib.Repositories.BookingDetails;
+using ClassLib.Service.PaymentService;
+using ClassLib.DTO.Payment;
 namespace SWP391_BackEnd
 {
     public class Program
@@ -64,6 +64,12 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<BookingService>();
 
             builder.Services.AddScoped<PaymentRepository>();
+
+            builder.Services.AddScoped<PaymentMethodRepository>();
+
+            builder.Services.AddScoped<VaccinesTrackingRepository>();
+            builder.Services.AddScoped<VaccinesTrackingService>();
+
 
             builder.Services.AddScoped<BookingComboIdReponsitory>();
             builder.Services.AddScoped<BookingIdVaccineIdReponsitory>();

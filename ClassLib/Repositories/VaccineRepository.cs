@@ -54,5 +54,26 @@ namespace ClassLib.Repositories
                 .Where(v => age > v.SuggestAgeMin && age < v.SuggestAgeMax)
                 .ToListAsync();
         }
+
+
+        //TieHung
+        public async Task<bool> DecreseQuantityVaccines(Vaccine vaccine,int amount){
+
+            using var transcation = _context.Database.BeginTransaction();
+            if (vaccine == null) return false;
+            try
+            {
+                vaccine.Quantity -= amount;
+                await _context.SaveChangesAsync();
+                transcation.Commit();
+                return true;
+            }
+            catch (Exception e)
+            {
+                System.Console.WriteLine(e.Message);
+                transcation.Rollback();
+                return false;
+            }
+        }
     }
 }

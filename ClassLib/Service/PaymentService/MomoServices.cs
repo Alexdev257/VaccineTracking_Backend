@@ -5,28 +5,37 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using ClassLib.DTO.Payment;
+using ClassLib.Enum;
+using ClassLib.Models;
+using ClassLib.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using PaymentAPI.Model;
 using RestSharp;
 
-namespace PaymentAPI.Services
+namespace ClassLib.Service.PaymentService
 {
     public class MomoServices : IPaymentServices
     {
         private readonly IOptions<MomoConfigFromJSON> _momoConfig;
 
-        public MomoServices(IOptions<MomoConfigFromJSON> momoConfig)
+        private readonly PaymentRepository _paymentRepository;
+
+        private readonly PaymentMethodRepository _paymentMethodRepository;
+
+        public MomoServices(IOptions<MomoConfigFromJSON> momoConfig, PaymentRepository paymentRepository, PaymentMethodRepository paymentMethodRepository)
         {
             _momoConfig = momoConfig;
+            _paymentRepository = paymentRepository;
+            _paymentMethodRepository = paymentMethodRepository;
         }
-        public async Task<string> CreatePaymentURL(OrderInfoModel orderInfo, HttpContext context)
+         public async Task<string> CreatePaymentURL(OrderInfoModel orderInfo, HttpContext context)
         {
             orderInfo.OrderId = DateTime.Now.Ticks.ToString();
             var rawData =
-                $"partnerCode={_momoConfig.Value.PartnerCode}&accessKey={_momoConfig.Value.AccessKey}&requestId={orderInfo.OrderId}&amount={orderInfo.Amount}&orderId={orderInfo.OrderId}&orderInfo={orderInfo.OrderDescription}&returnUrl={_momoConfig.Value.ReturnUrl}&notifyUrl={_momoConfig.Value.NotifyUrl}&extraData={orderInfo.BookingID}";
+                $"partnerCode={_momoConfig.Value.PartnerCode}&accessKey={_momoConfig.Value.AccessKey}&requestId={orderInfo.OrderId}&amount={orderInfo.Amount}&orderId={orderInfo.OrderId}&orderInfo={orderInfo.OrderDescription}&returnUrl={_momoConfig.Value.ReturnUrl}&notifyUrl={_momoConfig.Value.NotifyUrl}&extraData=";
             var signature = ComputeHmacSha256(rawData, _momoConfig.Value.SecretKey);
 
             var client = new RestClient(_momoConfig.Value.MomoApiUrl);
@@ -43,7 +52,7 @@ namespace PaymentAPI.Services
                 amount = orderInfo.Amount.ToString(),
                 orderInfo = orderInfo.OrderDescription,
                 requestId = orderInfo.OrderId,
-                extraData = $"{orderInfo.BookingID}",
+                extraData = "",
                 signature = signature
             };
 
@@ -66,6 +75,17 @@ namespace PaymentAPI.Services
             var message = collection.FirstOrDefault(s => s.Key == "message").Value;
             var trancasionID = collection.FirstOrDefault(s => s.Key == "transId").Value;
             var bookingID = collection.FirstOrDefault(s => s.Key == "extraData").Value;
+
+            Payment payment = new Payment()
+            {
+                PaymentDate = DateTime.Now,
+                TotalPrice = decimal.Parse(amount!),
+                PaymentMethod = (await _paymentMethodRepository.getPaymentMethodByName("momo")).Id,
+                Status = message == "Success" ? "Success" : "Failed",
+                BookingId = int.Parse(bookingID!)
+            };
+            await _paymentRepository.AddPayment(payment);
+
             return await Task.FromResult(new RespondModel()
             {
                 Amount = amount!,

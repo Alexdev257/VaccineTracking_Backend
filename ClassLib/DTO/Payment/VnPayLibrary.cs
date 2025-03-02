@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.VisualBasic;
 
-namespace PaymentAPI.Model
+namespace ClassLib.DTO.Payment
 {
     public class VnPayLibrary
     {

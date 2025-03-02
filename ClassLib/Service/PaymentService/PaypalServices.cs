@@ -3,22 +3,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using ClassLib.DTO.Payment;
+using ClassLib.Enum;
+using ClassLib.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using PaymentAPI.Model;
 using PayPal.Core;
 using PayPal.v1.Payments;
+using ModelPayment = ClassLib.Models.Payment;
 
-namespace PaymentAPI.Services
+namespace ClassLib.Service.PaymentService
 {
     public class PaypalServices : IPaymentServices
     {
         private readonly IOptions<PaypalConfigFromJson> _paypalConfig;
         private const double ExchangeRate = 25535.00;
 
-        public PaypalServices(IOptions<PaypalConfigFromJson> paypalConfig)
+        private readonly PaymentRepository _paymentRepository;
+
+        private readonly PaymentMethodRepository _paymentMethodRepository;
+
+        public PaypalServices(IOptions<PaypalConfigFromJson> paypalConfig, PaymentRepository paymentRepository, PaymentMethodRepository paymentMethodRepository)
         {
             _paypalConfig = paypalConfig;
+            _paymentRepository = paymentRepository;
+            _paymentMethodRepository = paymentMethodRepository;
         }
         public static double ConvertVndToDollar(double vnd)
         {
@@ -26,6 +35,14 @@ namespace PaymentAPI.Services
 
             return total;
         }
+
+        public static double ConvertDollarToVnd(double dollar)
+        {
+            var total = Math.Round(dollar * ExchangeRate, 2);
+
+            return total;
+        }
+
         public async Task<string> CreatePaymentURL(OrderInfoModel orderInfo, HttpContext context)
         {
             var envSandbox = new SandboxEnvironment(_paypalConfig.Value.ClientId, _paypalConfig.Value.SecretKey);
@@ -101,6 +118,18 @@ namespace PaymentAPI.Services
             var message = collection.FirstOrDefault(s => s.Key == "success").Value;
             var trancasionID = collection.FirstOrDefault(s => s.Key == "paymentId").Value;
             var BookingID = collection.FirstOrDefault(s => s.Key == "BookingID").Value;
+
+            ModelPayment payment = new()
+            {
+                PaymentId = orderId!,
+                PaymentDate = DateTime.Now,
+                PaymentMethod = (await _paymentMethodRepository.getPaymentMethodByName("paypal")).Id,
+                Status = (message == "1") ? "Success" : "Failed",
+                TotalPrice = (decimal)ConvertDollarToVnd(double.Parse(amount!)),
+                BookingId = int.Parse(BookingID!)
+            };
+            await _paymentRepository.AddPayment(payment);
+
             return await Task.FromResult(new RespondModel()
             {
                 Amount = amount!,

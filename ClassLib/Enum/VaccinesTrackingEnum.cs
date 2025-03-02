@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ClassLib.DTO.BookingDetail
+namespace ClassLib.Enum
 {
-    public class GetBookingDetails
+    public enum VaccinesTrackingEnum
     {
-        
+        Success,
+        Waiting,
+        Cancel
     }
 }

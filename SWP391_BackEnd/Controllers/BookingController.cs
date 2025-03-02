@@ -2,14 +2,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using ClassLib.DTO.Booking;
+using ClassLib.DTO.Payment;
 using ClassLib.Enum;
 using ClassLib.Helpers;
 using ClassLib.Service;
 using Microsoft.AspNetCore.Mvc;
-using PaymentAPI.Model;
-using PaymentAPI.Services;
+using Newtonsoft.Json;
 
 namespace SWP391_BackEnd.Controllers
 {
@@ -18,11 +19,11 @@ namespace SWP391_BackEnd.Controllers
     public class BookingController : ControllerBase
     {
         private readonly BookingService _bookingService;
-        private readonly HttpClient _httpClient;
-        public BookingController(BookingService bookingService, HttpClient httpClient)
+        private readonly IHttpClientFactory _httpClientFactory;
+        public BookingController(BookingService bookingService, IHttpClientFactory httpClientFactory)
         {
             _bookingService = bookingService;
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
         }
 
 
@@ -34,9 +35,31 @@ namespace SWP391_BackEnd.Controllers
 
 
         [HttpPost("add-booking")]
-        public async Task<IActionResult> AddBooking(AddBooking addBooking)
+        public async Task<IActionResult> AddBooking([FromBody] AddBooking addBooking)
         {
-            return Ok(await _bookingService.AddBooking(addBooking));
+            OrderInfoModel orderInfo = await _bookingService.AddBooking(addBooking);
+
+            var client = _httpClientFactory.CreateClient();
+
+            var paymentApi = $"http://localhost:5272/api/Payment/create/{((PaymentEnum)addBooking.paymentId).ToString()}";
+
+            var jsonRequest = JsonConvert.SerializeObject(orderInfo);
+
+            var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync(paymentApi, content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseData = await response.Content.ReadAsStringAsync();
+
+                if (!string.IsNullOrEmpty(responseData))
+                {
+                    return Ok(responseData); 
+                }
+            }
+
+            return BadRequest(new { message = "Failed to initiate payment" });
         }
     }
 }

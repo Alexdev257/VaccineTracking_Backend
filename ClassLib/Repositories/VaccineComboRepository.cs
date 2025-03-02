@@ -68,6 +68,11 @@ namespace ClassLib.Repositories
                     }).ToList()
                 })
                 .FirstOrDefaultAsync();
+
+        // TieHung23
+        public async Task<List<Vaccine>> GetAllVaccineInVaccinesComboByID(int id)
+        {
+            return await _context.VaccinesCombos.Include(v => v.Vaccines).Where(vc => vc.Id == id).SelectMany(vc => vc.Vaccines).ToListAsync();   
         }
     }
 }
