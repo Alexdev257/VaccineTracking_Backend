@@ -700,6 +700,7 @@ namespace ClassLib.Service
             }
             if (string.IsNullOrWhiteSpace(request.Name) ||
                 string.IsNullOrWhiteSpace(request.DateOfBirth.ToString()) ||
+                string.IsNullOrWhiteSpace(request.Avatar) ||
                 string.IsNullOrWhiteSpace(request.Gmail) ||
                 string.IsNullOrWhiteSpace(request.PhoneNumber))
             {
@@ -715,6 +716,8 @@ namespace ClassLib.Service
             //user.Username = request.Username;
             user.Name = request.Name;
             user.DateOfBirth = request.DateOfBirth;
+            user.Gender = request.Gender;
+            user.Avatar = request.Avatar;
             user.Gmail = request.Gmail;
             user.PhoneNumber = request.PhoneNumber;
             return await _userRepository.updateUser(user);
