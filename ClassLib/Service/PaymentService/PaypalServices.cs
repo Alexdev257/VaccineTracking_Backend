@@ -121,6 +121,7 @@ namespace ClassLib.Service.PaymentService
 
             ModelPayment payment = new()
             {
+                PaymentId = orderId!,
                 PaymentDate = DateTime.Now,
                 PaymentMethod = (await _paymentMethodRepository.getPaymentMethodByName("paypal")).Id,
                 Status = (message == "1") ? "Success" : "Failed",

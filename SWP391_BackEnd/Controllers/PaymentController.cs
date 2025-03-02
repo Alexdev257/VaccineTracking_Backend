@@ -54,7 +54,7 @@ namespace SWP391_BackEnd.Controllers
             {
                 return BadRequest("Invalid payment method.");
             }
-            
+
             var booking = await _bookingService.UpdateBookingStatus(response.BookingID, response.Message);
             if (booking == null)
             {
@@ -64,5 +64,15 @@ namespace SWP391_BackEnd.Controllers
         }
 
 
+        // // Refund Money
+        // [HttpPost("refund/{payment_name}/{bookingID}")]
+        // public async Task<IActionResult> RefundPayment([FromRoute] string payment_name, string bookingID)
+        // {
+        //     if (!_payment.TryGetValue(payment_name.ToLower(), out var paymentService))
+        //     {
+        //         return BadRequest("Invalid payment method.");
+        //     }
+        //     return Ok();
+        // }
     }
 }
