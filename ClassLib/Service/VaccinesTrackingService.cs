@@ -81,6 +81,7 @@ namespace ClassLib.Service
         public async Task<bool> UpdateVaccinesTrackingAsync(int id, UpdateVaccineTracking updateVaccineTracking)
         {
             var vt = await _vaccinesTrackingRepository.GetVaccinesTrackingByIdAsync(id);
+            var vaccine = _vaccineRepository.GetById(vt!.VaccineId).Result;
             int checkpointForThisVaccine = 1;
             while (vt != null)
             {
@@ -89,8 +90,9 @@ namespace ClassLib.Service
                     vt.Status = updateVaccineTracking.Status ?? vt.Status;
                     vt.Reaction = updateVaccineTracking.Reaction ?? vt.Reaction;
                     vt.AdministeredBy = (updateVaccineTracking.AdministeredBy == 0) ? vt.AdministeredBy : updateVaccineTracking.AdministeredBy;
+                    if (updateVaccineTracking.Status!.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Success).ToString().ToLower())
+                        await _vaccineRepository.DecreseQuantityVaccines(vaccine!, 1);
                 }
-                var vaccine = _vaccineRepository.GetById(vt.VaccineId).Result;
                 if (updateVaccineTracking.Status!.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Success).ToString().ToLower())
                 {
                     vt.VaccinationDate = DateTime.Now;
@@ -102,6 +104,8 @@ namespace ClassLib.Service
                     vt.VaccinationDate = null;
                     vt.MinimumIntervalDate = DateTime.Now;
                     vt.MaximumIntervalDate = null;
+                    vt.Status = updateVaccineTracking.Status;
+                    vt.Reaction = updateVaccineTracking.Reaction ?? vt.Reaction;
                 }
                 checkpointForThisVaccine++;
                 var vtUpdated = await _vaccinesTrackingRepository.UpdateVaccinesTrackingAsync(vt);

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using ClassLib.DTO.Booking;
 using ClassLib.DTO.Payment;
 using ClassLib.DTO.VaccineTracking;
+using ClassLib.Enum;
 using ClassLib.Models;
 
 namespace ClassLib.Helpers
@@ -19,7 +20,7 @@ namespace ClassLib.Helpers
                 UserId = request.UserId,
                 ChildId = childID,
                 VaccinationDate = (previousVaccination == null) ? request.VaccinationDate : null,
-                Status = "Waiting",
+                Status = ((VaccinesTrackingEnum)VaccinesTrackingEnum.Waiting).ToString(),
                 AdministeredBy = request.AdministeredBy,
                 MinimumIntervalDate = (previousVaccination == null) ? request.VaccinationDate!.Value.AddDays(2) : previousVaccination.VaccinationDate!.Value.AddDays(vaccines.MinimumIntervalDate!.Value),
                 MaximumIntervalDate = (previousVaccination == null) ? request.VaccinationDate!.Value.AddDays(7) : previousVaccination.VaccinationDate!.Value.AddDays(vaccines.MaximumIntervalDate!.Value),
