@@ -20,7 +20,7 @@ namespace ClassLib.Repositories
 
         public async Task<List<Vaccine>> GetAllVaccines()
         {
-            return await _context.Vaccines.ToListAsync();
+            return await _context.Vaccines.Include(v => v.Address).ToListAsync();
         }
 
         public async Task<Vaccine?> GetById(int id)

@@ -22,15 +22,17 @@ namespace ClassLib.Service.Vaccines
         }
 
         //Lấy tất cả
-        public async Task<List<Vaccine>> GetAllVaccines()
+        public async Task<List<GetVaccine>> GetAllVaccines()
         {
-            return await _vaccineRepository.GetAllVaccines();
+            var listVaccine = await _vaccineRepository.GetAllVaccines();
+            return _mapper.Map<List<GetVaccine>>(listVaccine);
         }
 
         //Lấy theo id
-        public async Task<Vaccine?> GetVaccineById(int id)
+        public async Task<GetVaccine?> GetVaccineById(int id)
         {
-            return await _vaccineRepository.GetById(id);
+            var vaccine = await _vaccineRepository.GetById(id);
+            return _mapper.Map<GetVaccine>(vaccine);
         }
 
         //Tạo mới
