@@ -36,10 +36,10 @@ namespace SWP391_BackEnd.Controllers
             return Ok(await _vaccinesTrackingService.GetVaccinesTrackingByIdAsync(id));
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddVaccinesTracking([FromBody] Test test)
+        [HttpPut("update-vaccine-status/{id}")]
+        public async Task<IActionResult> UpdateVaccinesTracking([FromRoute] int id, [FromBody] UpdateVaccineTracking updateVaccineTracking)
         {
-            return Ok(await _vaccinesTrackingService.AddVaccinesToVaccinesTrackingAsync(test.AddVaccinesTrackingRequest, test.vaccineIds, test.childrenIds));
+            return Ok(await _vaccinesTrackingService.UpdateVaccinesTrackingAsync(id, updateVaccineTracking));
         }
     }
 }

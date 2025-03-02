@@ -5,11 +5,10 @@ using System.Threading.Tasks;
 
 namespace ClassLib.Enum
 {
-    public enum PaymentEnum
+    public enum VaccinesTrackingEnum
     {
-        Cash = 1,
-        Momo = 2,
-        VnPay = 3,
-        Paypal = 4
+        Success,
+        Waiting,
+        Cancel
     }
 }

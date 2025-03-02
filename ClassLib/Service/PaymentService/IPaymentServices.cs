@@ -12,5 +12,7 @@ namespace ClassLib.Service.PaymentService
         string PaymentName();
         Task<string> CreatePaymentURL(OrderInfoModel orderInfo, HttpContext context);
         Task<RespondModel> GetPaymentStatus(IQueryCollection collection);
+
+        
     }
 }

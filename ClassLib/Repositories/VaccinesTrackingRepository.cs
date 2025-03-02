@@ -33,7 +33,7 @@ namespace ClassLib.Repositories
                                     .ToListAsync()!;
         }
 
-        public async Task<VaccinesTracking> GetVaccinesTrackingByIdAsync(int id)
+        public async Task<VaccinesTracking?> GetVaccinesTrackingByIdAsync(int id)
         {
             return await _context.VaccinesTrackings.FindAsync(id);
         }
@@ -53,17 +53,34 @@ namespace ClassLib.Repositories
             {
                 Console.WriteLine(e.Message);
                 transaction.Rollback();
-                return null;
+                return null!;
             }
         }
 
-        public async Task<VaccinesTracking> UpdateVaccinesTrackingAsync(VaccinesTracking vaccinesTracking, string status, string reaction)
+        public async Task<VaccinesTracking> UpdateVaccinesTrackingAsync(VaccinesTracking vaccinesTracking)
         {
-            vaccinesTracking.Status = status;
-            vaccinesTracking.Reaction = reaction;
-            _context.Entry(vaccinesTracking).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-            return vaccinesTracking;
+            using var transaction = _context.Database.BeginTransaction();
+            try
+            {
+                _context.VaccinesTrackings.Update(vaccinesTracking);
+                await _context.SaveChangesAsync();
+
+                transaction.Commit();
+                return vaccinesTracking;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                transaction.Rollback();
+                return null!;
+            }
+        }
+
+        public async Task<VaccinesTracking?> GetVaccinesTrackingByPreviousVaccination(int previousVaccination)
+        {
+            return await _context.VaccinesTrackings
+                                    .Where(vt => vt.PreviousVaccination == previousVaccination)
+                                    .FirstOrDefaultAsync()!;
         }
     }
 }

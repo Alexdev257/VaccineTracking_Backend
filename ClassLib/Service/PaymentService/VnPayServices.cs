@@ -63,8 +63,9 @@ namespace ClassLib.Service.PaymentService
 
             Payment payment = new Payment()
             {
+                PaymentId = orderId!,
                 PaymentMethod = (await _paymentMethodRepository.getPaymentMethodByName("vnpay")).Id,
-                TotalPrice = int.Parse(amount),
+                TotalPrice = int.Parse(amount!),
                 BookingId = int.Parse(booking),
                 PaymentDate = DateTime.Now,
                 Status = (message == "00") ? "Success" : "Fail",
