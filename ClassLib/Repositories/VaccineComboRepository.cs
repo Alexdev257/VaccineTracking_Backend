@@ -62,15 +62,16 @@ namespace ClassLib.Repositories
                 {
                     Id = vc.Id,
                     ComboName = vc.ComboName,
-                    Vaccines = vc.Vaccines.Select(v => new Vaccine()
+                    Vaccines = vc.Vaccines.Select(v => new Vaccines()
                     {
                         Name = v.Name,
                     }).ToList()
                 })
                 .FirstOrDefaultAsync();
+        }
 
         // TieHung23
-        public async Task<List<Vaccine>> GetAllVaccineInVaccinesComboByID(int id)
+        public async Task<List<Vaccines>> GetAllVaccineInVaccinesComboByID(int id)
         {
             return await _context.VaccinesCombos.Include(v => v.Vaccines).Where(vc => vc.Id == id).SelectMany(vc => vc.Vaccines).ToListAsync();   
         }

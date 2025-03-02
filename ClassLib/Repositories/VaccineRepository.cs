@@ -18,37 +18,37 @@ namespace ClassLib.Repositories
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<List<Vaccine>> GetAllVaccines()
+        public async Task<List<Vaccines>> GetAllVaccines()
         {
             return await _context.Vaccines.Include(v => v.Address).ToListAsync();
         }
 
-        public async Task<Vaccine?> GetById(int id)
+        public async Task<Vaccines?> GetById(int id)
         {
-            return await _context.Set<Vaccine>().FindAsync(id);
+            return await _context.Set<Vaccines>().FindAsync(id);
         }
 
-        public async Task<Vaccine> CreateVaccine(Vaccine newVaccine)
+        public async Task<Vaccines> CreateVaccine(Vaccines newVaccine)
         {
             _context.Add(newVaccine);
             await _context.SaveChangesAsync();
             return newVaccine;
         }
 
-        public async Task<Vaccine> UpdateVaccine(Vaccine currentVaccine, Vaccine updateVaccine)
+        public async Task<Vaccines> UpdateVaccine(Vaccines currentVaccine, Vaccines updateVaccine)
         {
             _context.Entry(currentVaccine).CurrentValues.SetValues(updateVaccine);
             await _context.SaveChangesAsync();
             return currentVaccine;
         }
 
-        public async Task<bool> DeleteVaccine(Vaccine currentVaccine)
+        public async Task<bool> DeleteVaccine(Vaccines currentVaccine)
         {
-            _context.Set<Vaccine>().Remove(currentVaccine);
+            _context.Set<Vaccines>().Remove(currentVaccine);
             await _context.SaveChangesAsync();
             return true;
         }
-        public async Task<List<Vaccine>> GetVaccinesByAge(int age)
+        public async Task<List<Vaccines>> GetVaccinesByAge(int age)
         {
             return await _context.Vaccines
                 .Where(v => age > v.SuggestAgeMin && age < v.SuggestAgeMax)
@@ -57,7 +57,7 @@ namespace ClassLib.Repositories
 
 
         //TieHung
-        public async Task<bool> DecreseQuantityVaccines(Vaccine vaccine,int amount){
+        public async Task<bool> DecreseQuantityVaccines(Vaccines vaccine,int amount){
 
             using var transcation = _context.Database.BeginTransaction();
             if (vaccine == null) return false;

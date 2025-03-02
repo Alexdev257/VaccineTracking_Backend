@@ -12,7 +12,7 @@ namespace ClassLib.Helpers
 {
     public class ConvertHelpers
     {
-        public static VaccinesTracking convertToVaccinesTrackingModel(AddVaccinesTrackingRequest request, int childID, Vaccine vaccines, VaccinesTracking previousVaccination)
+        public static VaccinesTracking convertToVaccinesTrackingModel(AddVaccinesTrackingRequest request, int childID, Vaccines vaccines, VaccinesTracking previousVaccination)
         {
             return new VaccinesTracking
             {

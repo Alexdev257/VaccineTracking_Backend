@@ -23,5 +23,5 @@ public partial class Booking
 
     public virtual ICollection<VaccinesCombo> Combos { get; set; } = new List<VaccinesCombo>();
 
-    public virtual ICollection<Vaccine> Vaccines { get; set; } = new List<Vaccine>();
+    public virtual ICollection<Vaccines> Vaccines { get; set; } = new List<Vaccines>();
 }

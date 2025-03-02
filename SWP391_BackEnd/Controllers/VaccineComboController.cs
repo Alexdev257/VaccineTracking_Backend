@@ -23,12 +23,12 @@ namespace SWP391_BackEnd.Controllers
         {
             //try
             //{
-            var combos = await _vaccineComboService.GetAllVaccineCombo();
-            if (combos == null || combos.Count == 0)
-            {
-                return NotFound("No combos found.");
-            }
-            return Ok(combos);
+                var combos = await _vaccineComboService.GetAllVaccineCombo();
+                if (combos == null || combos.Count == 0)
+                {
+                    return NotFound("No combos found.");
+                }
+                return Ok(combos);
             //}
             //catch (Exception ex)
             //{
