@@ -54,6 +54,7 @@ namespace SWP391_BackEnd.Controllers
             {
                 return BadRequest("Invalid payment method.");
             }
+            
             var booking = await _bookingService.UpdateBookingStatus(response.BookingID, response.Message);
             if (booking == null)
             {

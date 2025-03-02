@@ -6,6 +6,8 @@ using ClassLib.DTO.Child;
 using ClassLib.DTO.VaccineTracking;
 using ClassLib.Models;
 using ClassLib.Repositories;
+using ClassLib.Helpers;
+using ClassLib.Enum;
 
 namespace ClassLib.Service
 {
@@ -28,52 +30,19 @@ namespace ClassLib.Service
         public async Task<List<VaccinesTrackingResponse>> GetVaccinesTrackingAsync()
         {
             var vaccinesTrackings = await _vaccinesTrackingRepository.GetVaccinesTrackingAsync();
-            return vaccinesTrackings.Select(vt => new VaccinesTrackingResponse
-            {
-                VaccineName = vt.Vaccine.Name,
-                UserName = vt.User.Name,
-                ChildName = vt.Child.Name,
-                MinimumIntervalDate = vt.MinimumIntervalDate,
-                VaccinationDate = vt.VaccinationDate,
-                MaximumIntervalDate = vt.MaximumIntervalDate,
-                Status = vt.Status,
-                AdministeredByDoctorName = vt.User.Name,
-                Reaction = vt.Reaction
-            }).ToList();
+            return vaccinesTrackings.Select(vt => ConvertHelpers.convertToVaccinesTrackingResponse(vt)).ToList();
         }
 
         public async Task<List<VaccinesTrackingResponse>> GetVaccinesTrackingByParentIdAsync(int id)
         {
             var vaccinesTrackings = await _vaccinesTrackingRepository.GetVaccinesTrackingByParentIdAsync(id);
-            return vaccinesTrackings.Select(vt => new VaccinesTrackingResponse
-            {
-                VaccineName = vt.Vaccine.Name,
-                UserName = vt.User.Name,
-                ChildName = vt.Child.Name,
-                MinimumIntervalDate = vt.MinimumIntervalDate,
-                VaccinationDate = vt.VaccinationDate,
-                MaximumIntervalDate = vt.MaximumIntervalDate,
-                Status = vt.Status,
-                AdministeredByDoctorName = vt.User.Name,
-                Reaction = vt.Reaction
-            }).ToList();
+            return vaccinesTrackings.Select(vt => ConvertHelpers.convertToVaccinesTrackingResponse(vt)).ToList();
         }
 
         public async Task<VaccinesTrackingResponse> GetVaccinesTrackingByIdAsync(int id)
         {
             var vt = await _vaccinesTrackingRepository.GetVaccinesTrackingByIdAsync(id);
-            return new VaccinesTrackingResponse
-            {
-                VaccineName = vt.Vaccine.Name,
-                UserName = vt.User.Name,
-                ChildName = vt.Child.Name,
-                MinimumIntervalDate = vt.MinimumIntervalDate,
-                VaccinationDate = vt.VaccinationDate,
-                MaximumIntervalDate = vt.MaximumIntervalDate,
-                Status = vt.Status,
-                AdministeredByDoctorName = vt.User.Name,
-                Reaction = vt.Reaction
-            };
+            return ConvertHelpers.convertToVaccinesTrackingResponse(vt);
         }
 
         public async Task<bool> AddVaccinesComboToVaccinesTrackingAsync(AddVaccinesTrackingRequest request, List<int> vaccinesCombo, List<int> child)
@@ -85,11 +54,9 @@ namespace ClassLib.Service
             }
             return true;
         }
-
-
         public async Task<bool> AddVaccinesToVaccinesTrackingAsync(AddVaccinesTrackingRequest request, List<int> vaccines, List<int> child)
         {
-            int previousVaccination = 0;
+            VaccinesTracking previousVaccination = null!;
 
             foreach (var childID in child)
             {
@@ -99,61 +66,48 @@ namespace ClassLib.Service
 
                     for (int dosesTimes = 1; dosesTimes <= vaccine!.DoesTimes; dosesTimes++)
                     {
-                        if (dosesTimes == 1)  // Fix: First dose should be dosesTimes == 1
-                        {
-                            var vt = new VaccinesTracking
-                            {
-                                VaccineId = vaccinesID,
-                                UserId = request.UserId,
-                                ChildId = childID,
-                                VaccinationDate = request.VaccinationDate,
-                                Status = "Waiting",
-                                AdministeredBy = request.AdministeredBy,
-                                MinimumIntervalDate = request.VaccinationDate!.Value.AddDays(2),
-                                MaximumIntervalDate = request.VaccinationDate!.Value.AddDays(7),
-                                Reaction = "Nothing",
-                                PreviousVaccination = previousVaccination
-                            };
-
-                            await _vaccinesTrackingRepository.AddVaccinesTrackingAsync(vt);
-                            previousVaccination = vt.Id; // Store the first dose's ID
-                        }
-                        else
-                        {
-                            // Fix: Ensure previousVaccination is valid
-                            if (previousVaccination == 0)
-                            {
-                                throw new Exception("Error: No valid previous vaccination record found.");
-                            }
-
-                            var previousTracking = await _vaccinesTrackingRepository.GetVaccinesTrackingByIdAsync(previousVaccination);
-                            if (previousTracking == null )
-                            {
-                                throw new Exception($"Error: Previous vaccination record (ID: {previousVaccination}) is invalid.");
-                            }
-
-                            var vt = new VaccinesTracking
-                            {   
-                                VaccineId = vaccinesID,
-                                UserId = request.UserId,
-                                ChildId = childID,
-                                VaccinationDate = null,
-                                Status = "Waiting",
-                                AdministeredBy = request.AdministeredBy,
-                                MinimumIntervalDate = previousTracking.MinimumIntervalDate!.AddDays(vaccine.MaximumIntervalDate!.Value),
-                                MaximumIntervalDate = null,
-                                Reaction = "Nothing",
-                                PreviousVaccination = previousVaccination
-                            };
-
-                            await _vaccinesTrackingRepository.AddVaccinesTrackingAsync(vt);
-                            previousVaccination = vt.Id; // Store current dose ID for next iteration
-                        }
+                        var vt = ConvertHelpers.convertToVaccinesTrackingModel(request, childID, vaccine, previousVaccination!);
+                        await _vaccinesTrackingRepository.AddVaccinesTrackingAsync(vt);
+                        previousVaccination = await _vaccinesTrackingRepository.GetVaccinesTrackingByIdAsync(vt.Id);
                     }
 
-                    previousVaccination = 0; // Reset for next vaccine
+                    previousVaccination = null!;
                 }
             }
+            return true;
+        }
+
+
+        public async Task<bool> UpdateVaccinesTrackingAsync(int id, UpdateVaccineTracking updateVaccineTracking)
+        {
+            var vt = await _vaccinesTrackingRepository.GetVaccinesTrackingByIdAsync(id);
+            int checkpointForThisVaccine = 1;
+            while (vt != null)
+            {
+                if (checkpointForThisVaccine == 1)
+                {
+                    vt.Status = updateVaccineTracking.Status ?? vt.Status;
+                    vt.Reaction = updateVaccineTracking.Reaction ?? vt.Reaction;
+                    vt.AdministeredBy = (updateVaccineTracking.AdministeredBy == 0) ? vt.AdministeredBy : updateVaccineTracking.AdministeredBy;
+                }
+                var vaccine = _vaccineRepository.GetById(vt.VaccineId).Result;
+                if (updateVaccineTracking.Status!.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Success).ToString().ToLower())
+                {
+                    vt.VaccinationDate = DateTime.Now;
+                    vt.MinimumIntervalDate = vt.VaccinationDate!.Value.AddDays(vaccine!.MinimumIntervalDate!.Value);
+                    vt.MaximumIntervalDate = vt.VaccinationDate!.Value.AddDays(vaccine!.MaximumIntervalDate!.Value);
+                }
+                if (updateVaccineTracking.Status!.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Cancel).ToString().ToLower())
+                {
+                    vt.VaccinationDate = null;
+                    vt.MinimumIntervalDate = DateTime.Now;
+                    vt.MaximumIntervalDate = null;
+                }
+                checkpointForThisVaccine++;
+                var vtUpdated = await _vaccinesTrackingRepository.UpdateVaccinesTrackingAsync(vt);
+                vt = await _vaccinesTrackingRepository.GetVaccinesTrackingByPreviousVaccination(vtUpdated.Id);
+            }
+
             return true;
         }
     }

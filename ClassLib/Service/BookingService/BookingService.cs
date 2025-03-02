@@ -17,7 +17,6 @@ namespace ClassLib.Service
     {
         private readonly BookingRepository _bookingRepository;
         private readonly UserRepository _userRepository;
-
         private readonly VaccinesTrackingService _vaccineTrackingService;
         public BookingService(BookingRepository bookingRepository, UserRepository userRepository, VaccinesTrackingService vaccinesTrackingService)
         {
@@ -33,41 +32,18 @@ namespace ClassLib.Service
 
         public async Task<OrderInfoModel?> AddBooking(AddBooking addBooking)
         {
-            Booking booking = new()
-            {
-                ParentId = addBooking.ParentId,
-                AdvisoryDetails = addBooking.AdvisoryDetail,
-                ArrivedAt = addBooking.ArrivedAt,
-                CreatedAt = DateTime.Now,
-                Status = "Pending"
-            };
-
-            await _bookingRepository.AddBooking(booking, addBooking.ChildrenIds!, addBooking.vaccineIds, addBooking.vaccineComboIds);
-            var user = await _userRepository.getUserByIdAsync(addBooking.ParentId);
-
-            AddVaccinesTrackingRequest addVaccinesTrackingRequest = new()
-            {
-                UserId = addBooking.ParentId,
-                VaccinationDate = addBooking.ArrivedAt,
-                AdministeredBy = 1
-            };
+            AddVaccinesTrackingRequest addVaccinesTrackingRequest = ConvertHelpers.convertToVaccinesTrackingRequest(addBooking);
             if (!addBooking.vaccineIds.IsNullOrEmpty())
                 await _vaccineTrackingService.AddVaccinesToVaccinesTrackingAsync(addVaccinesTrackingRequest, addBooking.vaccineIds, addBooking.ChildrenIds!);
             if (!addBooking.vaccineComboIds.IsNullOrEmpty())
                 await _vaccineTrackingService.AddVaccinesComboToVaccinesTrackingAsync(addVaccinesTrackingRequest, addBooking.vaccineComboIds, addBooking.ChildrenIds!);
 
+            Booking booking = ConvertHelpers.convertToBooking(addBooking);
+            await _bookingRepository.AddBooking(booking, addBooking.ChildrenIds!, addBooking.vaccineIds, addBooking.vaccineComboIds);
 
+            var user = await _userRepository.getUserByIdAsync(addBooking.ParentId);
 
-            return new OrderInfoModel
-            {
-                GuestName = user?.Name!,
-                GuestEmail = user?.Gmail,
-                GuestPhone = user?.PhoneNumber,
-                BookingID = booking.Id.ToString(),
-                OrderId = booking.Id.ToString(),
-                OrderDescription = booking.AdvisoryDetails,
-                Amount = addBooking.TotalPrice
-            };
+            return ConvertHelpers.convertToOrderInfoModel(booking, user!, addBooking);
         }
 
         public async Task<Booking?> UpdateBookingStatus(string bookingId, string msg)
