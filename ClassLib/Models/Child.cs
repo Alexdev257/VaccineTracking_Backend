@@ -19,6 +19,8 @@ public partial class Child
 
     public DateTime CreatedAt { get; set; }
 
+    public bool IsDeleted { get; set; }
+
     public virtual User Parent { get; set; } = null!;
 
     public virtual ICollection<VaccinesTracking> VaccinesTrackings { get; set; } = new List<VaccinesTracking>();

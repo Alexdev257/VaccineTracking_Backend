@@ -35,6 +35,8 @@ public partial class Vaccine
 
     public string FromCountry { get; set; } = null!;
 
+    public bool IsDeleted { get; set; }
+
     public virtual Address Address { get; set; } = null!;
 
     public virtual ICollection<VaccinesTracking> VaccinesTrackings { get; set; } = new List<VaccinesTracking>();

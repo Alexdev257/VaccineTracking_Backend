@@ -13,7 +13,7 @@ public partial class VaccinesTracking
 
     public int ChildId { get; set; }
 
-    public DateTime MinimumIntervalDate { get; set; }
+    public DateTime? MinimumIntervalDate { get; set; }
 
     public DateTime? VaccinationDate { get; set; }
 
@@ -26,6 +26,8 @@ public partial class VaccinesTracking
     public int AdministeredBy { get; set; }
 
     public string Reaction { get; set; } = null!;
+
+    public bool IsDeleted { get; set; }
 
     public virtual Child Child { get; set; } = null!;
 

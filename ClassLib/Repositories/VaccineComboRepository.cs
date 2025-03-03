@@ -12,9 +12,9 @@ namespace ClassLib.Repositories
 {
     public class VaccineComboRepository
     {
-        private readonly DbSwpVaccineTrackingContext _context;
+        private readonly DbSwpVaccineTrackingFinalContext _context;
 
-        public VaccineComboRepository(DbSwpVaccineTrackingContext context)
+        public VaccineComboRepository(DbSwpVaccineTrackingFinalContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }

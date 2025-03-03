@@ -9,9 +9,9 @@ namespace ClassLib.Repositories
 {
     public class BookingComboIdReponsitory
     {
-        private readonly DbSwpVaccineTrackingContext _context;
+        private readonly DbSwpVaccineTrackingFinalContext _context;
 
-        public BookingComboIdReponsitory(DbSwpVaccineTrackingContext context)
+        public BookingComboIdReponsitory(DbSwpVaccineTrackingFinalContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }

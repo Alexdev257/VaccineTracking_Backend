@@ -17,6 +17,8 @@ public partial class Booking
 
     public string Status { get; set; } = null!;
 
+    public bool IsDeleted { get; set; }
+
     public virtual User Parent { get; set; } = null!;
 
     public virtual ICollection<Child> Children { get; set; } = new List<Child>();

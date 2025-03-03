@@ -10,8 +10,8 @@ namespace ClassLib.Repositories
 {
     public class ChildRepository
     {
-        private readonly DbSwpVaccineTrackingContext _context;
-        public ChildRepository(DbSwpVaccineTrackingContext context)
+        private readonly DbSwpVaccineTrackingFinalContext _context;
+        public ChildRepository(DbSwpVaccineTrackingFinalContext context)
         {
             _context = context;
         }

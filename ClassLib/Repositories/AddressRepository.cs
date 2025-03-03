@@ -9,9 +9,9 @@ namespace ClassLib.Repositories
 {
     public class AddressRepository
     {
-        private readonly DbSwpVaccineTrackingContext _context;
+        private readonly DbSwpVaccineTrackingFinalContext _context;
 
-        public AddressRepository(DbSwpVaccineTrackingContext context)
+        public AddressRepository(DbSwpVaccineTrackingFinalContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }

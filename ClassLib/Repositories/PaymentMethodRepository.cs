@@ -9,8 +9,8 @@ namespace ClassLib.Repositories
 {
     public class PaymentMethodRepository
     {
-        private readonly DbSwpVaccineTrackingContext _context;
-        public PaymentMethodRepository(DbSwpVaccineTrackingContext context)
+        private readonly DbSwpVaccineTrackingFinalContext _context;
+        public PaymentMethodRepository(DbSwpVaccineTrackingFinalContext context)
         {
             _context = context;
         }
@@ -55,7 +55,7 @@ namespace ClassLib.Repositories
                 }
                 if (updateDescription != null)
                 {
-                    payment.Decription = updateDescription;
+                    payment.Description = updateDescription;
                 }
                 await _context.SaveChangesAsync();
                 transaction.Commit();
