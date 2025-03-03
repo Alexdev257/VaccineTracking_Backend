@@ -36,6 +36,10 @@ namespace ClassLib.Helpers
             CreateMap<CreateVaccineCombo, VaccinesCombo>();
             CreateMap<UpdateVaccineCombo, VaccinesCombo>();
 
+            CreateMap<VaccinesCombo, GetAllVaccineCombo>();
+
+            CreateMap<Vaccine, GetVaccineInVaccineComboDetail>();
+
         }
     }
 
