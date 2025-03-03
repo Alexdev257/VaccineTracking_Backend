@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -60,15 +61,17 @@ namespace ClassLib.Service.PaymentService
             var message = collection.FirstOrDefault(s => s.Key == "vnp_ResponseCode").Value;
             var trancasionID = collection.FirstOrDefault(s => s.Key == "vnp_TransactionNo").Value;
             var booking = orderInfo.ToString().Split("bookingID")[1];
-
+            var paymentdate = collection.FirstOrDefault(s => s.Key == "vnp_PayDate").Value;
             Payment payment = new Payment()
             {
                 PaymentId = orderId!,
                 PaymentMethod = (await _paymentMethodRepository.getPaymentMethodByName("vnpay")).Id,
                 TotalPrice = int.Parse(amount!),
                 BookingId = int.Parse(booking),
-                PaymentDate = DateTime.Now,
+                PaymentDate = DateTime.ParseExact(paymentdate, "yyyyMMddHHmmss", null),
                 Status = (message == "00") ? "Success" : "Fail",
+                TransactionId = int.Parse(trancasionID)
+
             };
             await _paymentRepository.AddPayment(payment);
 
