@@ -9,8 +9,8 @@ namespace ClassLib.Repositories
 {
     public class PaymentRepository
     {
-        private readonly DbSwpVaccineTrackingContext _context;
-        public PaymentRepository(DbSwpVaccineTrackingContext context)
+        private readonly DbSwpVaccineTrackingFinalContext _context;
+        public PaymentRepository(DbSwpVaccineTrackingFinalContext context)
         {
             _context = context;
         }

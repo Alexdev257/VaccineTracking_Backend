@@ -24,7 +24,7 @@ namespace ClassLib.Service
             PaymentMethod paymentMethod = new PaymentMethod
             {
                 Name = paymentMethodAdding.Name,
-                Decription = paymentMethodAdding.Decription
+                Description = paymentMethodAdding.Decription
             };
             return await _paymentMethodRepository.addPaymentMethod(paymentMethod);
         }

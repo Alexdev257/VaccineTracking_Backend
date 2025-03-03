@@ -9,8 +9,8 @@ namespace ClassLib.Repositories
 {
     public class VaccinesTrackingRepository
     {
-        private readonly DbSwpVaccineTrackingContext _context;
-        public VaccinesTrackingRepository(DbSwpVaccineTrackingContext context)
+        private readonly DbSwpVaccineTrackingFinalContext _context;
+        public VaccinesTrackingRepository(DbSwpVaccineTrackingFinalContext context)
         {
             _context = context;
         }

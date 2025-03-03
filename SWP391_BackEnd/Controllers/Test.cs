@@ -13,8 +13,8 @@ namespace SWP391_BackEnd.Controllers
     [Route("api/[controller]")]
     public class Test : ControllerBase
     {
-        private readonly DbSwpVaccineTrackingContext _context;
-        public Test(DbSwpVaccineTrackingContext context)
+        private readonly DbSwpVaccineTrackingFinalContext _context;
+        public Test(DbSwpVaccineTrackingFinalContext context)
         {
             _context = context;
         }

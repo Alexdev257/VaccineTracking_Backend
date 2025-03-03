@@ -33,7 +33,7 @@ namespace SWP391_BackEnd
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddDbContext<DbSwpVaccineTrackingContext>(options =>
+            builder.Services.AddDbContext<DbSwpVaccineTrackingFinalContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
