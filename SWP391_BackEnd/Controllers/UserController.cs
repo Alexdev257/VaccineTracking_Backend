@@ -87,6 +87,24 @@ namespace SWP391_BackEnd.Controllers
             }
         }
 
+        [HttpPost("login-by-google")]
+        public async Task<IActionResult> loginByGoogle([FromBody] LoginGoogleRequest request)
+        {
+            try
+            {
+                var res = await _userService.loginByGoogleAsync(request.GoogleToken);
+                return Ok(new { msg = "Login Successfully", res = res });
+            }
+            catch(UnauthorizedAccessException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch(Exception e)
+            {
+                return StatusCode(500, new {message = "Something went wrong"});
+            }
+        }
+
         //[HttpPost("refresh")]
         //public async Task<IActionResult> refresh([FromBody] LoginResponse refreshRequest)
         //{

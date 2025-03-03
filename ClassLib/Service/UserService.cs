@@ -26,6 +26,7 @@ using ClassLib.DTO.Email;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Memory;
 using static System.Net.WebRequestMethods;
+using Google.Apis.Auth;
 
 namespace ClassLib.Service
 {
@@ -183,6 +184,40 @@ namespace ClassLib.Service
                     }
                 }
             }
+        }
+
+        public async Task<LoginResponse?> loginByGoogleAsync(string googleToken)
+        {
+            var payload = await GoogleJsonWebSignature.ValidateAsync(googleToken);
+            if(payload == null)
+            {
+                throw new UnauthorizedAccessException("Invalid Google Token");
+            }
+
+            var user = await _userRepository.getUserByGmailAsync(payload.Email);
+            if(user == null)
+            {
+                user = new User()
+                {
+                    Name = payload.Name,
+                    Username = payload.Email,
+                    Gmail = payload.Email,
+                    Avatar = payload.Picture,
+                    CreatedAt = DateTime.UtcNow,
+                    PhoneNumber = "undefined",
+                    DateOfBirth = DateTime.UtcNow,
+                    Gender = 0,
+                    Role = "User",
+                    Status = "Active",
+                    IsDeleted = false,
+                };
+                await _userRepository.addUserAsync(user);
+            }
+
+            var (tokenId, accessToken, refreshToken) = _jwtHelper.generateToken(user);
+            var loginRes = _mapper.Map<LoginResponse>(user);
+
+            return loginRes;
         }
 
         public async Task<LoginResponse?> refreshTokenAsync1(LoginResponse refreshTokenRequest)
