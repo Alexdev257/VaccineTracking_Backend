@@ -1,9 +1,9 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace ClassLib.Models;
 
-public partial class Vaccines
+public partial class Vaccine
 {
     public int Id { get; set; }
 

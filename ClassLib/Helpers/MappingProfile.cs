@@ -29,9 +29,9 @@ namespace ClassLib.Helpers
 
             CreateMap<Booking, UpdateBooking>();
 
-            CreateMap<CreateVaccine, Vaccines>();
-            CreateMap<UpdateVaccine, Vaccines>();
-            CreateMap<Vaccines, GetVaccine>();
+            CreateMap<CreateVaccine, Vaccine>();
+            CreateMap<UpdateVaccine, Vaccine>();
+            CreateMap<Vaccine, GetVaccine>();
 
             CreateMap<CreateVaccineCombo, VaccinesCombo>();
             CreateMap<UpdateVaccineCombo, VaccinesCombo>();

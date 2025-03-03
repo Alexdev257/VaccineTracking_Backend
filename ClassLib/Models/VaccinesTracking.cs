@@ -31,5 +31,5 @@ public partial class VaccinesTracking
 
     public virtual User User { get; set; } = null!;
 
-    public virtual Vaccines Vaccine { get; set; } = null!;
+    public virtual Vaccine Vaccine { get; set; } = null!;
 }

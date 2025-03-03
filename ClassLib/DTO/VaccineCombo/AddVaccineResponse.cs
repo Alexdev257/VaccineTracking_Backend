@@ -13,6 +13,6 @@ namespace ClassLib.DTO.VaccineCombo
 
         public string ComboName { get; set; } = null!;
 
-        public List<Models.Vaccines> Vaccines { get; set; }
+        public List<Models.Vaccine> Vaccines { get; set; }
     }
 }
