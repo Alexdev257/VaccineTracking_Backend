@@ -22,8 +22,12 @@ namespace ClassLib.Helpers
                 VaccinationDate = (previousVaccination == null) ? request.VaccinationDate : null,
                 Status = ((VaccinesTrackingEnum)VaccinesTrackingEnum.Waiting).ToString(),
                 AdministeredBy = request.AdministeredBy,
-                MinimumIntervalDate = (previousVaccination == null) ? request.VaccinationDate!.Value.AddDays(2) : previousVaccination.VaccinationDate!.Value.AddDays(vaccines.MinimumIntervalDate!.Value),
-                MaximumIntervalDate = (previousVaccination == null) ? request.VaccinationDate!.Value.AddDays(7) : previousVaccination.VaccinationDate!.Value.AddDays(vaccines.MaximumIntervalDate!.Value),
+                MinimumIntervalDate = (previousVaccination == null)
+                                        ? (request.VaccinationDate ?? DateTime.Now).AddDays(2)  // Use DateTime.Now as fallback
+                                        : (previousVaccination.VaccinationDate ?? DateTime.Now).AddDays(vaccines.MinimumIntervalDate!.Value),
+                MaximumIntervalDate = (previousVaccination == null)
+                                        ? (request.VaccinationDate ?? DateTime.Now).AddDays(7)  // Use DateTime.Now as fallback
+                                        : (previousVaccination.VaccinationDate ?? DateTime.Now).AddDays(vaccines.MaximumIntervalDate!.Value),
                 Reaction = "Nothing",
                 PreviousVaccination = (previousVaccination == null) ? 0 : previousVaccination.Id
             };

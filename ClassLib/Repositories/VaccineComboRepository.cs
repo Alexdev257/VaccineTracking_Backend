@@ -73,7 +73,7 @@ namespace ClassLib.Repositories
         // TieHung23
         public async Task<List<Vaccines>> GetAllVaccineInVaccinesComboByID(int id)
         {
-            return await _context.VaccinesCombos.Include(v => v.Vaccines).Where(vc => vc.Id == id).SelectMany(vc => vc.Vaccines).ToListAsync();   
+            return await _context.VaccinesCombos.Include(v => v.Vaccines).Where(vc => vc.Id == id).SelectMany(vc => vc.Vaccines).ToListAsync();
         }
     }
 }

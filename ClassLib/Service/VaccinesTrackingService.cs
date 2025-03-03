@@ -8,6 +8,7 @@ using ClassLib.Models;
 using ClassLib.Repositories;
 using ClassLib.Helpers;
 using ClassLib.Enum;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ClassLib.Service
 {
@@ -47,6 +48,7 @@ namespace ClassLib.Service
 
         public async Task<bool> AddVaccinesComboToVaccinesTrackingAsync(AddVaccinesTrackingRequest request, List<int> vaccinesCombo, List<int> child)
         {
+            if(vaccinesCombo.IsNullOrEmpty()) return false;
             foreach (var vaccinesComboID in vaccinesCombo)
             {
                 var vaccineIDList = await _vaccineComboRepository.GetAllVaccineInVaccinesComboByID(vaccinesComboID);
@@ -56,8 +58,8 @@ namespace ClassLib.Service
         }
         public async Task<bool> AddVaccinesToVaccinesTrackingAsync(AddVaccinesTrackingRequest request, List<int> vaccines, List<int> child)
         {
-            VaccinesTracking previousVaccination = null!;
-
+            VaccinesTracking previousVaccination = null;
+            if(vaccines.IsNullOrEmpty()) return false;
             foreach (var childID in child)
             {
                 foreach (var vaccinesID in vaccines)
@@ -66,12 +68,12 @@ namespace ClassLib.Service
 
                     for (int dosesTimes = 1; dosesTimes <= vaccine!.DoesTimes; dosesTimes++)
                     {
-                        var vt = ConvertHelpers.convertToVaccinesTrackingModel(request, childID, vaccine, previousVaccination!);
+                        var vt = ConvertHelpers.convertToVaccinesTrackingModel(request, childID, vaccine, previousVaccination);
                         await _vaccinesTrackingRepository.AddVaccinesTrackingAsync(vt);
                         previousVaccination = await _vaccinesTrackingRepository.GetVaccinesTrackingByIdAsync(vt.Id);
                     }
 
-                    previousVaccination = null!;
+                    previousVaccination = null;
                 }
             }
             return true;

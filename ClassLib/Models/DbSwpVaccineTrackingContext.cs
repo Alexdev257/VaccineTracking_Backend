@@ -37,9 +37,8 @@ public partial class DbSwpVaccineTrackingContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-                  //=> optionsBuilder.UseSqlServer("data source=TieHung\\SQLEXPRESS;initial catalog=DB_SWP_Vaccine_Tracking;user id=sa;password=123456;TrustServerCertificate=True");
-                  //=> optionsBuilder.UseSqlServer("Server=LAPTOP-8UGAAJKM\\SQLEXPRESS01;Database=DB_SWP_Vaccine_Tracking;User Id=sa;Password=12345;TrustServerCertificate=True;");
-                  => optionsBuilder.UseSqlServer("data source=DESKTOP-LIE3GLO\\SQLEXPRESS;initial catalog=DB_SWP_Vaccine_Tracking;user id=sa;password=123456;TrustServerCertificate=True");
+        => optionsBuilder.UseSqlServer("data source=TieHung\\SQLEXPRESS;initial catalog=DB_SWP_Vaccine_Tracking;user id=sa;password=123456;TrustServerCertificate=True");
+        //=> optionsBuilder.UseSqlServer("Server=LAPTOP-8UGAAJKM\\SQLEXPRESS01;Database=DB_SWP_Vaccine_Tracking;User Id=sa;Password=12345;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -351,7 +350,7 @@ public partial class DbSwpVaccineTrackingContext : DbContext
                 .HasColumnType("decimal(16, 2)")
                 .HasColumnName("total_price");
 
-            entity.HasMany(d => d.Vaccines).WithMany(p => p.VaccinesCombos)
+            entity.HasMany(d => d.Vaccines).WithMany(p => p.VacineCombos)
                 .UsingEntity<Dictionary<string, object>>(
                     "VaccinesComboVaccine",
                     r => r.HasOne<Vaccines>().WithMany()
@@ -359,12 +358,12 @@ public partial class DbSwpVaccineTrackingContext : DbContext
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("vaccinescombo_vaccines_vaccine_id_foreign"),
                     l => l.HasOne<VaccinesCombo>().WithMany()
-                        .HasForeignKey("VaccineCombo")
+                        .HasForeignKey("VacineCombo")
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("vaccinescombo_vaccines_vacine_combo_foreign"),
                     j =>
                     {
-                        j.HasKey("VaccineCombo", "VaccineId").HasName("vaccinescombo_vaccines_pk");
+                        j.HasKey("VacineCombo", "VaccineId").HasName("vaccinescombo_vaccines_pk");
                         j.ToTable("VaccinesCombo_Vaccines");
                         j.IndexerProperty<int>("VaccineCombo").HasColumnName("vacine_combo");
                         j.IndexerProperty<int>("VaccineId").HasColumnName("vaccine_id");
