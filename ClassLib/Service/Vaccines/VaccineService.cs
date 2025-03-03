@@ -22,32 +22,34 @@ namespace ClassLib.Service.Vaccines
         }
 
         //Lấy tất cả
-        public async Task<List<Vaccine>> GetAllVaccines()
+        public async Task<List<GetVaccine>> GetAllVaccines()
         {
-            return await _vaccineRepository.GetAllVaccines();
+            var listVaccine = await _vaccineRepository.GetAllVaccines();
+            return _mapper.Map<List<GetVaccine>>(listVaccine);
         }
 
         //Lấy theo id
-        public async Task<Vaccine?> GetVaccineById(int id)
+        public async Task<GetVaccine?> GetVaccineById(int id)
         {
-            return await _vaccineRepository.GetById(id);
+            var vaccine = await _vaccineRepository.GetById(id);
+            return _mapper.Map<GetVaccine>(vaccine);
         }
 
         //Tạo mới
-        public async Task<Vaccine> CreateVaccine(CreateVaccine rq)
+        public async Task<Models.Vaccines> CreateVaccine(CreateVaccine rq)
         {
-            return await _vaccineRepository.CreateVaccine(_mapper.Map<Vaccine>(rq));
+            return await _vaccineRepository.CreateVaccine(_mapper.Map<Models.Vaccines>(rq));
         }
 
         //Update
-        public async Task<Vaccine> UpdateVaccine(UpdateVaccine rq, int id)
+        public async Task<Models.Vaccines> UpdateVaccine(UpdateVaccine rq, int id)
         {
             var currentVaccine = await _vaccineRepository.GetById(id);
             if (currentVaccine == null)
             {
                 throw new ArgumentException(nameof(currentVaccine));
             }
-            return await _vaccineRepository.UpdateVaccine(currentVaccine, _mapper.Map<Vaccine>(rq));
+            return await _vaccineRepository.UpdateVaccine(currentVaccine, _mapper.Map<Models.Vaccines>(rq));
         }
 
         //Xoá
@@ -61,9 +63,11 @@ namespace ClassLib.Service.Vaccines
             return await _vaccineRepository.DeleteVaccine(currentVaccine);
         }
         //lay theo tuoi
-        public async Task<List<Vaccine>> GetVaccinesByAge(int age)
+        public async Task<List<Models.Vaccines>> GetVaccinesByAge(int age)
         {
             return await _vaccineRepository.GetVaccinesByAge(age);
         }
+
+
     }
 }

@@ -6,17 +6,18 @@ using System.Threading.Tasks;
 
 namespace ClassLib.DTO.VaccineCombo
 {
-    public class CreateVaccineCombo
+    public class GetAllVaccineCombo
     {
-
         public string ComboName { get; set; } = null!;
 
         public int Discount { get; set; }
 
         public decimal TotalPrice { get; set; }
 
-        public decimal FinalPrice => TotalPrice * (1 - (Discount / 100m));
+        public decimal FinalPrice { get; set; }
 
         public string Status { get; set; } = null!;
+
+        public List<int>? vaccineIds { get; set; }
     }
 }

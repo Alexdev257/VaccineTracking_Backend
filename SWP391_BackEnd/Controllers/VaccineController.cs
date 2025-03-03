@@ -1,6 +1,8 @@
 ﻿using ClassLib.DTO.Vaccine;
 using ClassLib.Service.Vaccines;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
 
 namespace SWP391_BackEnd.Controllers
 {
@@ -15,55 +17,100 @@ namespace SWP391_BackEnd.Controllers
             _vaccineService = vaccineService ?? throw new ArgumentNullException(nameof(vaccineService));
         }
 
-        [HttpGet("getAllVacines")]
+        [HttpGet("getAllVaccines")]
         public async Task<IActionResult> GetVaccines()
         {
-            var vaccines = await _vaccineService.GetAllVaccines();
-            if (vaccines == null || vaccines.Count == 0)
+            try
             {
-                return NotFound("No vaccines found.");
+                var vaccines = await _vaccineService.GetAllVaccines();
+                if (vaccines == null || vaccines.Count == 0)
+                {
+                    return NotFound("No vaccines found.");
+                }
+                return Ok(vaccines);
             }
-            return Ok(vaccines);
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
         }
 
-        [HttpGet("getVacineById{id}")]
-        public async Task<IActionResult> GetVaccines(int id)
+        [HttpGet("getVaccineById/{id}")]
+        public async Task<IActionResult> GetVaccine(int id)
         {
-            var vaccine = await _vaccineService.GetVaccineById(id);
-            if (vaccine == null)
+            try
             {
-                return NotFound("No vaccine found.");
+                var vaccine = await _vaccineService.GetVaccineById(id);
+                if (vaccine == null)
+                {
+                    return NotFound("No vaccine found.");
+                }
+                return Ok(vaccine);
             }
-            return Ok(vaccine);
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
         }
+
         [HttpPost("createVaccine")]
         public async Task<IActionResult> CreateVaccine([FromBody] CreateVaccine rq)
         {
-            var vaccine = await _vaccineService.CreateVaccine(rq);
-            return Ok(vaccine);
-        }
-        [HttpPut("updateVaccineById{id}")]
-        public async Task<IActionResult> UpdateVaccine([FromBody] UpdateVaccine rq, int id)
-        {
-            var vaccine = await _vaccineService.UpdateVaccine(rq, id);
-            return Ok(vaccine);
+            try
+            {
+                var vaccine = await _vaccineService.CreateVaccine(rq);
+                return Ok(vaccine);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
         }
 
-        [HttpDelete("deleteVaccineById{id}")]
+        [HttpPut("updateVaccineById/{id}")]
+        public async Task<IActionResult> UpdateVaccine([FromBody] UpdateVaccine rq, int id)
+        {
+            try
+            {
+                var vaccine = await _vaccineService.UpdateVaccine(rq, id);
+                return Ok(vaccine);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
+        }
+
+        [HttpDelete("deleteVaccineById/{id}")]
         public async Task<IActionResult> DeleteVaccine(int id)
         {
-            var result = await _vaccineService.DeleteVaccine(id);
-            return Ok(result);
+            try
+            {
+                var result = await _vaccineService.DeleteVaccine(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
         }
+
         [HttpGet("by-age/{age}")]
         public async Task<IActionResult> GetVaccinesByAge(int age)
         {
-            var vaccines = await _vaccineService.GetVaccinesByAge(age);
-            if (vaccines == null || vaccines.Count == 0)
+            try
             {
-                return NotFound("No vaccines found for this age.");
+                var vaccines = await _vaccineService.GetVaccinesByAge(age);
+                if (vaccines == null || vaccines.Count == 0)
+                {
+                    return NotFound("No vaccines found for this age.");
+                }
+                return Ok(vaccines);
             }
-            return Ok(vaccines);
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
         }
     }
 }

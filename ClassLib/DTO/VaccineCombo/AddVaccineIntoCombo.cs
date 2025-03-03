@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace ClassLib.DTO.VaccineCombo
 {
-    internal class t
+    public class AddVaccineIntoCombo
     {
+        public List<int> VaccineIds { get; set; }
     }
 }

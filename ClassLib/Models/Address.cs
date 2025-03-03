@@ -9,5 +9,5 @@ public partial class Address
 
     public string Name { get; set; } = null!;
 
-    public virtual ICollection<Vaccine> Vaccines { get; set; } = new List<Vaccine>();
+    public virtual ICollection<Vaccines> Vaccines { get; set; } = new List<Vaccines>();
 }
