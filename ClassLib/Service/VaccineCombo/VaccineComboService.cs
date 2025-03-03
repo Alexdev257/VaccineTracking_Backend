@@ -33,6 +33,7 @@ namespace ClassLib.Service.VaccineCombo
             {
                 DTO.VaccineCombo.GetAllVaccineCombo response = new()
                 {
+                    Id = vaccineCombo.Id,
                     ComboName = vaccineCombo.ComboName,
                     Discount = vaccineCombo.Discount,
                     FinalPrice = vaccineCombo.FinalPrice,
