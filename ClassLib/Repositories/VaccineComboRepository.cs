@@ -14,6 +14,11 @@ namespace ClassLib.Repositories
     {
         private readonly DbSwpVaccineTrackingFinalContext _context;
 
+
+        public async Task<VaccinesCombo?> GetDetailVaccineComboById(int id)
+        {
+            return await _context.VaccinesCombos.Include(c => c.Vaccines).FirstOrDefaultAsync(c => c.Id == id);
+        }
         public VaccineComboRepository(DbSwpVaccineTrackingFinalContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));

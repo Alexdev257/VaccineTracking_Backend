@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ClassLib.DTO.VaccineCombo
 {
-    public class GetAllVaccineCombo
+    public class GetVaccineComboDetail
     {
         public int Id { get; set; }
         public string ComboName { get; set; } = null!;
@@ -21,6 +21,6 @@ namespace ClassLib.DTO.VaccineCombo
 
         //public List<int>? vaccineIds { get; set; }
 
-        public List<GetVaccineInVaccineCombo>? Vaccines { get; set; }
+        public List<GetVaccineInVaccineComboDetail>? Vaccines { get; set; }
     }
 }
