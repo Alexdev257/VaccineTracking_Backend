@@ -61,8 +61,6 @@ namespace SWP391_BackEnd.Controllers
                 return BadRequest("Invalid booking id.");
             }
 
-            if(payment_name.ToLower)
-
             return Ok(response);
         }
 
