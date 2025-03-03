@@ -36,20 +36,20 @@ namespace ClassLib.Service.Vaccines
         }
 
         //Tạo mới
-        public async Task<Vaccine> CreateVaccine(CreateVaccine rq)
+        public async Task<Models.Vaccines> CreateVaccine(CreateVaccine rq)
         {
-            return await _vaccineRepository.CreateVaccine(_mapper.Map<Vaccine>(rq));
+            return await _vaccineRepository.CreateVaccine(_mapper.Map<Models.Vaccines>(rq));
         }
 
         //Update
-        public async Task<Vaccine> UpdateVaccine(UpdateVaccine rq, int id)
+        public async Task<Models.Vaccines> UpdateVaccine(UpdateVaccine rq, int id)
         {
             var currentVaccine = await _vaccineRepository.GetById(id);
             if (currentVaccine == null)
             {
                 throw new ArgumentException(nameof(currentVaccine));
             }
-            return await _vaccineRepository.UpdateVaccine(currentVaccine, _mapper.Map<Vaccine>(rq));
+            return await _vaccineRepository.UpdateVaccine(currentVaccine, _mapper.Map<Models.Vaccines>(rq));
         }
 
         //Xoá
@@ -63,7 +63,7 @@ namespace ClassLib.Service.Vaccines
             return await _vaccineRepository.DeleteVaccine(currentVaccine);
         }
         //lay theo tuoi
-        public async Task<List<Vaccine>> GetVaccinesByAge(int age)
+        public async Task<List<Models.Vaccines>> GetVaccinesByAge(int age)
         {
             return await _vaccineRepository.GetVaccinesByAge(age);
         }

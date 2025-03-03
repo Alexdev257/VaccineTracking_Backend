@@ -29,7 +29,7 @@ public partial class DbSwpVaccineTrackingContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-    public virtual DbSet<Vaccine> Vaccines { get; set; }
+    public virtual DbSet<Vaccines> Vaccines { get; set; }
 
     public virtual DbSet<VaccinesCombo> VaccinesCombos { get; set; }
 
@@ -121,7 +121,7 @@ public partial class DbSwpVaccineTrackingContext : DbContext
             entity.HasMany(d => d.Vaccines).WithMany(p => p.Bookings)
                 .UsingEntity<Dictionary<string, object>>(
                     "BookingVaccine",
-                    r => r.HasOne<Vaccine>().WithMany()
+                    r => r.HasOne<Vaccines>().WithMany()
                         .HasForeignKey("VaccineId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("booking_vaccine_vaccine_id_foreign"),
@@ -287,9 +287,11 @@ public partial class DbSwpVaccineTrackingContext : DbContext
                 .HasColumnName("username");
         });
 
-        modelBuilder.Entity<Vaccine>(entity =>
+        modelBuilder.Entity<Vaccines>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("vaccines_id_primary");
+
+            entity.ToTable("Vaccine");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AddressId).HasColumnName("address_ID");
@@ -351,7 +353,7 @@ public partial class DbSwpVaccineTrackingContext : DbContext
             entity.HasMany(d => d.Vaccines).WithMany(p => p.VacineCombos)
                 .UsingEntity<Dictionary<string, object>>(
                     "VaccinesComboVaccine",
-                    r => r.HasOne<Vaccine>().WithMany()
+                    r => r.HasOne<Vaccines>().WithMany()
                         .HasForeignKey("VaccineId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("vaccinescombo_vaccines_vaccine_id_foreign"),
@@ -363,7 +365,7 @@ public partial class DbSwpVaccineTrackingContext : DbContext
                     {
                         j.HasKey("VacineCombo", "VaccineId").HasName("vaccinescombo_vaccines_pk");
                         j.ToTable("VaccinesCombo_Vaccines");
-                        j.IndexerProperty<int>("VacineCombo").HasColumnName("vacine_combo");
+                        j.IndexerProperty<int>("VaccineCombo").HasColumnName("vaccine_combo");
                         j.IndexerProperty<int>("VaccineId").HasColumnName("vaccine_id");
                     });
         });

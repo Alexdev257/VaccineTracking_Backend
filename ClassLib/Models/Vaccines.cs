@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ClassLib.Models;
 
-public partial class Vaccine
+public partial class Vaccines
 {
     public int Id { get; set; }
 
