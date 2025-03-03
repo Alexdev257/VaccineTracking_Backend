@@ -8,6 +8,7 @@ namespace ClassLib.DTO.VaccineCombo
 {
     public class GetAllVaccineCombo
     {
+        public int Id { get; set; }
         public string ComboName { get; set; } = null!;
 
         public int Discount { get; set; }
