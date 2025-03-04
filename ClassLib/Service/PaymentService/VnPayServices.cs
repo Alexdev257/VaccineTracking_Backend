@@ -58,10 +58,11 @@ namespace ClassLib.Service.PaymentService
             var amount = collection.FirstOrDefault(s => s.Key == "vnp_Amount").Value;
             var orderInfo = collection.FirstOrDefault(s => s.Key == "vnp_OrderInfo").Value;
             var orderId = collection.FirstOrDefault(s => s.Key == "vnp_TxnRef").Value;
-            var message = collection.FirstOrDefault(s => s.Key == "vnp_ResponseCode").Value;
+            var message = (collection.FirstOrDefault(s => s.Key == "vnp_ResponseCode").Value == "00") ? "Success" : "Failed";
             var trancasionID = collection.FirstOrDefault(s => s.Key == "vnp_TransactionNo").Value;
             var booking = orderInfo.ToString().Split("bookingID")[1];
             var paymentdate = collection.FirstOrDefault(s => s.Key == "vnp_PayDate").Value;
+            var payerID = orderInfo.ToString().Split(" ")[0];
             Payment payment = new Payment()
             {
                 PaymentId = orderId!,
@@ -69,8 +70,9 @@ namespace ClassLib.Service.PaymentService
                 TotalPrice = int.Parse(amount!),
                 BookingId = int.Parse(booking),
                 PaymentDate = DateTime.ParseExact(paymentdate, "yyyyMMddHHmmss", null),
-                Status = (message == "00") ? "Success" : "Fail",
-                TransactionId = int.Parse(trancasionID)
+                Status = message,
+                TransactionId = int.Parse(trancasionID),
+                PayerId = int.Parse(payerID)
 
             };
             await _paymentRepository.AddPayment(payment);
@@ -80,7 +82,7 @@ namespace ClassLib.Service.PaymentService
                 Amount = amount!,
                 OrderId = orderId!,
                 OrderDescription = orderInfo!,
-                Message = (message == "00") ? "Success" : "Fail",
+                Message = message,
                 TrancasionID = trancasionID!,
                 BookingID = booking
             });
