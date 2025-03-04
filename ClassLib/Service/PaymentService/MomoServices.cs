@@ -101,6 +101,11 @@ namespace ClassLib.Service.PaymentService
             return "momo";
         }
 
+        public Task<string> Refund(RefundModel refundModel, HttpContext context)
+        {
+            throw new NotImplementedException();
+        }
+
         private string ComputeHmacSha256(string message, string secretKey)
         {
             var keyBytes = Encoding.UTF8.GetBytes(secretKey);
