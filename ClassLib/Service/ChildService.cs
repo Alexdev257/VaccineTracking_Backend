@@ -21,12 +21,32 @@ namespace ClassLib.Service
             _mapper = mapper;
         }
 
-        public async Task<List<Child>> GetAllChildAsync()
+        public async Task<List<GetChildResponse>> GetAllChildAsync()
         {
-            return await _childRepository.GetAll();
+            var child = await _childRepository.GetAll();
+            List<GetChildResponse> result = new List<GetChildResponse>();
+            foreach (var childItem in child)
+            {
+                var res = _mapper.Map<GetChildResponse>(childItem);
+                result.Add(res);
+            }
+            return result;
         }
 
-        public async Task<Child?> GetChildByIdAsync(int id)
+        public async Task<List<GetChildResponse>> GetAllChildForAdminAsync()
+        {
+            var child =  await _childRepository.GetAllForAdmin();
+            List<GetChildResponse> result = new List<GetChildResponse>();
+            foreach(var childItem in child)
+            {
+                var res = _mapper.Map<GetChildResponse>(childItem);
+                result.Add(res);
+            }
+
+            return result;
+        }
+
+        public async Task<GetChildResponse?> GetChildByIdAsync(int id)
         {
             if (string.IsNullOrEmpty(id.ToString()))
             {
@@ -35,7 +55,8 @@ namespace ClassLib.Service
             try
             {
                 var child = await _childRepository.GetChildById(id);
-                return child;
+                var res = _mapper.Map<GetChildResponse>(child);
+                return res;
             }
             catch (Exception ex)
             {
@@ -43,7 +64,7 @@ namespace ClassLib.Service
             }
         }
 
-        public async Task<List<Child>> GetAllChildByParentIdAsync(int parentId)
+        public async Task<List<GetChildResponse>> GetAllChildByParentIdAsync(int parentId)
         {
             if (string.IsNullOrEmpty(parentId.ToString()))
             {
@@ -52,7 +73,14 @@ namespace ClassLib.Service
             try
             {
                 var child = await _childRepository.getAllChildByParentsId(parentId);
-                return child;
+                List<GetChildResponse> result = new List<GetChildResponse>();
+                foreach (var childItem in child)
+                {
+                    var res = _mapper.Map<GetChildResponse?>(childItem);
+                    result.Add(res);
+                }
+                return result;
+
             }
             catch (Exception ex)
             {
@@ -171,7 +199,7 @@ namespace ClassLib.Service
             {
                 throw new Exception("No child in the system");
             }
-            //child.IsDeleeted = true;
+            child.IsDeleted = true;
             return await _childRepository.UpdateChild(child);
         }
     }
