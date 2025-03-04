@@ -104,6 +104,7 @@ namespace ClassLib.Service.PaymentService
                 var lnk = links.Current;
                 if (lnk == null) continue;
                 if (!lnk.Rel.ToLower().Trim().Equals("approval_url")) continue;
+                //if (!lnk.Rel.ToLower().Trim().Equals("execute")) continue;
                 paymentUrl = lnk.Href;
             }
 

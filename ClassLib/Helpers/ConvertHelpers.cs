@@ -75,7 +75,8 @@ namespace ClassLib.Helpers
         {
             return new OrderInfoModel
             {
-                GuestName = user.Name!,
+                
+                GuestName =user.Id + " " + user.Name!,
                 GuestEmail = user.Gmail!,
                 GuestPhone = user.PhoneNumber!,
                 BookingID = booking.Id.ToString(),

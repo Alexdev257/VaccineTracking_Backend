@@ -63,8 +63,7 @@ namespace ClassLib.Service.PaymentService
             string jsonString = response.Content!;
             JObject json = JObject.Parse(jsonString);
             string payUrl = json["payUrl"]?.ToString()!; 
-
-            return payUrl!;
+            return jsonString!;
         }
 
         public async Task<RespondModel> GetPaymentStatus(IQueryCollection collection)
