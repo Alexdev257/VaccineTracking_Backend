@@ -18,17 +18,22 @@ namespace ClassLib.Repositories
 
         public async Task<List<Child>> GetAll()
         {
+            return await _context.Children.Where(c => c.IsDeleted == false).ToListAsync();
+        }
+
+        public async Task<List<Child>> GetAllForAdmin()
+        {
             return await _context.Children.ToListAsync();
         }
 
         public async Task<Child?> GetChildById(int id)
         {
-            return await _context.Children.FirstOrDefaultAsync(c => c.Id == id);
+            return await _context.Children.FirstOrDefaultAsync(c => c.Id == id && c.IsDeleted == false);
         }
 
         public async Task<List<Child>> getAllChildByParentsId(int parentId)
         {
-            return await _context.Children.Where(c => c.ParentId == parentId).ToListAsync();
+            return await _context.Children.Where(c => c.ParentId == parentId && c.IsDeleted == false).ToListAsync();
         }
 
         public async Task<bool> CreateChild(Child child)

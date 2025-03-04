@@ -27,6 +27,8 @@ namespace ClassLib.Helpers
 
             CreateMap<CreateChildRequest, Child>();
 
+            CreateMap<Child, GetChildResponse>();
+
             CreateMap<Booking, UpdateBooking>();
 
             CreateMap<CreateVaccine, Vaccine>();
