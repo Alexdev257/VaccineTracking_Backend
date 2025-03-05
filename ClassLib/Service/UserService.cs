@@ -195,7 +195,7 @@ namespace ClassLib.Service
             {
                 Audience = new List<string> { $"{clientID}"}
             };
-            var payload = await GoogleJsonWebSignature.ValidateAsync(googleToken);
+            var payload = await GoogleJsonWebSignature.ValidateAsync(googleToken, settings);
             if(payload == null)
             {
                 throw new UnauthorizedAccessException("Invalid Google Token");
