@@ -30,6 +30,7 @@ using Google.Apis.Auth;
 using Amazon.SimpleNotificationService;
 using Amazon;
 using Amazon.SimpleNotificationService.Model;
+using Microsoft.AspNetCore.Identity.Data;
 
 namespace ClassLib.Service
 {
@@ -208,6 +209,7 @@ namespace ClassLib.Service
                 {
                     Name = payload.Name,
                     Username = payload.Email,
+                    Password = BCrypt.Net.BCrypt.HashPassword("123"),
                     Gmail = payload.Email,
                     Avatar = payload.Picture,
                     CreatedAt = DateTime.UtcNow,
