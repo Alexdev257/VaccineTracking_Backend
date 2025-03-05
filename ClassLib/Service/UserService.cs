@@ -223,6 +223,8 @@ namespace ClassLib.Service
 
             var (tokenId, accessToken, refreshToken) = _jwtHelper.generateToken(user);
             var loginRes = _mapper.Map<LoginResponse>(user);
+            loginRes.AccessToken = accessToken;
+            loginRes.RefreshToken = refreshToken;
             var refreshTokenModel = new RefreshToken
             {
                 Id = long.Parse(tokenId),
