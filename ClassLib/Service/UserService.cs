@@ -30,7 +30,6 @@ using Google.Apis.Auth;
 using Amazon.SimpleNotificationService;
 using Amazon;
 using Amazon.SimpleNotificationService.Model;
-using Microsoft.AspNetCore.Identity.Data;
 
 namespace ClassLib.Service
 {
