@@ -27,6 +27,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Memory;
 using static System.Net.WebRequestMethods;
 using Google.Apis.Auth;
+using Amazon.SimpleNotificationService;
+using Amazon;
+using Amazon.SimpleNotificationService.Model;
 
 namespace ClassLib.Service
 {
@@ -186,9 +189,13 @@ namespace ClassLib.Service
             }
         }
 
-        public async Task<LoginResponse?> loginByGoogleAsync(string googleToken)
+        public async Task<LoginResponse?> loginByGoogleAsync(string googleToken, string clientID)
         {
-            var payload = await GoogleJsonWebSignature.ValidateAsync(googleToken);
+            var settings = new GoogleJsonWebSignature.ValidationSettings()
+            {
+                Audience = new List<string> { $"{clientID}"}
+            };
+            var payload = await GoogleJsonWebSignature.ValidateAsync(googleToken, settings);
             if(payload == null)
             {
                 throw new UnauthorizedAccessException("Invalid Google Token");
@@ -201,6 +208,7 @@ namespace ClassLib.Service
                 {
                     Name = payload.Name,
                     Username = payload.Email,
+                    Password = BCrypt.Net.BCrypt.HashPassword("123"),
                     Gmail = payload.Email,
                     Avatar = payload.Picture,
                     CreatedAt = DateTime.UtcNow,
@@ -216,8 +224,154 @@ namespace ClassLib.Service
 
             var (tokenId, accessToken, refreshToken) = _jwtHelper.generateToken(user);
             var loginRes = _mapper.Map<LoginResponse>(user);
+            loginRes.AccessToken = accessToken;
+            loginRes.RefreshToken = refreshToken;
+            var refreshTokenModel = new RefreshToken
+            {
+                Id = long.Parse(tokenId),
+                UserId = user.Id,
+                //AccessToken = "abc not luu",
+                AccessToken = accessToken,
+                RefreshToken1 = refreshToken,
+                IsUsed = false,
+                IsRevoked = false,
+                IssuedAt = DateTime.UtcNow,
+                ExpiredAt = DateTime.UtcNow.AddDays(1),
+
+            };
+            await _userRepository.addRefreshToken(refreshTokenModel);
 
             return loginRes;
+        }
+
+        public async Task<bool> loginByPhoneAsync(string phoneNumber)
+        {
+            //bool check = false;
+            //if (string.IsNullOrWhiteSpace(phoneNumber))
+            //{
+            //    throw new ArgumentNullException("Phone number can not be blank");
+            //    //return check;
+            //}
+            //var user = await _userRepository.getUserByPhoneAsync(phoneNumber);
+            //if (user == null)
+            //{
+            //    throw new Exception("Phone number is not exist");
+            //}
+            //if (!phoneNumber.StartsWith("+"))
+            //{
+            //    if (phoneNumber.StartsWith("0"))
+            //    {
+            //        phoneNumber = "+84" + phoneNumber.Substring(1);
+            //    }
+            //    else
+            //    {
+            //        throw new Exception("Invalid phone number format");
+            //    }
+            //}
+            //string? awsAccessKey = _configuration["AWS:AccessKey"];
+            //string? awsSecretKey = _configuration["AWS:SecretKey"];
+            //string? awsRegion = _configuration["AWS:Region"];
+            //var otp = VerifyCodeHelper.GenerateSixRandomCode();
+            //// luu otp vo cache
+            //_cache.Set($"OTPLogin_{otp}", otp, TimeSpan.FromMinutes(5));
+
+            // using var snsClient = new AmazonSimpleNotificationServiceClient(
+            //    awsAccessKey, 
+            //    awsSecretKey, 
+            //    RegionEndpoint.GetBySystemName(awsRegion)
+            //);
+
+            //var request = new PublishRequest
+            //{
+            //    Message = $"Your OTP for login into Vaccine Tracking System is: {otp}",
+            //    PhoneNumber = phoneNumber,
+            //};
+
+            //var n = await snsClient.PublishAsync(request);
+            //if(n != null)
+            //{
+            //    check = true;
+            //}
+            //return check;
+
+            //sms
+
+            //var request = new PublishRequest
+            //{
+            //    Message = $"Your OTP for login into Vaccine Tracking System is: {otp}",
+            //    PhoneNumber = phoneNumber,
+            //    MessageAttributes = new Dictionary<string, MessageAttributeValue>
+            //    {
+            //        {
+            //            "AWS.SNS.SMS.SMSType", new MessageAttributeValue
+            //            {
+            //                StringValue = "Transactional",
+            //                DataType = "String"
+            //            }
+            //        }
+            //    }
+            //};
+            //var res = await snsClient.PublishAsync(request);
+            //if (res != null && !string.IsNullOrEmpty(res.MessageId))
+            //{
+            //    check = true;
+            //}
+            //return check;
+            return false;
+        }
+
+        //_cache.Set("VerifyCodeKey", verifyCode, TimeSpan.FromMinutes(5));
+        //_cache.Remove("VerifyCodeKey");
+
+//        bool check = false;
+//            if (_cache.TryGetValue("VerifyCodeKey", out string? storedVerifyCode))
+//            {
+//                if (storedVerifyCode == request.VerifyCode)
+//                {
+//                    //string hashPassword = BCrypt.Net.BCrypt.HashPassword(_cache.Get<string>("NewPasswordKey"));
+//                    _cache.Remove("VerifyCodeKey");
+                    
+//                    check = true;
+//                    return check;
+//                }
+//                else
+//                {
+//                    throw new UnauthorizedAccessException("Invalid verify code.");
+//                    return check;
+//                }
+//            }
+//            else
+//    throw new UnauthorizedAccessException("Verify code has expired.");
+//    return check;
+public async Task<LoginResponse?> verifyOtpForLoginAsync(string phoneNumber, string otp)
+        {
+            var user = await _userRepository.getUserByPhoneAsync(phoneNumber);
+            if (user == null)
+            {
+                throw new ArgumentNullException("Phone number is not exist");
+            }
+            if(_cache.TryGetValue($"OTPLogin_{otp}", out string? otpCache))
+            {
+                if(otpCache == otp)
+                {
+                    _cache.Remove("OTPLogin");
+                    var (tokenID, accessToken, refreshToken) = _jwtHelper.generateToken(user);
+                    LoginResponse res = new LoginResponse
+                    {
+                        AccessToken = accessToken,
+                        RefreshToken = refreshToken,
+                    };
+                    return res;
+                }
+                else
+                {
+                    throw new Exception("Wrong OTP. Please try again!");
+                }
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("OTP has expired!");
+            }
         }
 
         public async Task<LoginResponse?> refreshTokenAsync1(LoginResponse refreshTokenRequest)
@@ -808,6 +962,7 @@ namespace ClassLib.Service
                 {
                     //string hashPassword = BCrypt.Net.BCrypt.HashPassword(_cache.Get<string>("NewPasswordKey"));
                     _cache.Remove("VerifyCodeKey");
+                    
                     check = true;
                     return check;
                 }

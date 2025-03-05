@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace ClassLib.DTO.User
 {
-    public class LoginGoogleRequest
+    public class VerifyOtpLoginPhoneRequest
     {
-        public string GoogleToken { get; set; }
-        public string ClientID { get; set; }
+        public string PhoneNumber { get; set; } = null!;
+        public string OTP { get; set; } = null!;
     }
 }

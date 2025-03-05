@@ -17,7 +17,7 @@ namespace SWP391_BackEnd.Controllers
             _vaccineService = vaccineService ?? throw new ArgumentNullException(nameof(vaccineService));
         }
 
-        [HttpGet("getAllVaccines")]
+        [HttpGet("get-all-vaccines")]
         public async Task<IActionResult> GetVaccines()
         {
             try
@@ -34,8 +34,26 @@ namespace SWP391_BackEnd.Controllers
                 return StatusCode(500, $"Internal Server Error: {ex.Message}");
             }
         }
+        
+        [HttpGet("get-all-vaccines-admin")]
+        public async Task<IActionResult> GetVaccinesAdmin()
+        {
+            try
+            {
+                var vaccines = await _vaccineService.GetAllVaccinesAdmin();
+                if (vaccines == null || vaccines.Count == 0)
+                {
+                    return NotFound("No vaccines found.");
+                }
+                return Ok(vaccines);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
+        }
 
-        [HttpGet("getVaccineById/{id}")]
+        [HttpGet("get-vaccine-by-id/{id}")]
         public async Task<IActionResult> GetVaccine(int id)
         {
             try
@@ -53,7 +71,25 @@ namespace SWP391_BackEnd.Controllers
             }
         }
 
-        [HttpPost("createVaccine")]
+        [HttpGet("get-vaccine-by-id-admin/{id}")]
+        public async Task<IActionResult> GetVaccineAdmin(int id)
+        {
+            try
+            {
+                var vaccine = await _vaccineService.GetVaccineByIdAdmin(id);
+                if (vaccine == null)
+                {
+                    return NotFound("No vaccine found.");
+                }
+                return Ok(vaccine);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
+        }
+
+        [HttpPost("create-vaccine")]
         public async Task<IActionResult> CreateVaccine([FromBody] CreateVaccine rq)
         {
             try
@@ -67,21 +103,43 @@ namespace SWP391_BackEnd.Controllers
             }
         }
 
-        [HttpPut("updateVaccineById/{id}")]
-        public async Task<IActionResult> UpdateVaccine([FromBody] UpdateVaccine rq, int id)
+        //[HttpPut("updateVaccineById/{id}")]
+        //public async Task<IActionResult> UpdateVaccine([FromBody] UpdateVaccine rq, int id)
+        //{
+        //    try
+        //    {
+        //        var vaccine = await _vaccineService.UpdateVaccine(rq, id);
+        //        return Ok(vaccine);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Internal Server Error: {ex.Message}");
+        //    }
+        //}
+
+        [HttpPut("update-vaccine/{id}")]
+        public async Task<IActionResult> UpdateVaccineController(int id, [FromBody] UpdateVaccine request)
         {
             try
             {
-                var vaccine = await _vaccineService.UpdateVaccine(rq, id);
-                return Ok(vaccine);
+                var rs = await _vaccineService.UdateVaccineAsync(id, request);
+                return Ok("Update Successfully");
             }
-            catch (Exception ex)
+            catch(ArgumentNullException ex)
             {
-                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+                return BadRequest(ex.Message);
+            }
+            catch(ArgumentException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
 
-        [HttpDelete("deleteVaccineById/{id}")]
+        [HttpDelete("delete-vaccine-by-id/{id}")]
         public async Task<IActionResult> DeleteVaccine(int id)
         {
             try
@@ -95,12 +153,51 @@ namespace SWP391_BackEnd.Controllers
             }
         }
 
-        [HttpGet("by-age/{age}")]
+        [HttpPatch("soft-delete-vaccine/{id}")]
+        public async Task<IActionResult> SoftDeleteVaccine(int id)
+        {
+            try
+            {
+                var rs = await _vaccineService.SoftDeleteVaccine(id);
+                return Ok("Delete successfully");
+            }
+            catch(ArgumentNullException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch(ArgumentException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("get-vaccine-by-age/{age}")]
         public async Task<IActionResult> GetVaccinesByAge(int age)
         {
             try
             {
                 var vaccines = await _vaccineService.GetVaccinesByAge(age);
+                if (vaccines == null || vaccines.Count == 0)
+                {
+                    return NotFound("No vaccines found for this age.");
+                }
+                return Ok(vaccines);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
+        }
+        [HttpGet("get-vaccine-by-age-admin/{age}")]
+        public async Task<IActionResult> GetVaccinesByAgeAdmin(int age)
+        {
+            try
+            {
+                var vaccines = await _vaccineService.GetVaccinesByAgeAdmin(age);
                 if (vaccines == null || vaccines.Count == 0)
                 {
                     return NotFound("No vaccines found for this age.");

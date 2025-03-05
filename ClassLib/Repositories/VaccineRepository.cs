@@ -20,12 +20,24 @@ namespace ClassLib.Repositories
 
         public async Task<List<Vaccine>> GetAllVaccines()
         {
+            return await _context.Vaccines.Include(v => v.Address).Where(v => v.IsDeleted == false).ToListAsync();
+        }
+
+        public async Task<List<Vaccine>> GetAllVaccinesAdmin()
+        {
             return await _context.Vaccines.Include(v => v.Address).ToListAsync();
         }
 
         public async Task<Vaccine?> GetById(int id)
         {
-            return await _context.Set<Vaccine>().FindAsync(id);
+            //return await _context.Set<Vaccine>().FindAsync(id);
+            return await _context.Vaccines.FirstOrDefaultAsync(v => v.Id == id && v.IsDeleted == false);
+        }
+
+        public async Task<Vaccine?> GetByIdAdmin(int id)
+        {
+            //return await _context.Set<Vaccine>().FindAsync(id);
+            return await _context.Vaccines.FirstOrDefaultAsync(v => v.Id == id);
         }
 
         public async Task<Vaccine> CreateVaccine(Vaccine newVaccine)
@@ -35,25 +47,40 @@ namespace ClassLib.Repositories
             return newVaccine;
         }
 
-        public async Task<Vaccine> UpdateVaccine(Vaccine currentVaccine, Vaccine updateVaccine)
+        //public async Task<Vaccine> UpdateVaccine(Vaccine currentVaccine, Vaccine updateVaccine)
+        //{
+        //    _context.Entry(currentVaccine).CurrentValues.SetValues(updateVaccine);
+        //    await _context.SaveChangesAsync();
+        //    return currentVaccine;
+        //}
+
+        public async Task<bool> UpdateVaccine(Vaccine vaccine)
         {
-            _context.Entry(currentVaccine).CurrentValues.SetValues(updateVaccine);
-            await _context.SaveChangesAsync();
-            return currentVaccine;
+            _context.Vaccines.Update(vaccine);
+            return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> DeleteVaccine(Vaccine currentVaccine)
+        public async Task<bool> DeleteVaccine(Vaccine vaccine)
         {
-            _context.Set<Vaccine>().Remove(currentVaccine);
-            await _context.SaveChangesAsync();
-            return true;
+            _context.Set<Vaccine>().Remove(vaccine);
+            return await _context.SaveChangesAsync() > 0;
+            
         }
         public async Task<List<Vaccine>> GetVaccinesByAge(int age)
+        {
+            return await _context.Vaccines
+                .Where(v => age > v.SuggestAgeMin && age < v.SuggestAgeMax && v.IsDeleted == false)
+                .ToListAsync();
+        }
+        
+        public async Task<List<Vaccine>> GetVaccinesByAgeAdmin(int age)
         {
             return await _context.Vaccines
                 .Where(v => age > v.SuggestAgeMin && age < v.SuggestAgeMax)
                 .ToListAsync();
         }
+
+        
 
 
         //TieHung
