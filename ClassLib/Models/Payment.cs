@@ -9,11 +9,13 @@ public partial class Payment
 
     public int BookingId { get; set; }
 
-    public int TransactionId { get; set; }
+    public string TransactionId { get; set; } = null!;
 
-    public int PayerId { get; set; }
+    public string PayerId { get; set; } = null!;
 
     public int PaymentMethod { get; set; }
+
+    public string Currency { get; set; } = null!;
 
     public decimal TotalPrice { get; set; }
 
