@@ -145,7 +145,7 @@ namespace SWP391_BackEnd
             var jwtSettings = builder.Configuration.GetSection("JwtSettings");
             var key = Encoding.ASCII.GetBytes(jwtSettings["SecretKey"]!);
 
-            //JWT
+            //JWT authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(otp =>
                  {
@@ -182,6 +182,64 @@ namespace SWP391_BackEnd
                          }
                      };
                  });
+
+            //JWT authorization
+            builder.Services.AddAuthorization(option =>
+            {
+                option.AddPolicy("AdminOnly", policy =>
+                policy.RequireClaim("Role", "Admin"));
+
+                option.AddPolicy("StaffOnly", policy =>
+                policy.RequireClaim("Role", "Staff"));
+
+                option.AddPolicy("DoctorOnly", policy =>
+                policy.RequireClaim("Role", "Doctor"));
+
+                option.AddPolicy("UserOnly", policy =>
+                policy.RequireClaim("Role", "User"));
+
+                option.AddPolicy("AdminOrUser", policy =>
+                policy.RequireAssertion(context =>
+                {
+                    var roleClaim = context.User.FindFirst(c => c.Type == "Role")?.Value;
+                    return roleClaim == "Admin" || roleClaim == "User";
+                }));
+
+                option.AddPolicy("DoctorOrUser", policy =>
+                policy.RequireAssertion(context =>
+                {
+                    var roleClaim = context.User.FindFirst(c => c.Type == "Role")?.Value;
+                    return roleClaim == "Doctor" || roleClaim == "User";
+                }));
+
+                option.AddPolicy("StaffOrUser", policy =>
+                policy.RequireAssertion(context =>
+                {
+                    var roleClaim = context.User.FindFirst(c => c.Type == "Role")?.Value;
+                    return roleClaim == "Staff" || roleClaim == "User";
+                }));
+
+                option.AddPolicy("NotUser", policy =>
+                policy.RequireAssertion(context =>
+                {
+                    var roleClaim = context.User.FindFirst(c => c.Type == "Role")?.Value;
+                    return roleClaim != "User";
+                }));
+
+                //option.AddPolicy("AdminOrStaff", policy =>
+                //policy.RequireAssertion(context =>
+                //{
+                //    var roleClaim = context.User.FindFirst(c => c.Type == "Role")?.Value;
+                //    return roleClaim == "Admin" || roleClaim == "Staff";
+                //}));
+
+                //option.AddPolicy("AdminOrDoctor", policy =>
+                //policy.RequireAssertion(context =>
+                //{
+                //    var roleClaim = context.User.FindFirst(c => c.Type == "Role")?.Value;
+                //    return roleClaim == "Admin" || roleClaim == "Doctor";
+                //}));
+            });
 
             builder.Services.AddAuthorization();
 
