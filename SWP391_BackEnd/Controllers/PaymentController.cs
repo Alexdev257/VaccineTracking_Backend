@@ -4,12 +4,14 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using ClassLib.DTO.Payment;
+using ClassLib.Helpers;
 using ClassLib.Models;
 using ClassLib.Repositories;
 using ClassLib.Service;
 using ClassLib.Service.PaymentService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace SWP391_BackEnd.Controllers
 {
@@ -20,11 +22,15 @@ namespace SWP391_BackEnd.Controllers
         private readonly IDictionary<string, IPaymentServices> _payment;
         private readonly BookingService _bookingService;
 
+        private readonly PaymentRepository _paymentRepository;
+
         public PaymentController(IEnumerable<IPaymentServices> payment
-                                , BookingService bookingService)
+                                , BookingService bookingService
+                                , PaymentRepository paymentRepository)
         {
             _bookingService = bookingService;
             _payment = payment.ToDictionary(s => s.PaymentName().ToLower());
+            _paymentRepository = paymentRepository;
         }
 
         // Create payment URL
@@ -37,6 +43,8 @@ namespace SWP391_BackEnd.Controllers
             }
 
             var paymentUrl = await paymentService.CreatePaymentURL(orderInfoModel, HttpContext);
+
+            // if( paymentUrl == null ) => direct to fail
             return Ok(paymentUrl);
         }
 
@@ -65,15 +73,25 @@ namespace SWP391_BackEnd.Controllers
         }
 
 
-        // // Refund Money
-        // [HttpPost("refund/{payment_name}/{bookingID}")]
-        // public async Task<IActionResult> RefundPayment([FromRoute] string payment_name, string bookingID)
-        // {
-        //     if (!_payment.TryGetValue(payment_name.ToLower(), out var paymentService))
-        //     {
-        //         return BadRequest("Invalid payment method.");
-        //     }
-        //     return Ok();
-        // }
+        // Refund Money
+        [HttpPost("refund/{payment_name}/{bookingID}")]
+        public async Task<IActionResult> RefundPayment([FromRoute] string payment_name, string bookingID, [FromBody] double amount)
+        {
+            if (!_payment.TryGetValue(payment_name.ToLower(), out var paymentService))
+            {
+                return BadRequest("Invalid payment method.");
+            }
+            var payment = await _paymentRepository.GetByBookingIDAsync(int.Parse(bookingID));
+
+            if (payment!.Status == "Refund") return BadRequest("The Booking is already refund");
+
+            var refundModel = ConvertHelpers.convertToRefundModel(payment!, amount);
+
+            var refundDetail = await paymentService.CreateRefund(refundModel, HttpContext);
+
+            if (!refundDetail.IsNullOrEmpty()) await _paymentRepository.UpdateStatusPayment(payment.PaymentId, "Refund");
+
+            return Ok(refundDetail);
+        }
     }
 }

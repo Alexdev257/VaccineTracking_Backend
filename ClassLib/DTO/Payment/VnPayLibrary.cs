@@ -100,6 +100,13 @@ namespace ClassLib.DTO.Payment
             return _responseData.TryGetValue(key, out var retValue) ? retValue : string.Empty;
         }
 
+
+        /// <summary>
+        /// GetRequestUrl -> pay or refund
+        /// </summary>
+        /// <param name="baseUrl"></param>
+        /// <param name="vnpHashSecret"></param>
+        /// <returns></returns>
         public string CreateRequestUrl(string baseUrl, string vnpHashSecret)
         {
             var data = new StringBuilder();
@@ -116,6 +123,13 @@ namespace ClassLib.DTO.Payment
             return $"{baseUrl}?{signData}&vnp_SecureHash={WebUtility.UrlEncode(secureHash)}";
         }
 
+
+        /// <summary>
+        /// ValidateSignature -> Match with Vnpay
+        /// </summary>
+        /// <param name="inputHash"></param>
+        /// <param name="secretKey"></param>
+        /// <returns></returns>
         public bool ValidateSignature(string inputHash, string secretKey)
         {
             var rspRaw = GetResponseData();
