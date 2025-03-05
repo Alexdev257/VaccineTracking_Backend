@@ -25,6 +25,9 @@ using SWP391_BackEnd.Controllers;
 using ClassLib.Repositories.BookingDetails;
 using ClassLib.Service.PaymentService;
 using ClassLib.DTO.Payment;
+using ClassLib.Job;
+using Hangfire;
+using Hangfire.SqlServer;
 namespace SWP391_BackEnd
 {
     public class Program
@@ -33,8 +36,24 @@ namespace SWP391_BackEnd
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
             builder.Services.AddDbContext<DbSwpVaccineTrackingFinalContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlServer(connectionString));
+
+            // config hangfire to auto generate table in db if do not exist 
+            builder.Services.AddHangfire(config =>
+                config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                      .UseSimpleAssemblyNameTypeSerializer()
+                      .UseRecommendedSerializerSettings()
+                      .UseSqlServerStorage(connectionString, new SqlServerStorageOptions
+                      {
+                          PrepareSchemaIfNecessary = true, //auto generate if do not exist
+                      })
+            );
+
+            // register Hangfire
+            builder.Services.AddHangfireServer();
 
 
             //IMemoryCache giúp lưu trữ dữ liệu trong bộ nhớ RAM của ứng dụng.
@@ -82,6 +101,9 @@ namespace SWP391_BackEnd
             builder.Services.Configure<VnPayConfigFromJson>(builder.Configuration.GetSection("VnpayAPI"));
             builder.Services.Configure<MomoConfigFromJSON>(builder.Configuration.GetSection("MomoAPI"));
             builder.Services.Configure<PaypalConfigFromJson>(builder.Configuration.GetSection("PaypalAPI"));
+
+
+            builder.Services.AddScoped<VaccineTrackingReminderJob>();
 
             // Add Json NewtonSoft to show more information
             builder.Services.AddControllers()
@@ -233,7 +255,15 @@ namespace SWP391_BackEnd
 
             //app.UseMiddleware<TokenExpiredMiddleware>();
 
+            //enable hangfire DASHBOARD
+            app.UseHangfireDashboard();
+            //app.UseHangfireServer();
 
+            // create job automatic running each day
+            RecurringJob.AddOrUpdate<VaccineTrackingReminderJob>(
+                "send-vaccine-reminders",
+                x => x.SendVaccineReminder(),
+                Cron.Daily);
 
 
             // Configure the HTTP request pipeline.
