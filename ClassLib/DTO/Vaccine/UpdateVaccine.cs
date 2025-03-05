@@ -22,7 +22,7 @@ namespace ClassLib.DTO.Vaccine
 
         public int SuggestAgeMax { get; set; }
 
-        public DateTime EntryDate { get; set; }
+        //public DateTime EntryDate { get; set; }
 
         public DateTime TimeExpired { get; set; }
 
