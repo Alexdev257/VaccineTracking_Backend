@@ -70,7 +70,6 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<VaccinesTrackingRepository>();
             builder.Services.AddScoped<VaccinesTrackingService>();
 
-
             builder.Services.AddScoped<BookingComboIdReponsitory>();
             builder.Services.AddScoped<BookingIdVaccineIdReponsitory>();
             builder.Services.AddScoped<BookingChildIdRepository>();
