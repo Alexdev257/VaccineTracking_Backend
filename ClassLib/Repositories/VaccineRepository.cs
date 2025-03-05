@@ -25,7 +25,8 @@ namespace ClassLib.Repositories
 
         public async Task<Vaccine?> GetById(int id)
         {
-            return await _context.Set<Vaccine>().FindAsync(id);
+            //return await _context.Set<Vaccine>().FindAsync(id);
+            return await _context.Vaccines.FirstOrDefaultAsync(v => v.Id == id);
         }
 
         public async Task<Vaccine> CreateVaccine(Vaccine newVaccine)
@@ -35,11 +36,17 @@ namespace ClassLib.Repositories
             return newVaccine;
         }
 
-        public async Task<Vaccine> UpdateVaccine(Vaccine currentVaccine, Vaccine updateVaccine)
+        //public async Task<Vaccine> UpdateVaccine(Vaccine currentVaccine, Vaccine updateVaccine)
+        //{
+        //    _context.Entry(currentVaccine).CurrentValues.SetValues(updateVaccine);
+        //    await _context.SaveChangesAsync();
+        //    return currentVaccine;
+        //}
+
+        public async Task<bool> UpdateVaccine(Vaccine vaccine)
         {
-            _context.Entry(currentVaccine).CurrentValues.SetValues(updateVaccine);
-            await _context.SaveChangesAsync();
-            return currentVaccine;
+            _context.Vaccines.Update(vaccine);
+            return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task<bool> DeleteVaccine(Vaccine currentVaccine)

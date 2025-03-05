@@ -32,7 +32,9 @@ namespace ClassLib.Helpers
             CreateMap<Booking, UpdateBooking>();
 
             CreateMap<CreateVaccine, Vaccine>();
-            CreateMap<UpdateVaccine, Vaccine>();
+            //CreateMap<UpdateVaccine, Vaccine>();
+            CreateMap<UpdateVaccine, Vaccine>()
+       .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<Vaccine, GetVaccine>();
 
             CreateMap<CreateVaccineCombo, VaccinesCombo>();
