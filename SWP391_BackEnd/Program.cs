@@ -77,6 +77,7 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<IPaymentServices, VnPayServices>();
             builder.Services.AddScoped<IPaymentServices, MomoServices>();
             builder.Services.AddScoped<IPaymentServices, PaypalServices>();
+            builder.Services.AddScoped<IPaymentServices, CashServices>();
 
             builder.Services.Configure<VnPayConfigFromJson>(builder.Configuration.GetSection("VnpayAPI"));
             builder.Services.Configure<MomoConfigFromJSON>(builder.Configuration.GetSection("MomoAPI"));

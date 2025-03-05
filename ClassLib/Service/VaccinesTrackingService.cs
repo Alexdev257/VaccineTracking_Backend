@@ -58,7 +58,7 @@ namespace ClassLib.Service
         }
         public async Task<bool> AddVaccinesToVaccinesTrackingAsync(AddVaccinesTrackingRequest request, List<int> vaccines, List<int> child)
         {
-            VaccinesTracking previousVaccination = null;
+            VaccinesTracking previousVaccination = null!;
             if(vaccines.IsNullOrEmpty()) return false;
             foreach (var childID in child)
             {
@@ -73,7 +73,7 @@ namespace ClassLib.Service
                         previousVaccination = await _vaccinesTrackingRepository.GetVaccinesTrackingByIdAsync(vt.Id);
                     }
 
-                    previousVaccination = null;
+                    previousVaccination = null!;
                 }
             }
             return true;

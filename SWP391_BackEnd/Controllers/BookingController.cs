@@ -55,7 +55,7 @@ namespace SWP391_BackEnd.Controllers
 
                 if (!string.IsNullOrEmpty(responseData))
                 {
-                    return Ok(responseData); 
+                    return Ok(responseData);
                 }
             }
 

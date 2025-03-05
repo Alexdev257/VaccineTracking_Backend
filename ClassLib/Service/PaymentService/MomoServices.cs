@@ -66,6 +66,11 @@ namespace ClassLib.Service.PaymentService
             return jsonString!;
         }
 
+        public Task<string> CreateRefund(RefundModel refundModel, HttpContext context)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<RespondModel> GetPaymentStatus(IQueryCollection collection)
         {
             var amount = collection.FirstOrDefault(s => s.Key == "amount").Value;
