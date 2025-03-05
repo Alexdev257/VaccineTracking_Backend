@@ -92,7 +92,7 @@ namespace SWP391_BackEnd.Controllers
         {
             try
             {
-                var res = await _userService.loginByGoogleAsync(request.GoogleToken);
+                var res = await _userService.loginByGoogleAsync(request.GoogleToken, request.ClientID);
                 return Ok(new { msg = "Login Successfully", res = res });
             }
             catch(UnauthorizedAccessException e)

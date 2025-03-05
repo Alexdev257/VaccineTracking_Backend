@@ -189,8 +189,12 @@ namespace ClassLib.Service
             }
         }
 
-        public async Task<LoginResponse?> loginByGoogleAsync(string googleToken)
+        public async Task<LoginResponse?> loginByGoogleAsync(string googleToken, string clientID)
         {
+            var settings = new GoogleJsonWebSignature.ValidationSettings()
+            {
+                Audience = new List<string> { $"{clientID}"}
+            };
             var payload = await GoogleJsonWebSignature.ValidateAsync(googleToken);
             if(payload == null)
             {
@@ -219,6 +223,20 @@ namespace ClassLib.Service
 
             var (tokenId, accessToken, refreshToken) = _jwtHelper.generateToken(user);
             var loginRes = _mapper.Map<LoginResponse>(user);
+            var refreshTokenModel = new RefreshToken
+            {
+                Id = long.Parse(tokenId),
+                UserId = user.Id,
+                //AccessToken = "abc not luu",
+                AccessToken = accessToken,
+                RefreshToken1 = refreshToken,
+                IsUsed = false,
+                IsRevoked = false,
+                IssuedAt = DateTime.UtcNow,
+                ExpiredAt = DateTime.UtcNow.AddDays(1),
+
+            };
+            await _userRepository.addRefreshToken(refreshTokenModel);
 
             return loginRes;
         }
