@@ -29,15 +29,27 @@ namespace ClassLib.Service.Vaccines
             return _mapper.Map<List<GetVaccine>>(listVaccine);
         }
 
+        public async Task<List<GetVaccine>> GetAllVaccinesAdmin()
+        {
+            var listVaccine = await _vaccineRepository.GetAllVaccinesAdmin();
+            return _mapper.Map<List<GetVaccine>>(listVaccine);
+        }
+
         //Lấy theo id
         public async Task<GetVaccine?> GetVaccineById(int id)
         {
             var vaccine = await _vaccineRepository.GetById(id);
             return _mapper.Map<GetVaccine>(vaccine);
         }
+        
+        public async Task<GetVaccine?> GetVaccineByIdAdmin(int id)
+        {
+            var vaccine = await _vaccineRepository.GetByIdAdmin(id);
+            return _mapper.Map<GetVaccine>(vaccine);
+        }
 
         //Tạo mới
-        public async Task<Models.Vaccine> CreateVaccine(CreateVaccine rq)
+        public async Task<Vaccine> CreateVaccine(CreateVaccine rq)
         {
             return await _vaccineRepository.CreateVaccine(_mapper.Map<Models.Vaccine>(rq));
         }
@@ -143,10 +155,31 @@ namespace ClassLib.Service.Vaccines
             }
             return await _vaccineRepository.DeleteVaccine(currentVaccine);
         }
+
+        public async Task<bool> SoftDeleteVaccine(int id)
+        {
+            if (string.IsNullOrWhiteSpace(id.ToString()))
+            {
+                throw new ArgumentNullException("ID can not be blank");
+            }
+
+            var vaccine = await _vaccineRepository.GetById(id);
+            if(vaccine == null)
+            {
+                throw new ArgumentException("Do not exist child");
+            }
+            vaccine.IsDeleted = true;
+            return await _vaccineRepository.UpdateVaccine(vaccine);
+        }
         //lay theo tuoi
         public async Task<List<Models.Vaccine>> GetVaccinesByAge(int age)
         {
             return await _vaccineRepository.GetVaccinesByAge(age);
+        }
+        
+        public async Task<List<Models.Vaccine>> GetVaccinesByAgeAdmin(int age)
+        {
+            return await _vaccineRepository.GetVaccinesByAgeAdmin(age);
         }
 
 
