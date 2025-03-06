@@ -85,6 +85,7 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<PaymentRepository>();
 
             builder.Services.AddScoped<PaymentMethodRepository>();
+            builder.Services.AddScoped<PaymentMethodService>();
 
             builder.Services.AddScoped<VaccinesTrackingRepository>();
             builder.Services.AddScoped<VaccinesTrackingService>();
