@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ClassLib.DTO.Child;
 using ClassLib.DTO.VaccineTracking;
 using ClassLib.Models;
 using ClassLib.Repositories;
@@ -43,23 +38,23 @@ namespace ClassLib.Service
         public async Task<VaccinesTrackingResponse> GetVaccinesTrackingByIdAsync(int id)
         {
             var vt = await _vaccinesTrackingRepository.GetVaccinesTrackingByIdAsync(id);
-            return ConvertHelpers.convertToVaccinesTrackingResponse(vt);
+            return ConvertHelpers.convertToVaccinesTrackingResponse(vt!);
         }
 
-        public async Task<bool> AddVaccinesComboToVaccinesTrackingAsync(AddVaccinesTrackingRequest request, List<int> vaccinesCombo, List<int> child)
+        public async Task<bool> AddVaccinesComboToVaccinesTrackingAsync(AddVaccinesTrackingRequest request, List<int> vaccinesCombo, List<int> child, int bookingId)
         {
-            if(vaccinesCombo.IsNullOrEmpty()) return false;
+            if (vaccinesCombo.IsNullOrEmpty()) return false;
             foreach (var vaccinesComboID in vaccinesCombo)
             {
                 var vaccineIDList = await _vaccineComboRepository.GetAllVaccineInVaccinesComboByID(vaccinesComboID);
-                await AddVaccinesToVaccinesTrackingAsync(request, vaccineIDList.Select(v => v.Id).ToList(), child);
+                await AddVaccinesToVaccinesTrackingAsync(request, vaccineIDList.Select(v => v.Id).ToList(), child, bookingId);
             }
             return true;
         }
-        public async Task<bool> AddVaccinesToVaccinesTrackingAsync(AddVaccinesTrackingRequest request, List<int> vaccines, List<int> child)
+        public async Task<bool> AddVaccinesToVaccinesTrackingAsync(AddVaccinesTrackingRequest request, List<int> vaccines, List<int> child, int bookingId)
         {
             VaccinesTracking previousVaccination = null!;
-            if(vaccines.IsNullOrEmpty()) return false;
+            if (vaccines.IsNullOrEmpty()) return false;
             foreach (var childID in child)
             {
                 foreach (var vaccinesID in vaccines)
@@ -68,9 +63,9 @@ namespace ClassLib.Service
 
                     for (int dosesTimes = 1; dosesTimes <= vaccine!.DoesTimes; dosesTimes++)
                     {
-                        var vt = ConvertHelpers.convertToVaccinesTrackingModel(request, childID, vaccine, previousVaccination);
+                        var vt = ConvertHelpers.convertToVaccinesTrackingModel(request, childID, vaccine, previousVaccination!, bookingId);
                         await _vaccinesTrackingRepository.AddVaccinesTrackingAsync(vt);
-                        previousVaccination = await _vaccinesTrackingRepository.GetVaccinesTrackingByIdAsync(vt.Id);
+                        previousVaccination = (await _vaccinesTrackingRepository.GetVaccinesTrackingByIdAsync(vt.Id))!;
                     }
 
                     previousVaccination = null!;
