@@ -1,10 +1,3 @@
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Azure.Core;
-using ClassLib.DTO.Booking;
 using ClassLib.Enum;
 using ClassLib.Helpers;
 using ClassLib.Models;
@@ -20,18 +13,15 @@ namespace ClassLib.Repositories
         private readonly BookingChildIdRepository _bookingChildIdRepository;
         private readonly BookingIdVaccineIdReponsitory _bookingIdVaccineIdReponsitory;
         private readonly BookingComboIdReponsitory _bookingComboIdReponsitory;
-        private readonly VaccinesTrackingRepository _vaccinesTrackingRepository;
         public BookingRepository(DbSwpVaccineTrackingFinalContext context,
                                  BookingChildIdRepository bookingChildIdRepository,
                                  BookingIdVaccineIdReponsitory bookingIdVaccineIdReponsitory,
-                                 BookingComboIdReponsitory bookingComboIdReponsitory,
-                                 VaccinesTrackingRepository vaccinesTrackingRepository)
+                                 BookingComboIdReponsitory bookingComboIdReponsitory)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _bookingChildIdRepository = bookingChildIdRepository ?? throw new ArgumentNullException(nameof(bookingChildIdRepository));
             _bookingIdVaccineIdReponsitory = bookingIdVaccineIdReponsitory ?? throw new ArgumentNullException(nameof(bookingIdVaccineIdReponsitory));
             _bookingComboIdReponsitory = bookingComboIdReponsitory ?? throw new ArgumentNullException(nameof(bookingComboIdReponsitory));
-            _vaccinesTrackingRepository = vaccinesTrackingRepository ?? throw new ArgumentNullException(nameof(vaccinesTrackingRepository));
         }
         public async Task<List<Booking>> GetAll()
         {
@@ -99,6 +89,7 @@ namespace ClassLib.Repositories
                 if (!ChildrenIDs.IsNullOrEmpty()) await _bookingChildIdRepository.Add(booking, ChildrenIDs);
                 if (!VaccineIDs.IsNullOrEmpty()) await _bookingIdVaccineIdReponsitory.Add(booking, VaccineIDs);
                 if (!VaccineComboIDs.IsNullOrEmpty()) await _bookingComboIdReponsitory.Add(booking, VaccineComboIDs);
+
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
                 return booking;
@@ -121,9 +112,9 @@ namespace ClassLib.Repositories
                 {
                     return null;
                 }
-                if (msg.ToLower() == "cancel")
+                if (msg.ToLower() == "refund")
                 {
-                    booking.Status = BookingEnum.Cancel.ToString();
+                    booking.Status = BookingEnum.Refund.ToString();
                 }
                 else if (msg.ToLower() == "success")
                 {
