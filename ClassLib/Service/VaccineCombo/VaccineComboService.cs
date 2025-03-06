@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+//using ClassLib.DTO.VaccineCombo;
 
 namespace ClassLib.Service.VaccineCombo
 {
@@ -27,12 +28,36 @@ namespace ClassLib.Service.VaccineCombo
 
         public async Task<List<GetAllVaccineCombo>> GetAllVaccineCombo()
         {
-            var listCombo = await _vaccineComboRepository.GetAllVaccineCombo();
-            List<DTO.VaccineCombo.GetAllVaccineCombo> responses = new();
-            foreach (var vaccineCombo in listCombo)
+            //var listCombo = await _vaccineComboRepository.GetAllVaccineCombo();
+            //List<DTO.VaccineCombo.GetAllVaccineCombo> responses = new();
+            //foreach (var vaccineCombo in listCombo)
+            //{
+            //    DTO.VaccineCombo.GetAllVaccineCombo response = new()
+            //    {
+            //        Id = vaccineCombo.Id,
+            //        ComboName = vaccineCombo.ComboName,
+            //        Discount = vaccineCombo.Discount,
+            //        FinalPrice = vaccineCombo.FinalPrice,
+            //        Status = vaccineCombo.Status,
+            //        TotalPrice = vaccineCombo.TotalPrice,
+            //    };
+            //    var listVaccine = vaccineCombo.Vaccines.ToList();
+            //    response.vaccineIds = new List<int>();
+            //    foreach (var item in listVaccine)
+            //    {
+            //        response.vaccineIds.Add(item.Id);
+            //    }
+            //    responses.Add(response);
+            //}
+            //return responses;
+
+            var combo = await _vaccineComboRepository.GetAllVaccineCombo();
+            List<GetAllVaccineCombo> responses = new List<GetAllVaccineCombo>();
+            foreach (var vaccineCombo in combo)
             {
-                DTO.VaccineCombo.GetAllVaccineCombo response = new()
+                GetAllVaccineCombo response = new GetAllVaccineCombo()
                 {
+                    Id = vaccineCombo.Id,
                     ComboName = vaccineCombo.ComboName,
                     Discount = vaccineCombo.Discount,
                     FinalPrice = vaccineCombo.FinalPrice,
@@ -40,10 +65,17 @@ namespace ClassLib.Service.VaccineCombo
                     TotalPrice = vaccineCombo.TotalPrice,
                 };
                 var listVaccine = vaccineCombo.Vaccines.ToList();
-                response.vaccineIds = new List<int>();
+                response.Vaccines = new List<GetVaccineInVaccineCombo>();
                 foreach (var item in listVaccine)
                 {
-                    response.vaccineIds.Add(item.Id);
+                    GetVaccineInVaccineCombo vcs = new()
+                    {
+                        Id = item.Id,
+                        Name = item.Name,
+                        Price = item.Price,
+
+                    };
+                    response.Vaccines.Add(vcs);
                 }
                 responses.Add(response);
             }
@@ -53,6 +85,36 @@ namespace ClassLib.Service.VaccineCombo
         public async Task<VaccinesCombo?> GetVaccineComboById(int id)
         {
             return await _vaccineComboRepository.GetById(id);
+        }
+
+        public async Task<GetVaccineComboDetail> GetDetailVaccineComboByIdAsync(int id)
+        {
+            if (string.IsNullOrWhiteSpace(id.ToString()))
+            {
+                throw new ArgumentNullException("ID can not be balnk");
+            }
+            var combo = await _vaccineComboRepository.GetDetailVaccineComboById(id);
+            if (combo == null)
+            {
+                throw new Exception("Do not exist this vaccine combo");
+            }
+            GetVaccineComboDetail res = new GetVaccineComboDetail
+            {
+                Id = combo.Id,
+                ComboName = combo.ComboName,
+                Discount = combo.Discount,
+                TotalPrice = combo.TotalPrice,
+                FinalPrice = combo.FinalPrice,
+                Status = combo.Status,
+                Vaccines = new List<GetVaccineInVaccineComboDetail>(),
+            };
+            var listVaccine = combo.Vaccines.ToList();
+            foreach (var item in listVaccine)
+            {
+                var vcs = _mapper.Map<GetVaccineInVaccineComboDetail>(item);
+                res.Vaccines.Add(vcs);
+            }
+            return res;
         }
         //Tạo mới
         public async Task<VaccinesCombo> CreateVaccineCombo(CreateVaccineCombo rq)

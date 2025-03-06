@@ -63,8 +63,12 @@ namespace ClassLib.Service.PaymentService
             string jsonString = response.Content!;
             JObject json = JObject.Parse(jsonString);
             string payUrl = json["payUrl"]?.ToString()!; 
+            return jsonString!;
+        }
 
-            return payUrl!;
+        public Task<string> CreateRefund(RefundModel refundModel, HttpContext context)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<RespondModel> GetPaymentStatus(IQueryCollection collection)
@@ -100,6 +104,11 @@ namespace ClassLib.Service.PaymentService
         public string PaymentName()
         {
             return "momo";
+        }
+
+        public Task<string> Refund(RefundModel refundModel, HttpContext context)
+        {
+            throw new NotImplementedException();
         }
 
         private string ComputeHmacSha256(string message, string secretKey)

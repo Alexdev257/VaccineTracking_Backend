@@ -13,9 +13,9 @@ namespace SWP391_BackEnd.Controllers
 
     public class BookingChildController : ControllerBase
     {
-        private readonly DbSwpVaccineTrackingContext _context;
+        private readonly DbSwpVaccineTrackingFinalContext _context;
 
-        public BookingChildController(DbSwpVaccineTrackingContext context)
+        public BookingChildController(DbSwpVaccineTrackingFinalContext context)
         {
             _context = context;
         }

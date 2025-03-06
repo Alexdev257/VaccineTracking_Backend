@@ -34,12 +34,12 @@ namespace ClassLib.Service
         {
             AddVaccinesTrackingRequest addVaccinesTrackingRequest = ConvertHelpers.convertToVaccinesTrackingRequest(addBooking);
             if (!addBooking.vaccineIds.IsNullOrEmpty())
-                await _vaccineTrackingService.AddVaccinesToVaccinesTrackingAsync(addVaccinesTrackingRequest, addBooking.vaccineIds, addBooking.ChildrenIds!);
+                await _vaccineTrackingService.AddVaccinesToVaccinesTrackingAsync(addVaccinesTrackingRequest, addBooking.vaccineIds!, addBooking.ChildrenIds!);
             if (!addBooking.vaccineComboIds.IsNullOrEmpty())
-                await _vaccineTrackingService.AddVaccinesComboToVaccinesTrackingAsync(addVaccinesTrackingRequest, addBooking.vaccineComboIds, addBooking.ChildrenIds!);
+                await _vaccineTrackingService.AddVaccinesComboToVaccinesTrackingAsync(addVaccinesTrackingRequest, addBooking.vaccineComboIds!, addBooking.ChildrenIds!);
 
             Booking booking = ConvertHelpers.convertToBooking(addBooking);
-            await _bookingRepository.AddBooking(booking, addBooking.ChildrenIds!, addBooking.vaccineIds, addBooking.vaccineComboIds);
+            await _bookingRepository.AddBooking(booking, addBooking.ChildrenIds!, addBooking.vaccineIds!, addBooking.vaccineComboIds!);
 
             var user = await _userRepository.getUserByIdAsync(addBooking.ParentId);
 

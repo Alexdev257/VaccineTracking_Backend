@@ -29,6 +29,8 @@ public partial class User
 
     public string Status { get; set; } = null!;
 
+    public bool IsDeleted { get; set; }
+
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 
     public virtual ICollection<Child> Children { get; set; } = new List<Child>();

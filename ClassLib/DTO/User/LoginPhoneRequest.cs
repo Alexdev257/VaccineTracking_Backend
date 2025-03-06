@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClassLib.DTO.Child
+namespace ClassLib.DTO.User
 {
-    internal class d
+    public class LoginPhoneRequest
     {
+        public string PhoneNumber { get; set; } = null!;
     }
 }

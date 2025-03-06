@@ -87,6 +87,64 @@ namespace SWP391_BackEnd.Controllers
             }
         }
 
+        [HttpPost("login-by-google")]
+        public async Task<IActionResult> loginByGoogle([FromBody] LoginGoogleRequest request)
+        {
+            try
+            {
+                var res = await _userService.loginByGoogleAsync(request.GoogleToken, request.ClientID);
+                return Ok(new { msg = "Login Successfully", res = res });
+            }
+            catch(UnauthorizedAccessException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch(Exception e)
+            {
+                return StatusCode(500, new {message = "Something went wrong"});
+            }
+        }
+
+        [HttpPost("login-by-phone")]
+        public async Task<IActionResult> loginByPhone([FromBody] LoginPhoneRequest request)
+        {
+            try
+            {
+                var res = await _userService.loginByPhoneAsync(request.PhoneNumber);
+                return Ok(new { msg = "Send otp successfully" });
+            }
+            catch(ArgumentNullException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch(Exception e)
+            {
+                return NotFound("Do not exist user");
+            }
+        }
+
+        [HttpPost("verify-otp-login")]
+        public async Task<IActionResult> verifyOtpLogin([FromBody] VerifyOtpLoginPhoneRequest request)
+        {
+            try
+            {
+                var res = await _userService.verifyOtpForLoginAsync(request.PhoneNumber, request.OTP);
+                return Ok(new { msg = "login Successfully", res = res });
+            }
+            catch(UnauthorizedAccessException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch(ArgumentNullException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         //[HttpPost("refresh")]
         //public async Task<IActionResult> refresh([FromBody] LoginResponse refreshRequest)
         //{

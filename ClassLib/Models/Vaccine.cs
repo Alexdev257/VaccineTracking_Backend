@@ -1,9 +1,9 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace ClassLib.Models;
 
-public partial class Vaccines
+public partial class Vaccine
 {
     public int Id { get; set; }
 
@@ -34,6 +34,8 @@ public partial class Vaccines
     public int? MaximumIntervalDate { get; set; }
 
     public string FromCountry { get; set; } = null!;
+
+    public bool IsDeleted { get; set; }
 
     public virtual Address Address { get; set; } = null!;
 

@@ -9,8 +9,8 @@ namespace ClassLib.Repositories
 {
     public class VaccinesTrackingRepository
     {
-        private readonly DbSwpVaccineTrackingContext _context;
-        public VaccinesTrackingRepository(DbSwpVaccineTrackingContext context)
+        private readonly DbSwpVaccineTrackingFinalContext _context;
+        public VaccinesTrackingRepository(DbSwpVaccineTrackingFinalContext context)
         {
             _context = context;
         }
@@ -81,6 +81,17 @@ namespace ClassLib.Repositories
             return await _context.VaccinesTrackings
                                     .Where(vt => vt.PreviousVaccination == previousVaccination)
                                     .FirstOrDefaultAsync()!;
+        }
+
+
+        
+
+        //Alex5
+        public async Task<List<VaccinesTracking>?> GetUpComingVaccinations(DateTime today)
+        {
+            return await _context.VaccinesTrackings
+                                    .Where(vt => vt.VaccinationDate.HasValue && vt.VaccinationDate.Value.Date == today.AddDays(1).Date)
+                                    .ToListAsync();
         }
     }
 }

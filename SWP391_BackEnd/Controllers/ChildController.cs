@@ -26,6 +26,17 @@ namespace SWP391_BackEnd.Controllers
             return Ok(child);
         }
 
+        [HttpGet("get-all-child-admin")]
+        public async Task<IActionResult> getAllChildAdmin()
+        {
+            var child = await _childService.GetAllChildForAdminAsync();
+            if (child == null)
+            {
+                return NotFound("No child in the system");
+            }
+            return Ok(child);
+        }
+
         [HttpGet("get-child-by-id/{id}")]
         public async Task<IActionResult> getChildById(int id)
         {

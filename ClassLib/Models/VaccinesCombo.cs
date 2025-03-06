@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace ClassLib.Models;
@@ -16,6 +16,8 @@ public partial class VaccinesCombo
     public decimal FinalPrice { get; set; }
 
     public string Status { get; set; } = null!;
+
+    public bool IsDeleted { get; set; }
 
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 

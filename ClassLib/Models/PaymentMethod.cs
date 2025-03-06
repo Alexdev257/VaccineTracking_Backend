@@ -9,7 +9,9 @@ public partial class PaymentMethod
 
     public string Name { get; set; } = null!;
 
-    public string Decription { get; set; } = null!;
+    public string Description { get; set; } = null!;
+
+    public bool IsDeleted { get; set; }
 
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 }

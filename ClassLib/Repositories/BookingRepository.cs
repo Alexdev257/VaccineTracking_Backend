@@ -16,12 +16,12 @@ namespace ClassLib.Repositories
 {
     public class BookingRepository
     {
-        private readonly DbSwpVaccineTrackingContext _context;
+        private readonly DbSwpVaccineTrackingFinalContext _context;
         private readonly BookingChildIdRepository _bookingChildIdRepository;
         private readonly BookingIdVaccineIdReponsitory _bookingIdVaccineIdReponsitory;
         private readonly BookingComboIdReponsitory _bookingComboIdReponsitory;
         private readonly VaccinesTrackingRepository _vaccinesTrackingRepository;
-        public BookingRepository(DbSwpVaccineTrackingContext context,
+        public BookingRepository(DbSwpVaccineTrackingFinalContext context,
                                  BookingChildIdRepository bookingChildIdRepository,
                                  BookingIdVaccineIdReponsitory bookingIdVaccineIdReponsitory,
                                  BookingComboIdReponsitory bookingComboIdReponsitory,

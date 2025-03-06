@@ -12,9 +12,14 @@ namespace ClassLib.Repositories
 {
     public class VaccineComboRepository
     {
-        private readonly DbSwpVaccineTrackingContext _context;
+        private readonly DbSwpVaccineTrackingFinalContext _context;
 
-        public VaccineComboRepository(DbSwpVaccineTrackingContext context)
+
+        public async Task<VaccinesCombo?> GetDetailVaccineComboById(int id)
+        {
+            return await _context.VaccinesCombos.Include(c => c.Vaccines).FirstOrDefaultAsync(c => c.Id == id);
+        }
+        public VaccineComboRepository(DbSwpVaccineTrackingFinalContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
@@ -51,7 +56,7 @@ namespace ClassLib.Repositories
             return currentCombo;
         }
 
-        public async Task<VaccinesCombo> UpdateVaccineWithID(int comboID, VaccinesCombo updateCombo)
+        public async Task<VaccinesCombo?> UpdateVaccineWithID(int comboID, VaccinesCombo updateCombo)
         {
             var currentCombo = await _context.Set<VaccinesCombo>().FindAsync(comboID);
             _context.Entry(currentCombo).CurrentValues.SetValues(updateCombo);
@@ -62,7 +67,7 @@ namespace ClassLib.Repositories
                 {
                     Id = vc.Id,
                     ComboName = vc.ComboName,
-                    Vaccines = vc.Vaccines.Select(v => new Vaccines()
+                    Vaccines = vc.Vaccines.Select(v => new Vaccine()
                     {
                         Name = v.Name,
                     }).ToList()
@@ -71,7 +76,7 @@ namespace ClassLib.Repositories
         }
 
         // TieHung23
-        public async Task<List<Vaccines>> GetAllVaccineInVaccinesComboByID(int id)
+        public async Task<List<Vaccine>> GetAllVaccineInVaccinesComboByID(int id)
         {
             return await _context.VaccinesCombos.Include(v => v.Vaccines).Where(vc => vc.Id == id).SelectMany(vc => vc.Vaccines).ToListAsync();
         }

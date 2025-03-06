@@ -12,7 +12,7 @@ namespace ClassLib.Helpers
 {
     public class ConvertHelpers
     {
-        public static VaccinesTracking convertToVaccinesTrackingModel(AddVaccinesTrackingRequest request, int childID, Vaccines vaccines, VaccinesTracking previousVaccination)
+        public static VaccinesTracking convertToVaccinesTrackingModel(AddVaccinesTrackingRequest request, int childID, Vaccine vaccines, VaccinesTracking previousVaccination)
         {
             return new VaccinesTracking
             {
@@ -24,10 +24,10 @@ namespace ClassLib.Helpers
                 AdministeredBy = request.AdministeredBy,
                 MinimumIntervalDate = (previousVaccination == null)
                                         ? (request.VaccinationDate ?? DateTime.Now).AddDays(2)  // Use DateTime.Now as fallback
-                                        : (previousVaccination.VaccinationDate ?? DateTime.Now).AddDays(vaccines.MinimumIntervalDate!.Value),
+                                        : null,
                 MaximumIntervalDate = (previousVaccination == null)
                                         ? (request.VaccinationDate ?? DateTime.Now).AddDays(7)  // Use DateTime.Now as fallback
-                                        : (previousVaccination.VaccinationDate ?? DateTime.Now).AddDays(vaccines.MaximumIntervalDate!.Value),
+                                        : null,
                 Reaction = "Nothing",
                 PreviousVaccination = (previousVaccination == null) ? 0 : previousVaccination.Id
             };
@@ -67,7 +67,21 @@ namespace ClassLib.Helpers
                 AdvisoryDetails = addBooking.AdvisoryDetail,
                 ArrivedAt = addBooking.ArrivedAt,
                 CreatedAt = DateTime.Now,
-                Status = "Pending"
+                Status = "Pending",
+                IsDeleted = false
+            };
+        }
+
+        public static RefundModel convertToRefundModel(Payment payment, double amount)
+        {
+            return new RefundModel
+            {
+                amount = amount,
+                payerID = payment.PayerId,
+                paymentDate = payment.PaymentDate,
+                paymentID = payment.PaymentId,
+                currency = payment.Currency,
+                trancasionID = payment.TransactionId
             };
         }
 
@@ -75,7 +89,8 @@ namespace ClassLib.Helpers
         {
             return new OrderInfoModel
             {
-                GuestName = user.Name!,
+
+                GuestName = user.Id + " " + user.Name!,
                 GuestEmail = user.Gmail!,
                 GuestPhone = user.PhoneNumber!,
                 BookingID = booking.Id.ToString(),
