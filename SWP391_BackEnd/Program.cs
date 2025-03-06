@@ -25,6 +25,9 @@ using SWP391_BackEnd.Controllers;
 using ClassLib.Repositories.BookingDetails;
 using ClassLib.Service.PaymentService;
 using ClassLib.DTO.Payment;
+using ClassLib.Job;
+using Hangfire;
+using Hangfire.SqlServer;
 namespace SWP391_BackEnd
 {
     public class Program
@@ -33,8 +36,24 @@ namespace SWP391_BackEnd
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
             builder.Services.AddDbContext<DbSwpVaccineTrackingFinalContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlServer(connectionString));
+
+            // config hangfire to auto generate table in db if do not exist 
+            builder.Services.AddHangfire(config =>
+                config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                      .UseSimpleAssemblyNameTypeSerializer()
+                      .UseRecommendedSerializerSettings()
+                      .UseSqlServerStorage(connectionString, new SqlServerStorageOptions
+                      {
+                          PrepareSchemaIfNecessary = true, //auto generate if do not exist
+                      })
+            );
+
+            // register Hangfire
+            builder.Services.AddHangfireServer();
 
 
             //IMemoryCache giúp lưu trữ dữ liệu trong bộ nhớ RAM của ứng dụng.
@@ -66,6 +85,7 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<PaymentRepository>();
 
             builder.Services.AddScoped<PaymentMethodRepository>();
+            builder.Services.AddScoped<PaymentMethodService>();
 
             builder.Services.AddScoped<VaccinesTrackingRepository>();
             builder.Services.AddScoped<VaccinesTrackingService>();
@@ -82,6 +102,9 @@ namespace SWP391_BackEnd
             builder.Services.Configure<VnPayConfigFromJson>(builder.Configuration.GetSection("VnpayAPI"));
             builder.Services.Configure<MomoConfigFromJSON>(builder.Configuration.GetSection("MomoAPI"));
             builder.Services.Configure<PaypalConfigFromJson>(builder.Configuration.GetSection("PaypalAPI"));
+
+
+            builder.Services.AddScoped<VaccineTrackingReminderJob>();
 
             // Add Json NewtonSoft to show more information
             builder.Services.AddControllers()
@@ -123,7 +146,7 @@ namespace SWP391_BackEnd
             var jwtSettings = builder.Configuration.GetSection("JwtSettings");
             var key = Encoding.ASCII.GetBytes(jwtSettings["SecretKey"]!);
 
-            //JWT
+            //JWT authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(otp =>
                  {
@@ -160,6 +183,64 @@ namespace SWP391_BackEnd
                          }
                      };
                  });
+
+            //JWT authorization
+            builder.Services.AddAuthorization(option =>
+            {
+                option.AddPolicy("AdminOnly", policy =>
+                policy.RequireClaim("Role", "Admin"));
+
+                option.AddPolicy("StaffOnly", policy =>
+                policy.RequireClaim("Role", "Staff"));
+
+                option.AddPolicy("DoctorOnly", policy =>
+                policy.RequireClaim("Role", "Doctor"));
+
+                option.AddPolicy("UserOnly", policy =>
+                policy.RequireClaim("Role", "User"));
+
+                option.AddPolicy("AdminOrUser", policy =>
+                policy.RequireAssertion(context =>
+                {
+                    var roleClaim = context.User.FindFirst(c => c.Type == "Role")?.Value;
+                    return roleClaim == "Admin" || roleClaim == "User";
+                }));
+
+                option.AddPolicy("DoctorOrUser", policy =>
+                policy.RequireAssertion(context =>
+                {
+                    var roleClaim = context.User.FindFirst(c => c.Type == "Role")?.Value;
+                    return roleClaim == "Doctor" || roleClaim == "User";
+                }));
+
+                option.AddPolicy("StaffOrUser", policy =>
+                policy.RequireAssertion(context =>
+                {
+                    var roleClaim = context.User.FindFirst(c => c.Type == "Role")?.Value;
+                    return roleClaim == "Staff" || roleClaim == "User";
+                }));
+
+                option.AddPolicy("NotUser", policy =>
+                policy.RequireAssertion(context =>
+                {
+                    var roleClaim = context.User.FindFirst(c => c.Type == "Role")?.Value;
+                    return roleClaim != "User";
+                }));
+
+                //option.AddPolicy("AdminOrStaff", policy =>
+                //policy.RequireAssertion(context =>
+                //{
+                //    var roleClaim = context.User.FindFirst(c => c.Type == "Role")?.Value;
+                //    return roleClaim == "Admin" || roleClaim == "Staff";
+                //}));
+
+                //option.AddPolicy("AdminOrDoctor", policy =>
+                //policy.RequireAssertion(context =>
+                //{
+                //    var roleClaim = context.User.FindFirst(c => c.Type == "Role")?.Value;
+                //    return roleClaim == "Admin" || roleClaim == "Doctor";
+                //}));
+            });
 
             builder.Services.AddAuthorization();
 
@@ -233,7 +314,15 @@ namespace SWP391_BackEnd
 
             //app.UseMiddleware<TokenExpiredMiddleware>();
 
+            //enable hangfire DASHBOARD
+            app.UseHangfireDashboard();
+            //app.UseHangfireServer();
 
+            // create job automatic running each day
+            RecurringJob.AddOrUpdate<VaccineTrackingReminderJob>(
+                "send-vaccine-reminders",
+                x => x.SendVaccineReminder(),
+                Cron.Daily);
 
 
             // Configure the HTTP request pipeline.

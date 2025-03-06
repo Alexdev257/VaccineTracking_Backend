@@ -22,6 +22,8 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
 
     public virtual DbSet<Child> Children { get; set; }
 
+    public virtual DbSet<Feedback> Feedbacks { get; set; }
+
     public virtual DbSet<Payment> Payments { get; set; }
 
     public virtual DbSet<PaymentMethod> PaymentMethods { get; set; }
@@ -47,7 +49,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
     {
         modelBuilder.Entity<Address>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Address__3213E83FF0A4A938");
+            entity.HasKey(e => e.Id).HasName("PK__Address__3213E83FBC7F4543");
 
             entity.ToTable("Address");
 
@@ -60,7 +62,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
 
         modelBuilder.Entity<Booking>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Booking__3213E83FD9FF2D8F");
+            entity.HasKey(e => e.Id).HasName("PK__Booking__3213E83F78EEE450");
 
             entity.ToTable("Booking");
 
@@ -145,7 +147,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
 
         modelBuilder.Entity<Child>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Child__3213E83F66E95031");
+            entity.HasKey(e => e.Id).HasName("PK__Child__3213E83F5E9E2CBB");
 
             entity.ToTable("Child");
 
@@ -172,9 +174,30 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
                 .HasConstraintName("child_parent_id_foreign");
         });
 
+        modelBuilder.Entity<Feedback>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("Feedback");
+
+            entity.Property(e => e.Description)
+                .HasMaxLength(255)
+                .HasColumnName("description");
+            entity.Property(e => e.Id)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("id");
+            entity.Property(e => e.RatingScore).HasColumnName("rating_score");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(d => d.User).WithMany()
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("feedback_user_id_foreign");
+        });
+
         modelBuilder.Entity<Payment>(entity =>
         {
-            entity.HasKey(e => e.PaymentId).HasName("PK__Payment__ED1FC9EA8BA3E918");
+            entity.HasKey(e => e.PaymentId).HasName("PK__Payment__ED1FC9EAE761EBF6");
 
             entity.ToTable("Payment");
 
@@ -211,7 +234,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
 
         modelBuilder.Entity<PaymentMethod>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Payment___3213E83F777BCC3A");
+            entity.HasKey(e => e.Id).HasName("PK__Payment___3213E83FC0444889");
 
             entity.ToTable("Payment_Method");
 
@@ -227,7 +250,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
 
         modelBuilder.Entity<RefreshToken>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Refresh___3213E83F90F479DD");
+            entity.HasKey(e => e.Id).HasName("PK__Refresh___3213E83FEB750D50");
 
             entity.ToTable("Refresh_Token");
 
@@ -258,7 +281,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__User__3213E83F6B7D8E84");
+            entity.HasKey(e => e.Id).HasName("PK__User__3213E83FB7BE2B6C");
 
             entity.ToTable("User");
 
@@ -305,7 +328,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
 
         modelBuilder.Entity<Vaccine>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Vaccines__3213E83FBEB4E34D");
+            entity.HasKey(e => e.Id).HasName("PK__Vaccines__3213E83F2797F412");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AddressId).HasColumnName("address_ID");
@@ -346,7 +369,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
 
         modelBuilder.Entity<VaccinesCombo>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Vaccines__3213E83FED565EF3");
+            entity.HasKey(e => e.Id).HasName("PK__Vaccines__3213E83FCA5A42D7");
 
             entity.ToTable("Vaccines_Combo");
 
@@ -388,12 +411,13 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
 
         modelBuilder.Entity<VaccinesTracking>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Vaccines__3213E83F0F902A19");
+            entity.HasKey(e => e.Id).HasName("PK__Vaccines__3213E83F77900388");
 
             entity.ToTable("Vaccines_Tracking");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AdministeredBy).HasColumnName("administered_by");
+            entity.Property(e => e.BookingId).HasColumnName("booking_id");
             entity.Property(e => e.ChildId).HasColumnName("child_id");
             entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
             entity.Property(e => e.MaximumIntervalDate)
@@ -414,6 +438,11 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("vaccination_date");
             entity.Property(e => e.VaccineId).HasColumnName("vaccine_id");
+
+            entity.HasOne(d => d.Booking).WithMany(p => p.VaccinesTrackings)
+                .HasForeignKey(d => d.BookingId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("vaccines_tracking_booking_id_foreign");
 
             entity.HasOne(d => d.Child).WithMany(p => p.VaccinesTrackings)
                 .HasForeignKey(d => d.ChildId)

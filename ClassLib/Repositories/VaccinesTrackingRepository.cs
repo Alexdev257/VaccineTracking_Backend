@@ -82,5 +82,16 @@ namespace ClassLib.Repositories
                                     .Where(vt => vt.PreviousVaccination == previousVaccination)
                                     .FirstOrDefaultAsync()!;
         }
+
+
+        
+
+        //Alex5
+        public async Task<List<VaccinesTracking>?> GetUpComingVaccinations(DateTime today)
+        {
+            return await _context.VaccinesTrackings
+                                    .Where(vt => vt.VaccinationDate.HasValue && vt.VaccinationDate.Value.Date == today.AddDays(1).Date)
+                                    .ToListAsync();
+        }
     }
 }
