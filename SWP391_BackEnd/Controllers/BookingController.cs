@@ -10,6 +10,7 @@ using ClassLib.Enum;
 using ClassLib.Helpers;
 using ClassLib.Service;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
 namespace SWP391_BackEnd.Controllers
@@ -37,7 +38,9 @@ namespace SWP391_BackEnd.Controllers
         [HttpPost("add-booking")]
         public async Task<IActionResult> AddBooking([FromBody] AddBooking addBooking)
         {
-            OrderInfoModel orderInfo = await _bookingService.AddBooking(addBooking);
+            OrderInfoModel orderInfo;
+            if (addBooking.BookingID == 0) orderInfo = (await _bookingService.AddBooking(addBooking))!;
+            else orderInfo = (await _bookingService.RepurchaseBooking(addBooking.BookingID))!;
 
             var client = _httpClientFactory.CreateClient();
 
@@ -60,6 +63,14 @@ namespace SWP391_BackEnd.Controllers
             }
 
             return BadRequest(new { message = "Failed to initiate payment" });
+        }
+
+        [HttpGet("booking-history/{userID}")]
+        public async Task<IActionResult> GetAllBookingByUser([FromRoute] int userID)
+        {
+            var bookingList = await _bookingService.GetBookingByUserAsync(userID);
+            if (bookingList.IsNullOrEmpty()) return BadRequest("Dont have");
+            return Ok(bookingList);
         }
     }
 }

@@ -15,7 +15,6 @@ namespace ClassLib.Repositories
             _context = context;
         }
         public async Task<List<PaymentMethod>> getAll() => await _context.PaymentMethods.ToListAsync();
-
         public async Task<PaymentMethod?> getPaymentMethodById(int id) => await _context.PaymentMethods.FirstOrDefaultAsync(x => x.Id == id);
         public async Task<PaymentMethod?> getPaymentMethodByName(string name) => await _context.PaymentMethods.FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
         public async Task<PaymentMethod?> addPaymentMethod(PaymentMethod paymentMethod)

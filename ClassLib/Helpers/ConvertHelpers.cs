@@ -3,6 +3,7 @@ using ClassLib.DTO.Payment;
 using ClassLib.DTO.VaccineTracking;
 using ClassLib.Enum;
 using ClassLib.Models;
+using Google.Apis.Util;
 
 namespace ClassLib.Helpers
 {
@@ -19,10 +20,10 @@ namespace ClassLib.Helpers
                 Status = (previousVaccination == null) ? ((VaccinesTrackingEnum)VaccinesTrackingEnum.Schedule).ToString() : ((VaccinesTrackingEnum)VaccinesTrackingEnum.Waiting).ToString(),
                 AdministeredBy = request.AdministeredBy,
                 MinimumIntervalDate = (previousVaccination == null)
-                                        ? (request.VaccinationDate ?? DateTime.Now).AddDays(2)  // Use DateTime.Now as fallback
+                                        ? (request.VaccinationDate ?? TimeProvider.GetVietnamNow()).AddDays(2)  // Use DateTime.Now as fallback
                                         : null,
                 MaximumIntervalDate = (previousVaccination == null)
-                                        ? (request.VaccinationDate ?? DateTime.Now).AddDays(7)  // Use DateTime.Now as fallback
+                                        ? (request.VaccinationDate ?? TimeProvider.GetVietnamNow()).AddDays(7)  // Use DateTime.Now as fallback
                                         : null,
                 Reaction = "Nothing",
                 PreviousVaccination = (previousVaccination == null) ? 0 : previousVaccination.Id,
@@ -32,19 +33,36 @@ namespace ClassLib.Helpers
 
         public static VaccinesTrackingResponse convertToVaccinesTrackingResponse(VaccinesTracking vt)
         {
+            if (vt == null)
+            {
+                throw new ArgumentNullException(nameof(vt), "VaccinesTracking object is null.");
+            }
+            if (vt.Vaccine == null)
+            {
+                throw new NullReferenceException($"Vaccine is null for TrackingID: {vt.Id}");
+            }
+            if (vt.User == null)
+            {
+                throw new NullReferenceException($"User is null for TrackingID: {vt.Id}");
+            }
+
             return new VaccinesTrackingResponse
             {
+                TrackingID = vt.Id,
                 VaccineName = vt.Vaccine.Name,
                 UserName = vt.User.Name,
-                ChildName = vt.Child.Name,
+                ChildId = vt.ChildId,
                 MinimumIntervalDate = vt.MinimumIntervalDate,
                 VaccinationDate = vt.VaccinationDate,
                 MaximumIntervalDate = vt.MaximumIntervalDate,
+                PreviousVaccination = vt.PreviousVaccination.HasValue ? (int)vt.PreviousVaccination.Value : 0,
                 Status = vt.Status,
-                AdministeredByDoctorName = vt.User.Name,
-                Reaction = vt.Reaction
+                AdministeredByDoctorName = vt.User.Name ?? "Not Vaccination Yet",
+                Reaction = vt.Reaction,
+                VaccineID = vt.VaccineId
             };
         }
+
 
         public static AddVaccinesTrackingRequest convertToVaccinesTrackingRequest(AddBooking addBooking)
         {
@@ -63,7 +81,7 @@ namespace ClassLib.Helpers
                 ParentId = addBooking.ParentId,
                 AdvisoryDetails = addBooking.AdvisoryDetail,
                 ArrivedAt = addBooking.ArrivedAt,
-                CreatedAt = DateTime.Now,
+                CreatedAt = TimeProvider.GetVietnamNow(),
                 Status = ((BookingEnum)BookingEnum.Pending).ToString(),
                 IsDeleted = false
             };
@@ -95,6 +113,20 @@ namespace ClassLib.Helpers
                 OrderId = booking.Id.ToString(),
                 OrderDescription = booking.AdvisoryDetails,
                 Amount = addBooking.TotalPrice
+            };
+        }
+
+        public static OrderInfoModel RepurchaseBookingtoOrderInfoModel(Booking booking, User user, int amount)
+        {
+            return new OrderInfoModel
+            {
+                GuestName = user.Id + " " + user.Name!,
+                GuestEmail = user.Gmail!,
+                GuestPhone = user.PhoneNumber!,
+                BookingID = booking.Id.ToString(),
+                OrderId = booking.Id.ToString(),
+                OrderDescription = booking.AdvisoryDetails,
+                Amount = amount
             };
         }
     }

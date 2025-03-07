@@ -64,7 +64,7 @@ namespace ClassLib.Repositories
         {
             _context.Set<Vaccine>().Remove(vaccine);
             return await _context.SaveChangesAsync() > 0;
-            
+
         }
         public async Task<List<Vaccine>> GetVaccinesByAge(int age)
         {
@@ -72,7 +72,7 @@ namespace ClassLib.Repositories
                 .Where(v => age > v.SuggestAgeMin && age < v.SuggestAgeMax && v.IsDeleted == false)
                 .ToListAsync();
         }
-        
+
         public async Task<List<Vaccine>> GetVaccinesByAgeAdmin(int age)
         {
             return await _context.Vaccines
@@ -80,11 +80,12 @@ namespace ClassLib.Repositories
                 .ToListAsync();
         }
 
-        
+
 
 
         //TieHung
-        public async Task<bool> DecreseQuantityVaccines(Vaccine vaccine,int amount){
+        public async Task<bool> DecreseQuantityVaccines(Vaccine vaccine, int amount)
+        {
 
             using var transcation = _context.Database.BeginTransaction();
             if (vaccine == null) return false;
@@ -101,6 +102,18 @@ namespace ClassLib.Repositories
                 transcation.Rollback();
                 return false;
             }
+        }
+        //TieHung23
+        public Task<decimal> SumMoneyOfVaccinesList(List<Vaccine> list)
+        {
+            decimal total = 0;
+
+            foreach (var vt in list)
+            {
+                total += vt.Price;
+            }
+
+            return Task.FromResult(total);
         }
     }
 }

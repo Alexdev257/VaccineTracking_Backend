@@ -32,7 +32,7 @@ namespace SWP391_BackEnd.Controllers
                 return BadRequest();
             }
             var booking = _context.Bookings.FindAsync(bookingID);
-            booking.Result.Children.Add(_context.Children.FindAsync(childID).Result);
+            booking.Result!.Children.Add(_context.Children.FindAsync(childID).Result!);
             await _context.SaveChangesAsync();
             return Ok(booking);
         }

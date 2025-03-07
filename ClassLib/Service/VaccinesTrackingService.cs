@@ -4,6 +4,7 @@ using ClassLib.Repositories;
 using ClassLib.Helpers;
 using ClassLib.Enum;
 using Microsoft.IdentityModel.Tokens;
+using TimeProvider = ClassLib.Helpers.TimeProvider;
 
 namespace ClassLib.Service
 {
@@ -90,16 +91,17 @@ namespace ClassLib.Service
                     if (updateVaccineTracking.Status!.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Success).ToString().ToLower())
                         await _vaccineRepository.DecreseQuantityVaccines(vaccine!, 1);
                 }
-                if (updateVaccineTracking.Status!.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Success).ToString().ToLower())
+                if (updateVaccineTracking.Status!.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Success).ToString().ToLower() && checkpointForThisVaccine == 2)
                 {
-                    vt.VaccinationDate = DateTime.Now;
+                    vt.VaccinationDate = TimeProvider.GetVietnamNow();
                     vt.MinimumIntervalDate = vt.VaccinationDate!.Value.AddDays(vaccine!.MinimumIntervalDate!.Value);
                     vt.MaximumIntervalDate = vt.VaccinationDate!.Value.AddDays(vaccine!.MaximumIntervalDate!.Value);
+                    vt.Status = ((VaccinesTrackingEnum)VaccinesTrackingEnum.Schedule).ToString();
                 }
                 if (updateVaccineTracking.Status!.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Cancel).ToString().ToLower())
                 {
                     vt.VaccinationDate = null;
-                    vt.MinimumIntervalDate = DateTime.Now;
+                    vt.MinimumIntervalDate = null;
                     vt.MaximumIntervalDate = null;
                     vt.Status = updateVaccineTracking.Status;
                     vt.Reaction = updateVaccineTracking.Reaction ?? vt.Reaction;
@@ -107,6 +109,21 @@ namespace ClassLib.Service
                 checkpointForThisVaccine++;
                 var vtUpdated = await _vaccinesTrackingRepository.UpdateVaccinesTrackingAsync(vt);
                 vt = await _vaccinesTrackingRepository.GetVaccinesTrackingByPreviousVaccination(vtUpdated.Id);
+            }
+
+            return true;
+        }
+
+
+        public async Task<bool> VaccinesTrackingRefund(int bookingID, VaccinesTrackingEnum vaccinesTrackingEnum = VaccinesTrackingEnum.Cancel)
+        {
+            var vaccinesTrackingList = await _vaccinesTrackingRepository.GetVaccinesTrackingByBookingID(bookingID);
+
+            var updateDetails = new UpdateVaccineTracking() { Status = vaccinesTrackingEnum.ToString() };
+
+            foreach (var item in vaccinesTrackingList)
+            {
+                await UpdateVaccinesTrackingAsync(item.Id, updateDetails);
             }
 
             return true;

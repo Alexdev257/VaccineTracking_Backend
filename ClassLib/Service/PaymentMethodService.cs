@@ -21,7 +21,7 @@ namespace ClassLib.Service
 
         public async Task<PaymentMethod?> addPaymentMethod(AddPaymentMethod paymentMethodAdding)
         {
-            PaymentMethod paymentMethod = new PaymentMethod
+            PaymentMethod paymentMethod = new()
             {
                 Name = paymentMethodAdding.Name,
                 Description = paymentMethodAdding.Decription

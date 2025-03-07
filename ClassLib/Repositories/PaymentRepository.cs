@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ClassLib.Enum;
 using ClassLib.Models;
+using ClassLib.Service;
 using Microsoft.EntityFrameworkCore;
 
 namespace ClassLib.Repositories
@@ -15,11 +16,14 @@ namespace ClassLib.Repositories
         private readonly BookingRepository _bookingRepository;
 
         private readonly PaymentMethodRepository _paymentMethodRepository;
-        public PaymentRepository(DbSwpVaccineTrackingFinalContext context, BookingRepository bookingRepository, PaymentMethodRepository paymentMethodRepository)
+
+        private readonly VaccinesTrackingService _vaccinesTrackingService;
+        public PaymentRepository(DbSwpVaccineTrackingFinalContext context, BookingRepository bookingRepository, PaymentMethodRepository paymentMethodRepository, VaccinesTrackingService vaccinesTrackingService)
         {
             _context = context;
             _bookingRepository = bookingRepository;
             _paymentMethodRepository = paymentMethodRepository;
+            _vaccinesTrackingService = vaccinesTrackingService;
         }
 
         public async Task<List<Payment>> GetAllAsync() => await _context.Payments.ToListAsync();
@@ -33,29 +37,15 @@ namespace ClassLib.Repositories
             Payment payment = (await GetByBookingIDAsync(int.Parse(id)))!;
             return (await _paymentMethodRepository.getPaymentMethodById(payment.PaymentMethod))!.Name;
         }
+
         public async Task<bool> UpdateStatusPayment(string id, string msg)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
-            {
-                Payment payment = (await GetByIDAsync(id))!;
-                payment.Status = msg;
-
-                var entry = _context.Entry(payment);
-                Console.WriteLine($"Entity State: {entry.State}");
-
-                await _bookingRepository.UpdateBooking(payment.BookingId.ToString(), ((BookingEnum)BookingEnum.Refund).ToString());
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-                return true;
-            }
-            catch (Exception e)
-            {
-                System.Console.WriteLine(e.Message);
-                await transaction.RollbackAsync();
-                return false;
-            }
+            Payment payment = (await GetByIDAsync(id))!;
+            payment.Status = msg;
+            await _bookingRepository.UpdateBooking((payment.BookingId).ToString(), ((BookingEnum)BookingEnum.Refund).ToString());
+            await _vaccinesTrackingService.VaccinesTrackingRefund(payment.BookingId, VaccinesTrackingEnum.Cancel);
+            await _context.SaveChangesAsync();
+            return true;
         }
         public async Task<Payment> AddPayment(Payment payment)
         {
