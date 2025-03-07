@@ -18,6 +18,6 @@ namespace ClassLib.DTO.VaccineCombo
         public decimal FinalPrice => TotalPrice * (1 - (Discount / 100m));
 
         public string Status { get; set; } = null!;
-        public List<VaccineIds> vaccines { get; set; }
+        public List<int> vaccines { get; set; }
     }
 }

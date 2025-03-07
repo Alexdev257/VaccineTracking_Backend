@@ -124,7 +124,7 @@ namespace ClassLib.Service.VaccineCombo
             List<Vaccine> vaccines = new();
             foreach (var item in listId)
             {
-                var vaccine = await _vaccineRepository.GetById(item.Id);
+                var vaccine = await _vaccineRepository.GetById(item);
                 vaccines.Add(vaccine);
             }
             newCombo.Vaccines = vaccines;
@@ -194,7 +194,12 @@ namespace ClassLib.Service.VaccineCombo
 
         public async Task<AddVaccineResponse> RemoveVaccine(AddVaccineIntoCombo rq, int id)
         {
+            
             var changedCombo = await _vaccineComboRepository.RemoveVaccineFromCombo(id, rq.VaccineIds);
+            if(changedCombo == null)
+            {
+                throw new ArgumentNullException();
+            }
             AddVaccineResponse response = new()
             {
                 ComboId = changedCombo.Id,
