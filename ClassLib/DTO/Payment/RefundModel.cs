@@ -13,5 +13,6 @@ namespace ClassLib.DTO.Payment
         public DateTime paymentDate { get; set; } = DateTime.Now;
         public string currency { get; set; } = string.Empty;
         public string trancasionID { get; set; } = string.Empty;
+        public int RefundType { get; set; } = 0;
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web;
 using ClassLib.DTO.Payment;
@@ -94,7 +95,7 @@ namespace ClassLib.Service.PaymentService
                 requestId = orderId,
                 transId = refundModel.trancasionID,
                 description = "",
-                lang = "vi",
+                lang = "en",
                 signature = signature
             };
 
@@ -105,7 +106,40 @@ namespace ClassLib.Service.PaymentService
 
             var response = await httpClient.PostAsync("https://test-payment.momo.vn/v2/gateway/api/refund", jsonContent);
 
-            return await response.Content.ReadAsStringAsync();
+            var responseContent = await response.Content.ReadAsStringAsync();
+            using JsonDocument doc = JsonDocument.Parse(responseContent);
+
+            var paymentId = doc.RootElement.GetProperty("orderId").ValueKind == JsonValueKind.Number
+                            ? doc.RootElement.GetProperty("orderId").GetInt64()
+                            : long.Parse(doc.RootElement.GetProperty("orderId").GetString()!);
+
+            var transactionID = doc.RootElement.GetProperty("transId").ValueKind == JsonValueKind.Number
+                            ? doc.RootElement.GetProperty("transId").GetInt64()
+                            : long.Parse(doc.RootElement.GetProperty("transId").GetString()!);
+            var message = doc.RootElement.GetProperty("message")!.ToString();
+
+            if (message == "Successful.")
+            {
+                Payment payment = new Payment()
+                {
+                    PaymentId = paymentId.ToString()!,
+                    PayerId = refundModel.payerID,
+                    TransactionId = transactionID.ToString()!,
+                    Currency = "VND",
+                    PaymentDate = TimeProvider.GetVietnamNow(),
+                    TotalPrice = (decimal)refundModel.amount,
+                    PaymentMethod = (await _paymentMethodRepository.getPaymentMethodByName("momo"))!.Id,
+                    Status = ((PaymentStatusEnum)refundModel.RefundType).ToString(),
+                    BookingId = (await _paymentRepository.GetByIDAsync(refundModel.paymentID))!.BookingId,
+                };
+                await _paymentRepository.AddPayment(payment);
+                
+                //return message;
+
+                return "Success";
+            }
+
+            return "This booking cannot return please go to apointment to have better services";
         }
 
 

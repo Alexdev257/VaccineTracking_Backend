@@ -9,12 +9,14 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using ClassLib.DTO.Payment;
 using ClassLib.Enum;
+using ClassLib.Helpers;
 using ClassLib.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using PayPal.Core;
 using PayPal.v1.Payments;
 using ModelPayment = ClassLib.Models.Payment;
+using TimeProvider = ClassLib.Helpers.TimeProvider;
 
 namespace ClassLib.Service.PaymentService
 {
@@ -27,11 +29,17 @@ namespace ClassLib.Service.PaymentService
 
         private readonly PaymentMethodRepository _paymentMethodRepository;
 
-        public PaypalServices(IOptions<PaypalConfigFromJson> paypalConfig, PaymentRepository paymentRepository, PaymentMethodRepository paymentMethodRepository)
+        private readonly BookingRepository _bookingRepository;
+
+        public PaypalServices(IOptions<PaypalConfigFromJson> paypalConfig
+                            , PaymentRepository paymentRepository
+                            , PaymentMethodRepository paymentMethodRepository
+                            , BookingRepository bookingRepository)
         {
             _paypalConfig = paypalConfig;
             _paymentRepository = paymentRepository;
             _paymentMethodRepository = paymentMethodRepository;
+            _bookingRepository = bookingRepository;
         }
         public static double ConvertVndToDollar(double vnd)
         {
@@ -121,7 +129,7 @@ namespace ClassLib.Service.PaymentService
             var BookingID = collection.FirstOrDefault(s => s.Key == "BookingID").Value;
             var PaymentDate = DateTime.Now;
             var currency = "USD";
-            var paymentMethod = (await _paymentMethodRepository.getPaymentMethodByName("paypal")).Id;
+            var paymentMethod = (await _paymentMethodRepository.getPaymentMethodByName("paypal"))!.Id;
             var payerId = collection.FirstOrDefault(s => s.Key == "PayerID").Value;
             var TrancasionID = await GetSaleID(paymentId!, payerId!);
 
@@ -258,8 +266,34 @@ namespace ClassLib.Service.PaymentService
                 {
                     throw new Exception($"Refund failed: {response.StatusCode} - {jsonResponse}");
                 }
+                using JsonDocument doc = JsonDocument.Parse(jsonResponse);
+                string refundId = doc.RootElement.GetProperty("id").GetString()!;
+                string trancasionID = doc.RootElement.GetProperty("parent_payment").GetString()!;
+                string message = doc.RootElement.GetProperty("state").GetString()!;
 
-                return jsonResponse;
+                if (message == "completed")
+                {
+                    ModelPayment payment = new()
+                    {
+                        PaymentId = refundId,
+                        BookingId = (await _paymentRepository.GetByIDAsync(refundModel.paymentID))!.BookingId,
+                        PayerId = (await _bookingRepository.GetByBookingID((await _paymentRepository.GetByIDAsync(refundModel.paymentID))!.BookingId))!.ParentId.ToString(),
+                        PaymentMethod = (await _paymentMethodRepository.getPaymentMethodByName("paypal"))!.Id,
+                        Currency = "USD",
+                        TransactionId = trancasionID,
+                        TotalPrice = (decimal)refundModel.amount,
+                        PaymentDate = TimeProvider.GetVietnamNow(),
+                        Status = ((PaymentStatusEnum)refundModel.RefundType).ToString(),
+                        IsDeleted = false
+                    };
+                    await _paymentRepository.AddPayment(payment);
+
+                    //return message;
+
+                    return "Success";
+                }
+
+                return "This booking cannot return please go to apointment to have better services";
             }
         }
     }
