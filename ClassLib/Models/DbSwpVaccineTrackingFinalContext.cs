@@ -328,7 +328,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__Vaccines__3213E83F2797F412");
 
-            entity.ToTable("Vaccine");
+            entity.ToTable("Vaccines");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AddressId).HasColumnName("address_ID");
