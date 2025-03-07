@@ -69,7 +69,7 @@ namespace ClassLib.Helpers
             };
         }
 
-        public static RefundModel convertToRefundModel(Payment payment, double amount)
+        public static RefundModel convertToRefundModel(Payment payment, double amount, int refundType)
         {
             return new RefundModel
             {
@@ -78,7 +78,8 @@ namespace ClassLib.Helpers
                 paymentDate = payment.PaymentDate,
                 paymentID = payment.PaymentId,
                 currency = payment.Currency,
-                trancasionID = payment.TransactionId
+                trancasionID = payment.TransactionId,
+                RefundType = refundType
             };
         }
 

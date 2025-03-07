@@ -2,10 +2,10 @@ namespace ClassLib.Enum
 {
     public enum PaymentStatusEnum
     {
+        PartialRefunded,
+        FullyRefunded,
         Success,
         Pending,
         Refunded,
-        FullyRefunded = 1,
-        PartialRefunded = 0
     }
 }

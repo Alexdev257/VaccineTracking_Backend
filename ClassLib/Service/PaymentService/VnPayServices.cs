@@ -53,31 +53,33 @@ namespace ClassLib.Service.PaymentService
             return Task.FromResult(pay.CreateRequestUrl(_vnpayConfig.Value.BaseUrl, _vnpayConfig.Value.HashSecret));
         }
 
-        public Task<string> CreateRefund(RefundModel refundModel, HttpContext context)
+        public async Task<string> CreateRefund(RefundModel refundModel, HttpContext context)
         {
-            var timeZoneID = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneID);
-            var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneID);
-            var tick = DateTime.Now.Ticks.ToString();
-            var pay = new VnPayLibrary();
-            pay.AddRequestData("vnp_RequestId", tick);
-            pay.AddRequestData("vnp_Version", _vnpayConfig.Value.Version);
-            pay.AddRequestData("vnp_Command", "refund");
-            pay.AddRequestData("vnp_TmnCode", _vnpayConfig.Value.TmnCode);
-            pay.AddRequestData("vnp_TransactionType", "02");
-            pay.AddRequestData("vnp_TxnRef", refundModel.trancasionID);
-            pay.AddRequestData("vnp_Amount", ((int)refundModel.amount * 100).ToString());
-            pay.AddRequestData("vnp_OrderInfo", $"hi");
-            pay.AddRequestData("vnp_TransactionDate", refundModel.paymentDate.ToString("yyyyMMddHHmmss"));
-            pay.AddRequestData("vnp_CreateBy", "NGUYEN VAN A");
-            pay.AddRequestData("vnp_CreateDate", timeNow.ToString("yyyyMMddHHmmss"));
-            pay.AddRequestData("vnp_IpAddr", pay.GetIpAddress(context));
+            // var timeZoneID = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneID);
+            // var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneID);
+            // var tick = DateTime.Now.Ticks.ToString();
+            // var pay = new VnPayLibrary();
+            // pay.AddRequestData("vnp_RequestId", tick);
+            // pay.AddRequestData("vnp_Version", _vnpayConfig.Value.Version);
+            // pay.AddRequestData("vnp_Command", "refund");
+            // pay.AddRequestData("vnp_TmnCode", _vnpayConfig.Value.TmnCode);
+            // pay.AddRequestData("vnp_TransactionType", "02");
+            // pay.AddRequestData("vnp_TxnRef", refundModel.trancasionID);
+            // pay.AddRequestData("vnp_Amount", ((int)refundModel.amount * 100).ToString());
+            // pay.AddRequestData("vnp_OrderInfo", $"hi");
+            // pay.AddRequestData("vnp_TransactionDate", refundModel.paymentDate.ToString("yyyyMMddHHmmss"));
+            // pay.AddRequestData("vnp_CreateBy", "NGUYEN VAN A");
+            // pay.AddRequestData("vnp_CreateDate", timeNow.ToString("yyyyMMddHHmmss"));
+            // pay.AddRequestData("vnp_IpAddr", pay.GetIpAddress(context));
 
-            return Task.FromResult(pay.CreateRequestUrl(_vnpayConfig.Value.BaseUrl, _vnpayConfig.Value.HashSecret));
+            // return Task.FromResult(pay.CreateRequestUrl(_vnpayConfig.Value.BaseUrl, _vnpayConfig.Value.HashSecret));
+
+            return "This booking cannot return please go to apointment to have better services";
         }
 
         public async Task<RespondModel> GetPaymentStatus(IQueryCollection collection)
         {
-            var amount = decimal.Parse(collection.FirstOrDefault(s => s.Key == "vnp_Amount").Value!)/100;
+            var amount = decimal.Parse(collection.FirstOrDefault(s => s.Key == "vnp_Amount").Value!) / 100;
             var orderInfo = collection.FirstOrDefault(s => s.Key == "vnp_OrderInfo").Value;
             var orderId = collection.FirstOrDefault(s => s.Key == "vnp_TransactionNo").Value;
             var message = (collection.FirstOrDefault(s => s.Key == "vnp_ResponseCode").Value == "00") ? "Success" : "Failed";
@@ -101,7 +103,7 @@ namespace ClassLib.Service.PaymentService
                 Status = message,
                 IsDeleted = false
             };
-            
+
             await _paymentRepository.AddPayment(payment);
 
             return await Task.FromResult(new RespondModel()

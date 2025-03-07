@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using ClassLib.DTO.Payment;
+using ClassLib.Enum;
 using ClassLib.Helpers;
 using ClassLib.Models;
 using ClassLib.Repositories;
@@ -89,13 +90,13 @@ namespace SWP391_BackEnd.Controllers
             var payment = await _paymentRepository.GetByBookingIDAsync(int.Parse(refundModelRequest.BookingID));
 
             if (payment!.Status.Contains("refund", StringComparison.OrdinalIgnoreCase)) return BadRequest("The Booking is already refund");
-            var refundModel = ConvertHelpers.convertToRefundModel(payment!, (double)((refundModelRequest.paymentStatusEnum == 1) ? payment.TotalPrice * 1m : payment.TotalPrice * 0.5m));
+            var refundModel = ConvertHelpers.convertToRefundModel(payment!, (double)((refundModelRequest.paymentStatusEnum == (int)PaymentStatusEnum.FullyRefunded) ? payment.TotalPrice * 1m : payment.TotalPrice * 0.5m), refundModelRequest.paymentStatusEnum);
 
             var refundDetail = await paymentService.CreateRefund(refundModel, HttpContext);
 
             System.Console.WriteLine("Payment ID:" + payment.PaymentId);
 
-            if (!refundDetail.IsNullOrEmpty()) System.Console.WriteLine((await _paymentRepository.UpdateStatusPayment(payment.PaymentId, "Refund")) ? "Hihi" : "Haha");
+            if (!refundDetail.IsNullOrEmpty()) await _paymentRepository.UpdateStatusPayment(payment.PaymentId, "Refund");
 
             return Ok(refundDetail);
         }
