@@ -38,7 +38,10 @@ namespace ClassLib.Repositories
 
         public async Task<VaccinesTracking?> GetVaccinesTrackingByIdAsync(int id)
         {
-            return await _context.VaccinesTrackings.FindAsync(id);
+            return await _context.VaccinesTrackings.Where(vt => vt.Id == id)
+                                    .Include(vt => vt.Vaccine)
+                                    .Include(vt => vt.User)
+                                    .FirstOrDefaultAsync();
         }
 
         public async Task<VaccinesTracking> AddVaccinesTrackingAsync(VaccinesTracking vaccinesTracking)

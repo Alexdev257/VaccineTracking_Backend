@@ -3,6 +3,7 @@ using ClassLib.DTO.Payment;
 using ClassLib.DTO.VaccineTracking;
 using ClassLib.Enum;
 using ClassLib.Models;
+using Google.Apis.Util;
 
 namespace ClassLib.Helpers
 {
@@ -32,21 +33,36 @@ namespace ClassLib.Helpers
 
         public static VaccinesTrackingResponse convertToVaccinesTrackingResponse(VaccinesTracking vt)
         {
+            if (vt == null)
+            {
+                throw new ArgumentNullException(nameof(vt), "VaccinesTracking object is null.");
+            }
+            if (vt.Vaccine == null)
+            {
+                throw new NullReferenceException($"Vaccine is null for TrackingID: {vt.Id}");
+            }
+            if (vt.User == null)
+            {
+                throw new NullReferenceException($"User is null for TrackingID: {vt.Id}");
+            }
+
             return new VaccinesTrackingResponse
             {
                 TrackingID = vt.Id,
                 VaccineName = vt.Vaccine.Name,
                 UserName = vt.User.Name,
-                ChildName = vt.Child.Name,
+                ChildId = vt.ChildId,
                 MinimumIntervalDate = vt.MinimumIntervalDate,
                 VaccinationDate = vt.VaccinationDate,
                 MaximumIntervalDate = vt.MaximumIntervalDate,
-                PreviousVaccination = (int)vt.PreviousVaccination!,
+                PreviousVaccination = vt.PreviousVaccination.HasValue ? (int)vt.PreviousVaccination.Value : 0,
                 Status = vt.Status,
-                AdministeredByDoctorName = vt.User.Name,
-                Reaction = vt.Reaction
+                AdministeredByDoctorName = vt.User.Name ?? "Not Vaccination Yet",
+                Reaction = vt.Reaction,
+                VaccineID = vt.VaccineId
             };
         }
+
 
         public static AddVaccinesTrackingRequest convertToVaccinesTrackingRequest(AddBooking addBooking)
         {
