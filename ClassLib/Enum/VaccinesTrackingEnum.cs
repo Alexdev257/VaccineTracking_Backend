@@ -9,6 +9,7 @@ namespace ClassLib.Enum
     {
         Success,
         Waiting,
-        Cancel
+        Cancel,
+        Schedule
     }
 }

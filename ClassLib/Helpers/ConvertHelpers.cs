@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ClassLib.DTO.Booking;
 using ClassLib.DTO.Payment;
 using ClassLib.DTO.VaccineTracking;
@@ -12,7 +8,7 @@ namespace ClassLib.Helpers
 {
     public class ConvertHelpers
     {
-        public static VaccinesTracking convertToVaccinesTrackingModel(AddVaccinesTrackingRequest request, int childID, Vaccine vaccines, VaccinesTracking previousVaccination)
+        public static VaccinesTracking convertToVaccinesTrackingModel(AddVaccinesTrackingRequest request, int childID, Vaccine vaccines, VaccinesTracking previousVaccination, int bookingID)
         {
             return new VaccinesTracking
             {
@@ -20,7 +16,7 @@ namespace ClassLib.Helpers
                 UserId = request.UserId,
                 ChildId = childID,
                 VaccinationDate = (previousVaccination == null) ? request.VaccinationDate : null,
-                Status = ((VaccinesTrackingEnum)VaccinesTrackingEnum.Waiting).ToString(),
+                Status = (previousVaccination == null) ? ((VaccinesTrackingEnum)VaccinesTrackingEnum.Schedule).ToString() : ((VaccinesTrackingEnum)VaccinesTrackingEnum.Waiting).ToString(),
                 AdministeredBy = request.AdministeredBy,
                 MinimumIntervalDate = (previousVaccination == null)
                                         ? (request.VaccinationDate ?? DateTime.Now).AddDays(2)  // Use DateTime.Now as fallback
@@ -29,7 +25,8 @@ namespace ClassLib.Helpers
                                         ? (request.VaccinationDate ?? DateTime.Now).AddDays(7)  // Use DateTime.Now as fallback
                                         : null,
                 Reaction = "Nothing",
-                PreviousVaccination = (previousVaccination == null) ? 0 : previousVaccination.Id
+                PreviousVaccination = (previousVaccination == null) ? 0 : previousVaccination.Id,
+                BookingId = bookingID
             };
         }
 
@@ -67,12 +64,12 @@ namespace ClassLib.Helpers
                 AdvisoryDetails = addBooking.AdvisoryDetail,
                 ArrivedAt = addBooking.ArrivedAt,
                 CreatedAt = DateTime.Now,
-                Status = "Pending",
+                Status = ((BookingEnum)BookingEnum.Pending).ToString(),
                 IsDeleted = false
             };
         }
 
-        public static RefundModel convertToRefundModel(Payment payment, double amount)
+        public static RefundModel convertToRefundModel(Payment payment, double amount, int refundType)
         {
             return new RefundModel
             {
@@ -81,7 +78,8 @@ namespace ClassLib.Helpers
                 paymentDate = payment.PaymentDate,
                 paymentID = payment.PaymentId,
                 currency = payment.Currency,
-                trancasionID = payment.TransactionId
+                trancasionID = payment.TransactionId,
+                RefundType = refundType
             };
         }
 
