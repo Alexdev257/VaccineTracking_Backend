@@ -1,8 +1,12 @@
-﻿using ClassLib.DTO.Vaccine;
+﻿using Amazon.SimpleNotificationService.Util;
+using ClassLib.DTO.Vaccine;
 using ClassLib.DTO.VaccineCombo;
 using ClassLib.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using PayPal.v1.BillingAgreements;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,7 +36,7 @@ namespace ClassLib.Repositories
 
         public async Task<bool> DeleteVaccineCombo(VaccinesCombo currentCombo)
         {
-            _context.Set<VaccinesCombo>().Remove(currentCombo);
+            currentCombo.IsDeleted = true;
             await _context.SaveChangesAsync();
             return true;
         }
@@ -41,6 +45,7 @@ namespace ClassLib.Repositories
         {
             return await _context.VaccinesCombos
                 .Include(vc => vc.Vaccines)
+                .Where(vc => vc.IsDeleted == false) // 
                 .ToListAsync();
         }
 
@@ -84,8 +89,16 @@ namespace ClassLib.Repositories
         public async Task<VaccinesCombo?> RemoveVaccineFromCombo(int id, List<int> removedVaccineIds)
         {
             var combo = await _context.VaccinesCombos
-                .Include(vc => vc.Vaccines)
-                .Where(vc => vc.Id == id).FirstOrDefaultAsync();
+               .Include(vc => vc.Vaccines)
+               .Where(vc => vc.Id == id).FirstOrDefaultAsync();
+
+            var existingVaccineIds = combo.Vaccines.Select(v => v.Id).ToList();
+            var invalidVaccineIds = removedVaccineIds.Except(existingVaccineIds).ToList();
+            if (invalidVaccineIds.Any())
+            {
+                return null;
+
+            }
 
             combo.Vaccines = combo.Vaccines
                 .Where(v => !removedVaccineIds.Contains(v.Id))
