@@ -37,7 +37,7 @@ namespace ClassLib.Helpers
        .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<Vaccine, GetVaccine>();
 
-            CreateMap<CreateVaccineCombo, VaccinesCombo>().ForMember(d => d.Vaccines,o => o.Ignore()).ReverseMap();//hai chieu.
+            CreateMap<CreateVaccineCombo, VaccinesCombo>();
             CreateMap<UpdateVaccineCombo, VaccinesCombo>();
 
             CreateMap<VaccinesCombo, GetAllVaccineCombo>();

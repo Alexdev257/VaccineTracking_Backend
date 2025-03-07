@@ -319,10 +319,10 @@ namespace SWP391_BackEnd
             //app.UseHangfireServer();
 
             // create job automatic running each day
-            //RecurringJob.AddOrUpdate<VaccineTrackingReminderJob>(
-            //    "send-vaccine-reminders",
-            //    x => x.SendVaccineReminder(),
-            //    Cron.Daily);
+            RecurringJob.AddOrUpdate<VaccineTrackingReminderJob>(
+                "send-vaccine-reminders",
+                x => x.SendVaccineReminder(),
+                Cron.Daily);
 
 
             // Configure the HTTP request pipeline.

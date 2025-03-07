@@ -119,16 +119,7 @@ namespace ClassLib.Service.VaccineCombo
         //Tạo mới
         public async Task<VaccinesCombo> CreateVaccineCombo(CreateVaccineCombo rq)
         {
-            var listId = rq.vaccines;
-            VaccinesCombo newCombo = new();
-            List<Vaccine> vaccines = new();
-            foreach (var item in listId)
-            {
-                var vaccine = await _vaccineRepository.GetById(item.Id);
-                vaccines.Add(vaccine);
-            }
-            newCombo.Vaccines = vaccines;
-            return await _vaccineComboRepository.CreateVaccine(_mapper.Map(rq, newCombo));
+            return await _vaccineComboRepository.CreateVaccine(_mapper.Map<VaccinesCombo>(rq));
         }
         //Update
         public async Task<VaccinesCombo> UpdateVaccineCombo(UpdateVaccineCombo rq, int id)
@@ -192,16 +183,5 @@ namespace ClassLib.Service.VaccineCombo
             return response;
         }
 
-        public async Task<AddVaccineResponse> RemoveVaccine(AddVaccineIntoCombo rq, int id)
-        {
-            var changedCombo = await _vaccineComboRepository.RemoveVaccineFromCombo(id, rq.VaccineIds);
-            AddVaccineResponse response = new()
-            {
-                ComboId = changedCombo.Id,
-                ComboName = changedCombo.ComboName,
-                Vaccines = changedCombo.Vaccines.ToList(),
-            };
-            return response;
-        }
     }
 }

@@ -127,19 +127,6 @@ namespace SWP391_BackEnd.Controllers
                 return StatusCode(500, $"Internal Server Error: {ex.Message}");
             }
         }
-        [HttpPut("removeVaccineFromCombo/{id}")]
-        public async Task<IActionResult> RemoveVaccine([FromBody] AddVaccineIntoCombo rq, int id)// dung chung dto voi addvacineintocombo
-        {
-            try
-            {
-                var combo = await _vaccineComboService.RemoveVaccine(rq, id);
-                return Ok(combo);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal Server Error: {ex.Message}");
-            }
-        }
     }
 }
 
