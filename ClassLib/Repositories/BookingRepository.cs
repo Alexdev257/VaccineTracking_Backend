@@ -104,41 +104,30 @@ namespace ClassLib.Repositories
 
         public async Task<Booking?> UpdateBooking(string id, string msg)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            var booking = await _context.Bookings.FindAsync(int.Parse(id));
+            if (booking == null)
             {
-                var booking = await _context.Bookings.FindAsync(int.Parse(id));
-                if (booking == null)
-                {
-                    return null;
-                }
-                if (msg.ToLower() == "refund")
-                {
-                    booking.Status = BookingEnum.Refund.ToString();
-                }
-                else if (msg.ToLower() == "success")
-                {
-                    booking.Status = BookingEnum.Success.ToString();
-                }
-                else if (msg.ToLower() == "pending")
-                {
-                    booking.Status = BookingEnum.Pending.ToString();
-                }
-                else
-                {
-                    return null;
-                }
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-                return booking;
-            }
-            catch (Exception e)
-            {
-                System.Console.WriteLine(e.Message);
-                await transaction.RollbackAsync();
                 return null;
             }
+            if (msg.ToLower() == "refund")
+            {
+                booking.Status = BookingEnum.Refund.ToString();
+            }
+            else if (msg.ToLower() == "success")
+            {
+                booking.Status = BookingEnum.Success.ToString();
+            }
+            else if (msg.ToLower() == "pending")
+            {
+                booking.Status = BookingEnum.Pending.ToString();
+            }
+            else
+            {
+                return null;
+            }
+
+            await _context.SaveChangesAsync();
+            return booking;
         }
     }
 }

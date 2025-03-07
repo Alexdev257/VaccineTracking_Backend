@@ -39,7 +39,10 @@ namespace ClassLib.Repositories
             try
             {
                 Payment payment = (await GetByIDAsync(id))!;
-                payment!.Status = msg;
+                payment.Status = msg;
+
+                var entry = _context.Entry(payment);
+                Console.WriteLine($"Entity State: {entry.State}");
 
                 await _bookingRepository.UpdateBooking(payment.BookingId.ToString(), ((BookingEnum)BookingEnum.Refund).ToString());
 
@@ -49,6 +52,7 @@ namespace ClassLib.Repositories
             }
             catch (Exception e)
             {
+                System.Console.WriteLine(e.Message);
                 await transaction.RollbackAsync();
                 return false;
             }
