@@ -5,6 +5,7 @@ using ClassLib.Models;
 using ClassLib.Repositories.BookingDetails;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using TimeProvider = ClassLib.Helpers.TimeProvider;
 
 namespace ClassLib.Repositories
 {
@@ -54,9 +55,6 @@ namespace ClassLib.Repositories
                 .Include(x => x.Combos)
                 .ToListAsync();
         }
-
-
-
         public async Task<List<Booking>?> GetByQuerry(BookingQuerryObject bookingQuerryObject)
         {
             var booking = _context.Bookings
@@ -157,6 +155,43 @@ namespace ClassLib.Repositories
 
             await _context.SaveChangesAsync();
             return booking;
+        }
+
+        //Get all elements by status
+        public async Task<List<Booking>> GetAllByStatus(BookingEnum bookingEnum) => await _context.Bookings.Where(x => x.Status.ToLower() == bookingEnum.ToString().ToLower()).ToListAsync();
+
+        //Soft delete by status
+        public async Task<bool> SoftDeleteStatus(BookingEnum bookingEnum)
+        {
+            var resultList = await GetAllByStatus(bookingEnum);
+
+            if (resultList == null) return false;
+
+            foreach (var item in resultList)
+            {
+                item.IsDeleted = true;
+            }
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        //Get all element by dayrange
+
+        public async Task<List<Booking>> GetAllByDayRange(int day) => await _context.Bookings.Where(x => x.CreatedAt < (TimeProvider.GetVietnamNow()).AddDays(-day)).ToListAsync();
+
+        //Soft delete by day range
+        public async Task<bool> SoftDeleteByDayRange(int range)
+        {
+            var resultList = await GetAllByDayRange(range);
+
+            if (resultList == null) return false;
+
+            foreach (var item in resultList)
+            {
+                item.IsDeleted = true;
+            }
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }
