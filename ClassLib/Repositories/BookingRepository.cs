@@ -1,3 +1,4 @@
+using System.Reflection.Metadata.Ecma335;
 using ClassLib.Enum;
 using ClassLib.Helpers;
 using ClassLib.Models;
@@ -23,13 +24,34 @@ namespace ClassLib.Repositories
             _bookingIdVaccineIdReponsitory = bookingIdVaccineIdReponsitory ?? throw new ArgumentNullException(nameof(bookingIdVaccineIdReponsitory));
             _bookingComboIdReponsitory = bookingComboIdReponsitory ?? throw new ArgumentNullException(nameof(bookingComboIdReponsitory));
         }
+
+        // Staff
         public async Task<List<Booking>> GetAll()
         {
-            return await _context.Bookings.ToListAsync();
+            return await _context.Bookings
+                        .Include(x => x.Parent)
+                        .Include(x => x.Combos)
+                        .Include(x => x.Vaccines)
+                        .Include(x => x.Parent)
+                        .ToListAsync();
         }
 
-        public async Task<Booking?> GetByBookingID(int id) => await _context.Bookings.FirstOrDefaultAsync(x => x.Id == id);
+        // Staff
+        public async Task<Booking?> GetByBookingID(int id) => await _context.Bookings
+                                                                .Include(x => x.Parent)
+                                                                .Include(x => x.Combos)
+                                                                .Include(x => x.Vaccines)
+                                                                .Include(x => x.Children)
+                                                                .FirstOrDefaultAsync(x => x.Id == id);
 
+        // For user
+        public async Task<List<Booking>?> GetAllBookingByUserId(int userId) => await _context.Bookings.Where(x => x.ParentId == userId)
+                                                                                    .Include(x => x.Children)
+                                                                                    .Include(x => x.Vaccines)
+                                                                                    .Include(x => x.Combos)
+                                                                                    .ToListAsync();
+
+        
         public async Task<List<Booking>?> GetByQuerry(BookingQuerryObject bookingQuerryObject)
         {
             var booking = _context.Bookings

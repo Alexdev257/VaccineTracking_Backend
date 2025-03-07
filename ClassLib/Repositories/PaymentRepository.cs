@@ -40,24 +40,12 @@ namespace ClassLib.Repositories
 
         public async Task<bool> UpdateStatusPayment(string id, string msg)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
-            {
-                Payment payment = (await GetByIDAsync(id))!;
-                payment.Status = msg;
-                await _bookingRepository.UpdateBooking((payment.BookingId).ToString(), ((BookingEnum)BookingEnum.Refund).ToString());
-                await _vaccinesTrackingService.VaccinesTrackingRefund(payment.BookingId, VaccinesTrackingEnum.Cancel);
-                var entry = _context.Entry(payment);
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-                return true;
-            }
-            catch (Exception e)
-            {
-                System.Console.WriteLine(e.Message);
-                await transaction.RollbackAsync();
-                return false;
-            }
+            Payment payment = (await GetByIDAsync(id))!;
+            payment.Status = msg;
+            await _bookingRepository.UpdateBooking((payment.BookingId).ToString(), ((BookingEnum)BookingEnum.Refund).ToString());
+            await _vaccinesTrackingService.VaccinesTrackingRefund(payment.BookingId, VaccinesTrackingEnum.Cancel);
+            await _context.SaveChangesAsync();
+            return true;
         }
         public async Task<Payment> AddPayment(Payment payment)
         {

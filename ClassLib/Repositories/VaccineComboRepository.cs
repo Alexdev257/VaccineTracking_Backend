@@ -95,5 +95,18 @@ namespace ClassLib.Repositories
 
             return combo;
         }
+
+        //TieHung23
+        public Task<decimal> SumMoneyOfComboList(List<VaccinesCombo> list)
+        {
+            decimal total = 0;
+
+            foreach (var vt in list)
+            {
+                total += vt.FinalPrice;
+            }
+
+            return Task.FromResult(total);
+        }
     }
 }

@@ -38,5 +38,19 @@ namespace ClassLib.Repositories.BookingDetails
                 return false;
             }
         }
+
+        public async Task<bool> ClearAndAdd(Booking booking, List<int> childId)
+        {
+            try
+            {
+                booking.Children.Clear();
+                return await Add(booking, childId);
+            }
+            catch (Exception e)
+            {
+                System.Console.WriteLine(e.Message);
+                return false;
+            }
+        }
     }
 }

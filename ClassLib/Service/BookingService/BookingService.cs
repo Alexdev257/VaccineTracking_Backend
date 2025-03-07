@@ -13,11 +13,19 @@ namespace ClassLib.Service
         private readonly BookingRepository _bookingRepository;
         private readonly UserRepository _userRepository;
         private readonly VaccinesTrackingService _vaccineTrackingService;
-        public BookingService(BookingRepository bookingRepository, UserRepository userRepository, VaccinesTrackingService vaccinesTrackingService)
+        private readonly VaccineComboRepository _vaccineComboRepository;
+        private readonly VaccineRepository _vaccineRepository;
+        public BookingService(BookingRepository bookingRepository
+                            , UserRepository userRepository
+                            , VaccinesTrackingService vaccinesTrackingService
+                            , VaccineComboRepository vaccineComboRepository
+                            , VaccineRepository vaccineRepository)
         {
             _bookingRepository = bookingRepository;
             _userRepository = userRepository;
             _vaccineTrackingService = vaccinesTrackingService;
+            _vaccineComboRepository = vaccineComboRepository;
+            _vaccineRepository = vaccineRepository;
         }
 
         public async Task<List<Booking>?> GetByQuerry(BookingQuerryObject query)
@@ -27,7 +35,6 @@ namespace ClassLib.Service
 
         public async Task<OrderInfoModel?> AddBooking(AddBooking addBooking)
         {
-
             Booking booking = ConvertHelpers.convertToBooking(addBooking);
             booking = (await _bookingRepository.AddBooking(booking, addBooking.ChildrenIds!, addBooking.vaccineIds!, addBooking.vaccineComboIds!))!;
             AddVaccinesTrackingRequest addVaccinesTrackingRequest = ConvertHelpers.convertToVaccinesTrackingRequest(addBooking);
@@ -41,9 +48,20 @@ namespace ClassLib.Service
             return ConvertHelpers.convertToOrderInfoModel(booking!, user!, addBooking);
         }
 
+        public async Task<OrderInfoModel?> RepurchaseBooking(int bookingID)
+        {
+            Booking booking = (await _bookingRepository.GetByBookingID(bookingID))!;
+            var amount = (await _vaccineRepository.SumMoneyOfVaccinesList((List<Vaccine>)booking.Vaccines)) + (await _vaccineComboRepository.SumMoneyOfComboList((List<VaccinesCombo>)booking.Combos));
+            User user = (await _userRepository.getUserByIdAsync(booking.ParentId))!;
+
+            return ConvertHelpers.RepurchaseBookingtoOrderInfoModel(booking, user!, (int)amount);
+        }
+
         public async Task<Booking?> UpdateBookingStatus(string bookingId, string msg)
         {
             return await _bookingRepository.UpdateBooking(bookingId, msg);
         }
+
+        public async Task<List<Booking>?> GetBookingByUserAsync(int id) => await _bookingRepository.GetAllBookingByUserId(id);
     }
 }

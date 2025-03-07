@@ -99,5 +99,19 @@ namespace ClassLib.Helpers
                 Amount = addBooking.TotalPrice
             };
         }
+
+        public static OrderInfoModel RepurchaseBookingtoOrderInfoModel(Booking booking, User user, int amount)
+        {
+            return new OrderInfoModel
+            {
+                GuestName = user.Id + " " + user.Name!,
+                GuestEmail = user.Gmail!,
+                GuestPhone = user.PhoneNumber!,
+                BookingID = booking.Id.ToString(),
+                OrderId = booking.Id.ToString(),
+                OrderDescription = booking.AdvisoryDetails,
+                Amount = amount
+            };
+        }
     }
 }
