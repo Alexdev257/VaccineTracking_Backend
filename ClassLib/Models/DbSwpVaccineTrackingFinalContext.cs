@@ -42,7 +42,8 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
     //=> optionsBuilder.UseSqlServer("data source=TieHung\\SQLEXPRESS;initial catalog=DB_SWP_Vaccine_Tracking;user id=sa;password=123456;TrustServerCertificate=True");
     ////=> optionsBuilder.UseSqlServer("Server=LAPTOP-8UGAAJKM\\SQLEXPRESS01;Database=DB_SWP_Vaccine_Tracking;User Id=sa;Password=12345;TrustServerCertificate=True;");
-    => optionsBuilder.UseSqlServer("Server=DESKTOP-LIE3GLO\\SQLEXPRESS;Database=DB_SWP_Vaccine_Tracking;User Id=sa;Password=123456;TrustServerCertificate=True;");
+    //=> optionsBuilder.UseSqlServer("Data Source=DESKTOP-6JNVRRM\\SQLEXPRESS;Database=DB_SWP_Vaccine_Tracking;User Id=sa;Password=123456;TrustServerCertificate=True;");
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Address>(entity =>
@@ -328,7 +329,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__Vaccines__3213E83F2797F412");
 
-            entity.ToTable("Vaccine");
+            entity.ToTable("Vaccines");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AddressId).HasColumnName("address_ID");

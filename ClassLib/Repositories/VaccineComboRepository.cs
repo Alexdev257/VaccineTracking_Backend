@@ -40,7 +40,7 @@ namespace ClassLib.Repositories
         public async Task<List<VaccinesCombo>> GetAllVaccineCombo()
         {
             return await _context.VaccinesCombos
-                .Include(vc => vc.Vaccines)  // Thêm Include ở đây
+                .Include(vc => vc.Vaccines) 
                 .ToListAsync();
         }
 
@@ -79,6 +79,21 @@ namespace ClassLib.Repositories
         public async Task<List<Vaccine>> GetAllVaccineInVaccinesComboByID(int id)
         {
             return await _context.VaccinesCombos.Include(v => v.Vaccines).Where(vc => vc.Id == id).SelectMany(vc => vc.Vaccines).ToListAsync();
+        }
+ 
+       public async Task<VaccinesCombo?> RemoveVaccineFromCombo(int id, List<int> removedVaccineIds)
+        {
+            var combo = await _context.VaccinesCombos
+                .Include(vc => vc.Vaccines)
+                .Where(vc => vc.Id == id).FirstOrDefaultAsync();
+
+            combo.Vaccines = combo.Vaccines
+                .Where(v => !removedVaccineIds.Contains(v.Id))
+                .ToList();
+
+            await _context.SaveChangesAsync();
+
+            return combo;
         }
     }
 }
