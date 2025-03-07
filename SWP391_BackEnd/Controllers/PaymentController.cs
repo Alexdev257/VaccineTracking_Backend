@@ -12,6 +12,8 @@ using ClassLib.Service.PaymentService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Extensions;
+using PayPal.v1.Orders;
 
 namespace SWP391_BackEnd.Controllers
 {
@@ -87,12 +89,13 @@ namespace SWP391_BackEnd.Controllers
             var payment = await _paymentRepository.GetByBookingIDAsync(int.Parse(refundModelRequest.BookingID));
 
             if (payment!.Status.Contains("refund", StringComparison.OrdinalIgnoreCase)) return BadRequest("The Booking is already refund");
-
-            var refundModel = ConvertHelpers.convertToRefundModel(payment!, refundModelRequest.Amount);
+            var refundModel = ConvertHelpers.convertToRefundModel(payment!, (double)((refundModelRequest.paymentStatusEnum == 1) ? payment.TotalPrice * 1m : payment.TotalPrice * 0.5m));
 
             var refundDetail = await paymentService.CreateRefund(refundModel, HttpContext);
 
-            if (!refundDetail.IsNullOrEmpty()) await _paymentRepository.UpdateStatusPayment(payment.PaymentId, "Refund");
+            System.Console.WriteLine("Payment ID:" + payment.PaymentId);
+
+            if (!refundDetail.IsNullOrEmpty()) System.Console.WriteLine((await _paymentRepository.UpdateStatusPayment(payment.PaymentId, "Refund")) ? "Hihi" : "Haha");
 
             return Ok(refundDetail);
         }

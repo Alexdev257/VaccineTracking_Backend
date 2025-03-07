@@ -5,7 +5,7 @@ namespace ClassLib.Enum
         Success,
         Pending,
         Refunded,
-        FullyRefunded,
-        PartialRefunded
+        FullyRefunded = 1,
+        PartialRefunded = 0
     }
 }
