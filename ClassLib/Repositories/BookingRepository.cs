@@ -51,34 +51,7 @@ namespace ClassLib.Repositories
                 .Where(x => x.ParentId == userId)
                 .Include(x => x.Children)
                 .Include(x => x.Vaccines)
-                .ThenInclude(v => v.VacineCombos) // If needed
                 .Include(x => x.Combos)
-                .Select(booking => new Booking
-                {
-                    Id = booking.Id,
-                    ParentId = booking.ParentId,
-                    Status = booking.Status,
-                    CreatedAt = booking.CreatedAt,
-                    ArrivedAt = booking.ArrivedAt,
-                    Children = booking.Children.Select(c => new Child
-                    {
-                        Id = c.Id,
-                        Name = c.Name,
-                        DateOfBirth = c.DateOfBirth
-                    }).ToList(),
-                    Vaccines = booking.Vaccines.Select(v => new Vaccine
-                    {
-                        Id = v.Id,
-                        Name = v.Name,
-                        Price = v.Price
-                    }).ToList(),
-                    Combos = booking.Combos.Select(c => new VaccinesCombo
-                    {
-                        Id = c.Id,
-                        ComboName = c.ComboName,
-                        FinalPrice = c.FinalPrice
-                    }).ToList()
-                })
                 .ToListAsync();
         }
 

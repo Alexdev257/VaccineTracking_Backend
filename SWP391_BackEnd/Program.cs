@@ -74,7 +74,6 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<AddressRepository>();
             builder.Services.AddScoped<AddressService>();
 
-
             builder.Services.AddScoped<EmailRepository>();
             builder.Services.AddScoped<EmailService>();
 

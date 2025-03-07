@@ -15,17 +15,24 @@ namespace ClassLib.Service
         private readonly VaccinesTrackingService _vaccineTrackingService;
         private readonly VaccineComboRepository _vaccineComboRepository;
         private readonly VaccineRepository _vaccineRepository;
+
+        private readonly PaymentMethodRepository _paymentMethodRepository;
+        private readonly PaymentRepository _paymentRepository;
         public BookingService(BookingRepository bookingRepository
                             , UserRepository userRepository
                             , VaccinesTrackingService vaccinesTrackingService
                             , VaccineComboRepository vaccineComboRepository
-                            , VaccineRepository vaccineRepository)
+                            , VaccineRepository vaccineRepository
+                            , PaymentMethodRepository paymentMethodRepository
+                            , PaymentRepository paymentRepository)
         {
             _bookingRepository = bookingRepository;
             _userRepository = userRepository;
             _vaccineTrackingService = vaccinesTrackingService;
             _vaccineComboRepository = vaccineComboRepository;
             _vaccineRepository = vaccineRepository;
+            _paymentMethodRepository = paymentMethodRepository;
+            _paymentRepository = paymentRepository;
         }
 
         public async Task<List<Booking>?> GetByQuerry(BookingQuerryObject query)
@@ -62,6 +69,31 @@ namespace ClassLib.Service
             return await _bookingRepository.UpdateBooking(bookingId, msg);
         }
 
-        public async Task<List<Booking>?> GetBookingByUserAsync(int id) => await _bookingRepository.GetAllBookingByUserId(id);
+
+        public async Task<List<BookingResponse>?> GetBookingByUserAsync(int id)
+        {
+            List<BookingResponse> bookingResponses = ConvertHelpers.ConvertBookingResponse((await _bookingRepository.GetAllBookingByUserId(id))!);
+            foreach (var item in bookingResponses)
+            {
+                var payment = (await _paymentRepository.GetByBookingIDAsync(item.ID))!;
+                string paymentMethod = "Does not purchase yet";
+                decimal amount = 0;
+                foreach(var vaccine in item.VaccineList!){
+                    amount+=vaccine.Price;
+                }
+                foreach(var combo in item.ComboList!){
+                    amount+=combo.finalPrice;
+                }
+                if (payment != null)
+                {
+                    paymentMethod = (await _paymentMethodRepository.getPaymentMethodById(payment.PaymentMethod))!.Name;
+                }
+                item.Amount = amount;
+                item.paymentName = paymentMethod;
+            }
+
+            return bookingResponses;
+        }
+
     }
 }

@@ -1,9 +1,14 @@
 using ClassLib.DTO.Booking;
+using ClassLib.DTO.Child;
 using ClassLib.DTO.Payment;
+using ClassLib.DTO.Vaccine;
+using ClassLib.DTO.VaccineCombo;
 using ClassLib.DTO.VaccineTracking;
 using ClassLib.Enum;
 using ClassLib.Models;
+using ClassLib.Repositories;
 using Google.Apis.Util;
+using PayPal.v1.Orders;
 
 namespace ClassLib.Helpers
 {
@@ -127,6 +132,85 @@ namespace ClassLib.Helpers
                 OrderId = booking.Id.ToString(),
                 OrderDescription = booking.AdvisoryDetails,
                 Amount = amount
+            };
+        }
+
+        public static List<VaccineResponeBooking> ConvertListVaccines(List<Vaccine> listVaccines)
+        {
+            List<VaccineResponeBooking> list = new List<VaccineResponeBooking>();
+            foreach (var item in listVaccines)
+            {
+                VaccineResponeBooking vrb = new VaccineResponeBooking()
+                {
+                    ID = item.Id,
+                    Name = item.Name,
+                    Price = item.Price
+                };
+
+                list.Add(vrb);
+            }
+            return list;
+        }
+
+        public static List<ComboResponeBooking> ConvertListCombos(List<VaccinesCombo> listCombos)
+        {
+            List<ComboResponeBooking> list = new List<ComboResponeBooking>();
+            foreach (var item in listCombos)
+            {
+                ComboResponeBooking crb = new ComboResponeBooking()
+                {
+                    ID = item.Id,
+                    Name = item.ComboName,
+                    Discount = item.Discount,
+                    totalPrice = (int)item.TotalPrice,
+                    finalPrice = (int)item.FinalPrice
+                };
+                list.Add(crb);
+            }
+            return list;
+        }
+
+        public static List<ChildrenResponeBooking> ConvertListChildren(List<Child> listChildrens)
+        {
+            List<ChildrenResponeBooking> list = new List<ChildrenResponeBooking>();
+            foreach (var item in listChildrens)
+            {
+                ChildrenResponeBooking crb = new ChildrenResponeBooking()
+                {
+                    Name = item.Name,
+                    Gender = item.Gender
+                };
+                list.Add(crb);
+            }
+            return list;
+        }
+
+        public static List<BookingResponse> ConvertBookingResponse(List<Booking> listBookings)
+        {
+            List<BookingResponse> list = new List<BookingResponse>();
+            foreach (var item in listBookings)
+            {
+                BookingResponse br = new BookingResponse()
+                {
+                    ID = item.Id,
+                    AdvisoryDetail = item.AdvisoryDetails,
+                    ArrivedAt = item.ArrivedAt,
+                    ChildrenIds = ConvertListChildren((List<Child>)item.Children),
+                    VaccineList = ConvertListVaccines((List<Vaccine>)item.Vaccines),
+                    ComboList = ConvertListCombos((List<VaccinesCombo>)item.Combos),
+                    Status = item.Status,
+                };
+                list.Add(br);
+            }
+            return list;
+        }
+
+        public static UpdateVaccineTracking ConvertToUpdateVaccineTracking(UpdateVaccineTrackingUser updateVaccineTrackingUser)
+        {
+            return new UpdateVaccineTracking()
+            {
+                Reaction = updateVaccineTrackingUser.Reaction,
+                Status = ((updateVaccineTrackingUser.isCancel == true) ? "cancel" : null)!
             };
         }
     }
