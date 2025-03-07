@@ -2,23 +2,29 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ClassLib.DTO.Child;
+using ClassLib.DTO.Vaccine;
+using ClassLib.DTO.VaccineCombo;
 
 namespace ClassLib.DTO.Booking
 {
     public class BookingResponse
     {
-        public int ParentId { get; set; }
-
+        public int ID { get; set; } = 0;
         public string AdvisoryDetail { get; set; } = null!;
 
         public DateTime ArrivedAt { get; set; }
 
-        public int paymentId { get; set; }
+        public string paymentName { get; set; } = string.Empty;
 
-        public List<int>? ChildrenIds { get; set; }
+        public decimal Amount { get; set; } = 0;
 
-        public List<int>? vaccineIds { get; set; }
+        public string Status { get; set; } = string.Empty;
 
-        public List<int>? vaccineComboIds { get; set; }
+        public List<ChildrenResponeBooking>? ChildrenIds { get; set; }
+
+        public List<VaccineResponeBooking>? VaccineList { get; set; }
+
+        public List<ComboResponeBooking>? ComboList { get; set; }
     }
 }
