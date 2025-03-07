@@ -19,10 +19,10 @@ namespace ClassLib.Helpers
                 Status = (previousVaccination == null) ? ((VaccinesTrackingEnum)VaccinesTrackingEnum.Schedule).ToString() : ((VaccinesTrackingEnum)VaccinesTrackingEnum.Waiting).ToString(),
                 AdministeredBy = request.AdministeredBy,
                 MinimumIntervalDate = (previousVaccination == null)
-                                        ? (request.VaccinationDate ?? DateTime.Now).AddDays(2)  // Use DateTime.Now as fallback
+                                        ? (request.VaccinationDate ?? TimeProvider.GetVietnamNow()).AddDays(2)  // Use DateTime.Now as fallback
                                         : null,
                 MaximumIntervalDate = (previousVaccination == null)
-                                        ? (request.VaccinationDate ?? DateTime.Now).AddDays(7)  // Use DateTime.Now as fallback
+                                        ? (request.VaccinationDate ?? TimeProvider.GetVietnamNow()).AddDays(7)  // Use DateTime.Now as fallback
                                         : null,
                 Reaction = "Nothing",
                 PreviousVaccination = (previousVaccination == null) ? 0 : previousVaccination.Id,
@@ -34,12 +34,14 @@ namespace ClassLib.Helpers
         {
             return new VaccinesTrackingResponse
             {
+                TrackingID = vt.Id,
                 VaccineName = vt.Vaccine.Name,
                 UserName = vt.User.Name,
                 ChildName = vt.Child.Name,
                 MinimumIntervalDate = vt.MinimumIntervalDate,
                 VaccinationDate = vt.VaccinationDate,
                 MaximumIntervalDate = vt.MaximumIntervalDate,
+                PreviousVaccination = (int)vt.PreviousVaccination!,
                 Status = vt.Status,
                 AdministeredByDoctorName = vt.User.Name,
                 Reaction = vt.Reaction
@@ -63,7 +65,7 @@ namespace ClassLib.Helpers
                 ParentId = addBooking.ParentId,
                 AdvisoryDetails = addBooking.AdvisoryDetail,
                 ArrivedAt = addBooking.ArrivedAt,
-                CreatedAt = DateTime.Now,
+                CreatedAt = TimeProvider.GetVietnamNow(),
                 Status = ((BookingEnum)BookingEnum.Pending).ToString(),
                 IsDeleted = false
             };

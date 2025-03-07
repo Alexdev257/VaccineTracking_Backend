@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ClassLib.Job;
 using ClassLib.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,6 +33,8 @@ namespace ClassLib.Repositories
                                     .Include(vt => vt.Vaccine)
                                     .ToListAsync()!;
         }
+
+        public async Task<List<VaccinesTracking>> GetVaccinesTrackingByBookingID(int bookingID) => await _context.VaccinesTrackings.Where(vt => vt.BookingId == bookingID).ToListAsync();
 
         public async Task<VaccinesTracking?> GetVaccinesTrackingByIdAsync(int id)
         {
@@ -83,8 +86,6 @@ namespace ClassLib.Repositories
                                     .FirstOrDefaultAsync()!;
         }
 
-
-        
 
         //Alex5
         public async Task<List<VaccinesTracking>?> GetUpComingVaccinations(DateTime today)

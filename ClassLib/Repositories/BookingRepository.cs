@@ -28,7 +28,7 @@ namespace ClassLib.Repositories
             return await _context.Bookings.ToListAsync();
         }
 
-        public async Task<Booking?> GetByBookingID(int id) =>await _context.Bookings.FirstOrDefaultAsync(x => x.Id == id);
+        public async Task<Booking?> GetByBookingID(int id) => await _context.Bookings.FirstOrDefaultAsync(x => x.Id == id);
 
         public async Task<List<Booking>?> GetByQuerry(BookingQuerryObject bookingQuerryObject)
         {

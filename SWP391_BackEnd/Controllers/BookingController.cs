@@ -37,7 +37,7 @@ namespace SWP391_BackEnd.Controllers
         [HttpPost("add-booking")]
         public async Task<IActionResult> AddBooking([FromBody] AddBooking addBooking)
         {
-            OrderInfoModel orderInfo = await _bookingService.AddBooking(addBooking);
+            OrderInfoModel orderInfo = (await _bookingService.AddBooking(addBooking))!;
 
             var client = _httpClientFactory.CreateClient();
 
@@ -61,5 +61,8 @@ namespace SWP391_BackEnd.Controllers
 
             return BadRequest(new { message = "Failed to initiate payment" });
         }
+
+        //[HttpGet("booking-history/{userID}")]
+
     }
 }
