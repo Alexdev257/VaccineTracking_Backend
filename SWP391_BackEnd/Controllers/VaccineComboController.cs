@@ -54,6 +54,24 @@ namespace SWP391_BackEnd.Controllers
             }
         }
 
+        [HttpGet("get-vaccine-combo-detail-admin/{id}")]
+        public async Task<IActionResult> GetVaccineComBoDetailByIdAdmin(int id)
+        {
+            try
+            {
+                var combo = await _vaccineComboService.GetDetailVaccineComboByIdAsyncAdmin(id);
+                return Ok(combo);
+            }
+            catch (ArgumentNullException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (Exception e)
+            {
+                return NotFound(e.Message);
+            }
+        }
+
         [HttpGet("getVaccineComboById/{id}")]
         public async Task<IActionResult> GetVaccineCombo(int id)
         {

@@ -116,6 +116,36 @@ namespace ClassLib.Service.VaccineCombo
             }
             return res;
         }
+
+        public async Task<GetVaccineComboDetail> GetDetailVaccineComboByIdAsyncAdmin(int id)
+        {
+            if (string.IsNullOrWhiteSpace(id.ToString()))
+            {
+                throw new ArgumentNullException("ID can not be balnk");
+            }
+            var combo = await _vaccineComboRepository.GetDetailVaccineComboByIdAdmin(id);
+            if (combo == null)
+            {
+                throw new Exception("Do not exist this vaccine combo");
+            }
+            GetVaccineComboDetail res = new GetVaccineComboDetail
+            {
+                Id = combo.Id,
+                ComboName = combo.ComboName,
+                Discount = combo.Discount,
+                TotalPrice = combo.TotalPrice,
+                FinalPrice = combo.FinalPrice,
+                Status = combo.Status,
+                Vaccines = new List<GetVaccineInVaccineComboDetail>(),
+            };
+            var listVaccine = combo.Vaccines.ToList();
+            foreach (var item in listVaccine)
+            {
+                var vcs = _mapper.Map<GetVaccineInVaccineComboDetail>(item);
+                res.Vaccines.Add(vcs);
+            }
+            return res;
+        }
         //Tạo mới
         public async Task<VaccinesCombo> CreateVaccineCombo(CreateVaccineCombo rq)
         {

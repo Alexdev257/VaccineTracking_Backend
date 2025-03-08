@@ -21,6 +21,11 @@ namespace ClassLib.Repositories
 
         public async Task<VaccinesCombo?> GetDetailVaccineComboById(int id)
         {
+            return await _context.VaccinesCombos.Include(c => c.Vaccines).FirstOrDefaultAsync(c => c.Id == id && c.IsDeleted == false);
+        }
+
+        public async Task<VaccinesCombo?> GetDetailVaccineComboByIdAdmin(int id)
+        {
             return await _context.VaccinesCombos.Include(c => c.Vaccines).FirstOrDefaultAsync(c => c.Id == id);
         }
         public VaccineComboRepository(DbSwpVaccineTrackingFinalContext context)
@@ -52,6 +57,11 @@ namespace ClassLib.Repositories
         public async Task<VaccinesCombo?> GetById(int id)
         {
             return await _context.VaccinesCombos.Include(c => c.Vaccines).Where(c => c.Id == id).FirstOrDefaultAsync();
+        }
+
+        public async Task<VaccinesCombo?> GetByIdAdmin(int id)
+        {
+            return await _context.VaccinesCombos.Include(c => c.Vaccines).Where(c => c.Id == id && c.IsDeleted == false).FirstOrDefaultAsync();
         }
 
         public async Task<VaccinesCombo> UpdateVaccine(VaccinesCombo currentCombo, VaccinesCombo updateCombo)
