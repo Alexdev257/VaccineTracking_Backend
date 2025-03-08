@@ -13,5 +13,7 @@ public partial class Feedback
 
     public string? Description { get; set; }
 
+    public int IsDeleted { get; set; }
+
     public virtual User User { get; set; } = null!;
 }

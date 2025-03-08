@@ -25,5 +25,7 @@ public partial class Payment
 
     public bool IsDeleted { get; set; }
 
+    public virtual Booking Booking { get; set; } = null!;
+
     public virtual PaymentMethod PaymentMethodNavigation { get; set; } = null!;
 }
