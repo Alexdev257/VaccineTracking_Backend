@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ClassLib.Models;
 
 namespace ClassLib.DTO.VaccineCombo
 {
@@ -17,5 +18,8 @@ namespace ClassLib.DTO.VaccineCombo
         public decimal FinalPrice { get; set; }
 
         public string Status { get; set; } = null!;
+
+        public List<int> vaccineIds{ get; set; } = null!;
+
     }
 }

@@ -51,7 +51,9 @@ namespace ClassLib.Service.Vaccines
         //Tạo mới
         public async Task<Vaccine> CreateVaccine(CreateVaccine rq)
         {
-            return await _vaccineRepository.CreateVaccine(_mapper.Map<Models.Vaccine>(rq));
+            var rs = _mapper.Map<Vaccine>(rq);
+            rs.IsDeleted = false;
+            return await _vaccineRepository.CreateVaccine(rs);
         }
 
         //Update

@@ -9,6 +9,8 @@ namespace ClassLib.DTO.Vaccine
     public class CreateVaccine
     {
 
+        //public int Id { get; set; }
+
         public string Name { get; set; } = null!;
 
         public int Quantity { get; set; }
@@ -19,8 +21,6 @@ namespace ClassLib.DTO.Vaccine
 
         public int DoesTimes { get; set; }
 
-        public string FromCountry { get; set; } = null!;
-
         public int SuggestAgeMin { get; set; }
 
         public int SuggestAgeMax { get; set; }
@@ -29,9 +29,17 @@ namespace ClassLib.DTO.Vaccine
 
         public DateTime TimeExpired { get; set; }
 
+        public int AddressId { get; set; }
+
         public string Status { get; set; } = null!;
 
-        public int AddressId { get; set; }
+        public int? MinimumIntervalDate { get; set; }
+
+        public int? MaximumIntervalDate { get; set; }
+
+        public string FromCountry { get; set; } = null!;
+
+        //public bool IsDeleted { get; set; }
 
     }
 }

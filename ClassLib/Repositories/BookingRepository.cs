@@ -1,16 +1,11 @@
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Azure.Core;
-using ClassLib.DTO.Booking;
+using System.Reflection.Metadata.Ecma335;
 using ClassLib.Enum;
 using ClassLib.Helpers;
 using ClassLib.Models;
 using ClassLib.Repositories.BookingDetails;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using TimeProvider = ClassLib.Helpers.TimeProvider;
 
 namespace ClassLib.Repositories
 {
@@ -20,24 +15,49 @@ namespace ClassLib.Repositories
         private readonly BookingChildIdRepository _bookingChildIdRepository;
         private readonly BookingIdVaccineIdReponsitory _bookingIdVaccineIdReponsitory;
         private readonly BookingComboIdReponsitory _bookingComboIdReponsitory;
-        private readonly VaccinesTrackingRepository _vaccinesTrackingRepository;
         public BookingRepository(DbSwpVaccineTrackingFinalContext context,
                                  BookingChildIdRepository bookingChildIdRepository,
                                  BookingIdVaccineIdReponsitory bookingIdVaccineIdReponsitory,
-                                 BookingComboIdReponsitory bookingComboIdReponsitory,
-                                 VaccinesTrackingRepository vaccinesTrackingRepository)
+                                 BookingComboIdReponsitory bookingComboIdReponsitory)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _bookingChildIdRepository = bookingChildIdRepository ?? throw new ArgumentNullException(nameof(bookingChildIdRepository));
             _bookingIdVaccineIdReponsitory = bookingIdVaccineIdReponsitory ?? throw new ArgumentNullException(nameof(bookingIdVaccineIdReponsitory));
             _bookingComboIdReponsitory = bookingComboIdReponsitory ?? throw new ArgumentNullException(nameof(bookingComboIdReponsitory));
-            _vaccinesTrackingRepository = vaccinesTrackingRepository ?? throw new ArgumentNullException(nameof(vaccinesTrackingRepository));
-        }
-        public async Task<List<Booking>> GetAll()
-        {
-            return await _context.Bookings.ToListAsync();
         }
 
+        // Staff
+        public async Task<List<Booking>> GetAll()
+        {
+            return await _context.Bookings
+                        .Include(x => x.Parent)
+                        .Include(x => x.Combos)
+                            .ThenInclude(x => x.Vaccines)
+                        .Include(x => x.Vaccines)
+                        .Include(x => x.Parent)
+                        .ToListAsync();
+        }
+
+        // Staff
+        public async Task<Booking?> GetByBookingID(int id) => await _context.Bookings
+                                                                .Include(x => x.Parent)
+                                                                .Include(x => x.Combos)
+                                                                    .ThenInclude(x => x.Vaccines)
+                                                                .Include(x => x.Vaccines)
+                                                                .Include(x => x.Children)
+                                                                .FirstOrDefaultAsync(x => x.Id == id);
+
+        // For user
+        public async Task<List<Booking>?> GetAllBookingByUserId(int userId)
+        {
+            return await _context.Bookings
+                .Where(x => x.ParentId == userId)
+                .Include(x => x.Children)
+                .Include(x => x.Vaccines)
+                .Include(x => x.Combos)
+                    .ThenInclude(x => x.Vaccines)
+                .ToListAsync();
+        }
         public async Task<List<Booking>?> GetByQuerry(BookingQuerryObject bookingQuerryObject)
         {
             var booking = _context.Bookings
@@ -99,6 +119,7 @@ namespace ClassLib.Repositories
                 if (!ChildrenIDs.IsNullOrEmpty()) await _bookingChildIdRepository.Add(booking, ChildrenIDs);
                 if (!VaccineIDs.IsNullOrEmpty()) await _bookingIdVaccineIdReponsitory.Add(booking, VaccineIDs);
                 if (!VaccineComboIDs.IsNullOrEmpty()) await _bookingComboIdReponsitory.Add(booking, VaccineComboIDs);
+
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
                 return booking;
@@ -113,41 +134,67 @@ namespace ClassLib.Repositories
 
         public async Task<Booking?> UpdateBooking(string id, string msg)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            var booking = await _context.Bookings.FindAsync(int.Parse(id));
+            if (booking == null)
             {
-                var booking = await _context.Bookings.FindAsync(int.Parse(id));
-                if (booking == null)
-                {
-                    return null;
-                }
-                if (msg.ToLower() == "cancel")
-                {
-                    booking.Status = BookingEnum.Cancel.ToString();
-                }
-                else if (msg.ToLower() == "success")
-                {
-                    booking.Status = BookingEnum.Success.ToString();
-                }
-                else if (msg.ToLower() == "pending")
-                {
-                    booking.Status = BookingEnum.Pending.ToString();
-                }
-                else
-                {
-                    return null;
-                }
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-                return booking;
-            }
-            catch (Exception e)
-            {
-                System.Console.WriteLine(e.Message);
-                await transaction.RollbackAsync();
                 return null;
             }
+            if (msg.ToLower() == "refund")
+            {
+                booking.Status = BookingEnum.Refund.ToString();
+            }
+            else if (msg.ToLower() == "success")
+            {
+                booking.Status = BookingEnum.Success.ToString();
+            }
+            else if (msg.ToLower() == "pending")
+            {
+                booking.Status = BookingEnum.Pending.ToString();
+            }
+            else
+            {
+                return null;
+            }
+
+            await _context.SaveChangesAsync();
+            return booking;
+        }
+
+        //Get all elements by status
+        public async Task<List<Booking>> GetAllByStatus(BookingEnum bookingEnum) => await _context.Bookings.Where(x => x.Status.ToLower() == bookingEnum.ToString().ToLower()).ToListAsync();
+
+        //Soft delete by status
+        public async Task<bool> SoftDeleteStatus(BookingEnum bookingEnum)
+        {
+            var resultList = await GetAllByStatus(bookingEnum);
+
+            if (resultList == null) return false;
+
+            foreach (var item in resultList)
+            {
+                item.IsDeleted = true;
+            }
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        //Get all element by dayrange
+
+        public async Task<List<Booking>> GetAllByDayRange(int day) => await _context.Bookings.Where(x => x.CreatedAt < (TimeProvider.GetVietnamNow()).AddDays(-day)).ToListAsync();
+
+        //Soft delete by day range
+        public async Task<bool> SoftDeleteByDayRange(int range)
+        {
+            var resultList = await GetAllByDayRange(range);
+
+            if (resultList == null) return false;
+
+            foreach (var item in resultList)
+            {
+                item.IsDeleted = true;
+            }
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

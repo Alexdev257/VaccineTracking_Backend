@@ -1,8 +1,12 @@
-﻿using ClassLib.DTO.Vaccine;
+﻿using Amazon.SimpleNotificationService.Util;
+using ClassLib.DTO.Vaccine;
 using ClassLib.DTO.VaccineCombo;
 using ClassLib.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using PayPal.v1.BillingAgreements;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,6 +20,11 @@ namespace ClassLib.Repositories
 
 
         public async Task<VaccinesCombo?> GetDetailVaccineComboById(int id)
+        {
+            return await _context.VaccinesCombos.Include(c => c.Vaccines).FirstOrDefaultAsync(c => c.Id == id && c.IsDeleted == false);
+        }
+
+        public async Task<VaccinesCombo?> GetDetailVaccineComboByIdAdmin(int id)
         {
             return await _context.VaccinesCombos.Include(c => c.Vaccines).FirstOrDefaultAsync(c => c.Id == id);
         }
@@ -32,7 +41,7 @@ namespace ClassLib.Repositories
 
         public async Task<bool> DeleteVaccineCombo(VaccinesCombo currentCombo)
         {
-            _context.Set<VaccinesCombo>().Remove(currentCombo);
+            currentCombo.IsDeleted = true;
             await _context.SaveChangesAsync();
             return true;
         }
@@ -40,7 +49,15 @@ namespace ClassLib.Repositories
         public async Task<List<VaccinesCombo>> GetAllVaccineCombo()
         {
             return await _context.VaccinesCombos
-                .Include(vc => vc.Vaccines)  // Thêm Include ở đây
+                .Include(vc => vc.Vaccines)
+                .Where(vc => vc.IsDeleted == false) // 
+                .ToListAsync();
+        }
+
+        public async Task<List<VaccinesCombo>> GetAllVaccineComboAdmin()
+        {
+            return await _context.VaccinesCombos
+                .Include(vc => vc.Vaccines)
                 .ToListAsync();
         }
 
@@ -49,12 +66,23 @@ namespace ClassLib.Repositories
             return await _context.VaccinesCombos.Include(c => c.Vaccines).Where(c => c.Id == id).FirstOrDefaultAsync();
         }
 
+        public async Task<VaccinesCombo?> GetByIdAdmin(int id)
+        {
+            return await _context.VaccinesCombos.Include(c => c.Vaccines).Where(c => c.Id == id && c.IsDeleted == false).FirstOrDefaultAsync();
+        }
+
         public async Task<VaccinesCombo> UpdateVaccine(VaccinesCombo currentCombo, VaccinesCombo updateCombo)
         {
             _context.Entry(currentCombo).CurrentValues.SetValues(updateCombo);
             await _context.SaveChangesAsync();
             return currentCombo;
         }
+
+        public async Task<bool> UpdateCombo(VaccinesCombo combo)
+        {
+            _context.VaccinesCombos.Update(combo);
+            return await _context.SaveChangesAsync() > 0;
+        } 
 
         public async Task<VaccinesCombo?> UpdateVaccineWithID(int comboID, VaccinesCombo updateCombo)
         {
@@ -79,6 +107,42 @@ namespace ClassLib.Repositories
         public async Task<List<Vaccine>> GetAllVaccineInVaccinesComboByID(int id)
         {
             return await _context.VaccinesCombos.Include(v => v.Vaccines).Where(vc => vc.Id == id).SelectMany(vc => vc.Vaccines).ToListAsync();
+        }
+
+        public async Task<VaccinesCombo?> RemoveVaccineFromCombo(int id, List<int> removedVaccineIds)
+        {
+            var combo = await _context.VaccinesCombos
+               .Include(vc => vc.Vaccines)
+               .Where(vc => vc.Id == id).FirstOrDefaultAsync();
+
+            var existingVaccineIds = combo.Vaccines.Select(v => v.Id).ToList();
+            var invalidVaccineIds = removedVaccineIds.Except(existingVaccineIds).ToList();
+            if (invalidVaccineIds.Any())
+            {
+                return null;
+
+            }
+
+            combo.Vaccines = combo.Vaccines
+                .Where(v => !removedVaccineIds.Contains(v.Id))
+                .ToList();
+
+            await _context.SaveChangesAsync();
+
+            return combo;
+        }
+
+        //TieHung23
+        public Task<decimal> SumMoneyOfComboList(List<VaccinesCombo> list)
+        {
+            decimal total = 0;
+
+            foreach (var vt in list)
+            {
+                total += vt.FinalPrice;
+            }
+
+            return Task.FromResult(total);
         }
     }
 }

@@ -31,13 +31,14 @@ namespace ClassLib.Helpers
 
             CreateMap<Booking, UpdateBooking>();
 
-            CreateMap<CreateVaccine, Vaccine>();
+            CreateMap<CreateVaccine, Vaccine>()
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             //CreateMap<UpdateVaccine, Vaccine>();
             CreateMap<UpdateVaccine, Vaccine>()
-       .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+                    .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<Vaccine, GetVaccine>();
 
-            CreateMap<CreateVaccineCombo, VaccinesCombo>();
+            CreateMap<CreateVaccineCombo, VaccinesCombo>().ForMember(d => d.Vaccines, o => o.Ignore()).ReverseMap();//hai chieu.
             CreateMap<UpdateVaccineCombo, VaccinesCombo>();
 
             CreateMap<VaccinesCombo, GetAllVaccineCombo>();

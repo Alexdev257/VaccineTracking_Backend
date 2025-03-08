@@ -19,41 +19,41 @@ namespace SWP391_BackEnd.Controllers
         {
             _paymentMethodService = paymentMethodService;
         }
-        
+
         // Get all payment methods
         [HttpGet]
-        public ActionResult GetPaymentMethod()
+        public async Task<IActionResult> GetPaymentMethod()
         {
-            return Ok(_paymentMethodService.getAll());
+            return Ok(await _paymentMethodService.getAll());
         }
 
         // Get payment method by ID
         [HttpGet("GetByID/{id}")]
-        public ActionResult GetPaymentMethodById([FromRoute] int id)
+        public async Task<IActionResult> GetPaymentMethodById([FromRoute] int id)
         {
-            return Ok(_paymentMethodService.getPaymentMethodById(id));
+            return Ok(await _paymentMethodService.getPaymentMethodById(id));
         }
 
 
         // Get payment method by name
         [HttpGet("GetByName/{name}")]
-        public ActionResult GetPaymentMethodByName([FromRoute] string name)
+        public async Task<IActionResult> GetPaymentMethodByName([FromRoute] string name)
         {
-            return Ok(_paymentMethodService.getPaymentMethodByName(name));
+            return Ok(await _paymentMethodService.getPaymentMethodByName(name));
         }
 
         // Create a new payment method
         [HttpPost]
-        public ActionResult CreatePaymentMethod([FromBody] AddPaymentMethod addPaymentMethod)
+        public async Task<IActionResult> CreatePaymentMethod([FromBody] AddPaymentMethod addPaymentMethod)
         {
-            return Ok(_paymentMethodService.addPaymentMethod(addPaymentMethod));
+            return Ok(await _paymentMethodService.addPaymentMethod(addPaymentMethod));
         }
 
         // Update a payment method
         [HttpPut("{id}")]
-        public ActionResult UpdatePaymentMethod([FromRoute] int id, [FromBody] UpdatePaymentMethod updatePaymentMethod)
+        public async Task<IActionResult> UpdatePaymentMethod([FromRoute] int id, [FromBody] UpdatePaymentMethod updatePaymentMethod)
         {
-            return Ok(_paymentMethodService.updatePaymentMethod(id, updatePaymentMethod));
+            return Ok(await _paymentMethodService.updatePaymentMethod(id, updatePaymentMethod));
         }
     }
 }
