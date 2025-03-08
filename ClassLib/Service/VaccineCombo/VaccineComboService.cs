@@ -194,16 +194,43 @@ namespace ClassLib.Service.VaccineCombo
             return await _vaccineComboRepository.CreateVaccine(_mapper.Map(rq, newCombo));
         }
         //Update
-        public async Task<VaccinesCombo> UpdateVaccineCombo(UpdateVaccineCombo rq, int id)
+        //public async Task<VaccinesCombo> UpdateVaccineCombo(UpdateVaccineCombo rq, int id)
+        //{
+        //    var currentVaccineCombo = await _vaccineComboRepository.GetById(id);
+        //    if (currentVaccineCombo == null)
+        //    {
+        //        throw new ArgumentException(nameof(currentVaccineCombo));
+        //    }
+        //    var u = _mapper.Map<VaccinesCombo>(rq);
+        //    u.Id = currentVaccineCombo.Id;
+        //    return await _vaccineComboRepository.UpdateVaccine(currentVaccineCombo, u);
+        //}
+
+        public async Task<bool> UpdateVaccineCombo(int id, UpdateVaccineCombo request)
         {
-            var currentVaccineCombo = await _vaccineComboRepository.GetById(id);
-            if (currentVaccineCombo == null)
+            if (string.IsNullOrWhiteSpace(id.ToString()))
             {
-                throw new ArgumentException(nameof(currentVaccineCombo));
+                throw new ArgumentNullException("ID can not be blank");
             }
-            var u = _mapper.Map<VaccinesCombo>(rq);
-            u.Id = currentVaccineCombo.Id;
-            return await _vaccineComboRepository.UpdateVaccine(currentVaccineCombo, u);
+            var combo = await _vaccineComboRepository.GetById(id);
+            if(combo == null)
+            {
+                throw new ArgumentException("Combo does not exist");
+            }
+            combo.ComboName = request.ComboName;
+            combo.Discount = request.Discount;
+            combo.TotalPrice = request.TotalPrice;
+            combo.FinalPrice = request.FinalPrice;
+            combo.Status = request.Status;
+            List<int> vaccineIds = request.vaccineIds;
+            List<Vaccine> vaccines = combo.Vaccines.ToList();
+            foreach(var item in vaccineIds)
+            {
+                var vaccine = await _vaccineRepository.GetById(item);
+                vaccines.Add(vaccine);
+            }
+            combo.Vaccines = vaccines;
+            return await _vaccineComboRepository.UpdateCombo(combo);
         }
         //xóa
         public async Task<bool> DeleteVaccineCombo(int id)

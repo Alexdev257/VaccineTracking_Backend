@@ -18,7 +18,7 @@ namespace SWP391_BackEnd.Controllers
             _vaccineComboService = vaccineComboService ?? throw new ArgumentNullException(nameof(vaccineComboService));
         }
 
-        [HttpGet("getVaccineCombo")]
+        [HttpGet("get-all-vaccine-combo")]
         public async Task<IActionResult> GetVaccineCombos()
         {
             //try
@@ -90,7 +90,7 @@ namespace SWP391_BackEnd.Controllers
             }
         }
 
-        [HttpGet("getVaccineComboById/{id}")]
+        [HttpGet("get-vaccine-combo-by-id/{id}")]
         public async Task<IActionResult> GetVaccineCombo(int id)
         {
             try
@@ -108,7 +108,7 @@ namespace SWP391_BackEnd.Controllers
             }
         }
 
-        [HttpPost("createVaccineCombo")]
+        [HttpPost("create-vaccine-combo")]
         public async Task<IActionResult> CreateVaccine([FromBody] CreateVaccineCombo rq)
         {
             try
@@ -122,13 +122,35 @@ namespace SWP391_BackEnd.Controllers
             }
         }
 
-        [HttpPut("updateVaccineComboById/{id}")]
-        public async Task<IActionResult> UpdateVaccine([FromBody] UpdateVaccineCombo rq, int id)
+        //[HttpPut("updateVaccineComboById/{id}")]
+        //public async Task<IActionResult> UpdateVaccine([FromBody] UpdateVaccineCombo rq, int id)
+        //{
+        //    try
+        //    {
+        //        var combo = await _vaccineComboService.UpdateVaccineCombo(id, rq);
+        //        return Ok("Update successfully");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Internal Server Error: {ex.Message}");
+        //    }
+        //}
+
+        [HttpPut("update-vaccine-combo-by-id/{id}")]
+        public async Task<IActionResult> UpdateVaccine(int id, [FromBody] UpdateVaccineCombo request)
         {
             try
             {
-                var combo = await _vaccineComboService.UpdateVaccineCombo(rq, id);
-                return Ok(combo);
+                var combo = await _vaccineComboService.UpdateVaccineCombo(id, request);
+                return Ok("Update successfully");
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
@@ -136,7 +158,7 @@ namespace SWP391_BackEnd.Controllers
             }
         }
 
-        [HttpPut("addVaccine/{id}")]
+        [HttpPut("add-vaccine/{id}")]
         public async Task<IActionResult> AddVaccine([FromBody] AddVaccineIntoCombo rq, int id)
         {
             try
@@ -150,7 +172,7 @@ namespace SWP391_BackEnd.Controllers
             }
         }
 
-        [HttpDelete("deleteVaccineCombo/{id}")]
+        [HttpDelete("delete-vaccine-combo/{id}")]
         public async Task<IActionResult> DeleteVaccineCombo(int id)
         {
             try
@@ -186,7 +208,7 @@ namespace SWP391_BackEnd.Controllers
             //}
         }
 
-        [HttpPut("removeVaccineFromCombo/{id}")]
+        [HttpPut("remove-vaccine-from-combo/{id}")]
         public async Task<IActionResult> RemoveVaccine([FromBody] AddVaccineIntoCombo rq, int id)// dung chung dto voi addvacineintocombo
         {
             try
