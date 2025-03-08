@@ -38,7 +38,7 @@ namespace SWP391_BackEnd.Controllers
         {
             try
             {
-                var rs = await _feedbackService.getFeedbackById(id);
+                var rs = await _feedbackService.GetFeedbackById(id);
                 return Ok(rs);
             }
             catch(ArgumentNullException ex)

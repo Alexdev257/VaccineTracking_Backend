@@ -48,6 +48,8 @@ namespace ClassLib.Helpers
 
             CreateMap<Feedback, GetFeedbackResponse>();
 
+            CreateMap<CreateFeedbackRequest, Feedback>();
+
         }
     }
 
