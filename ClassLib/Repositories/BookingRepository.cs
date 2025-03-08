@@ -35,6 +35,7 @@ namespace ClassLib.Repositories
                             .ThenInclude(x => x.Vaccines)
                         .Include(x => x.Vaccines)
                         .Include(x => x.Parent)
+                        .Include(x => x.Payments)
                         .ToListAsync();
         }
 
@@ -45,6 +46,7 @@ namespace ClassLib.Repositories
                                                                     .ThenInclude(x => x.Vaccines)
                                                                 .Include(x => x.Vaccines)
                                                                 .Include(x => x.Children)
+                                                                .Include(x => x.Payments)
                                                                 .FirstOrDefaultAsync(x => x.Id == id);
 
         // For user
@@ -56,6 +58,7 @@ namespace ClassLib.Repositories
                 .Include(x => x.Vaccines)
                 .Include(x => x.Combos)
                     .ThenInclude(x => x.Vaccines)
+                .Include(x => x.Payments)
                 .ToListAsync();
         }
         public async Task<List<Booking>?> GetByQuerry(BookingQuerryObject bookingQuerryObject)
