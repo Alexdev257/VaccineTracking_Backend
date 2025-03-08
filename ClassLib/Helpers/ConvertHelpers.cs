@@ -178,6 +178,7 @@ namespace ClassLib.Helpers
             {
                 ChildrenResponeBooking crb = new ChildrenResponeBooking()
                 {
+                    ChildId = item.Id,
                     Name = item.Name,
                     Gender = item.Gender
                 };
@@ -196,7 +197,7 @@ namespace ClassLib.Helpers
                     ID = item.Id,
                     AdvisoryDetail = item.AdvisoryDetails,
                     ArrivedAt = item.ArrivedAt,
-                    ChildrenIds = ConvertListChildren((List<Child>)item.Children),
+                    ChildrenList = ConvertListChildren((List<Child>)item.Children),
                     VaccineList = ConvertListVaccines((List<Vaccine>)item.Vaccines),
                     ComboList = ConvertListCombos((List<VaccinesCombo>)item.Combos),
                     Status = item.Status,
