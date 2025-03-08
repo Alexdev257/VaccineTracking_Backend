@@ -90,7 +90,7 @@ namespace ClassLib.Service
                 {
                     paymentMethod = (await _paymentMethodRepository.getPaymentMethodById(payment.PaymentMethod))!.Name;
                 }
-                item.Amount = amount;
+                item.Amount = amount * item.ChildrenList!.Count();
                 item.paymentName = paymentMethod;
             }
 

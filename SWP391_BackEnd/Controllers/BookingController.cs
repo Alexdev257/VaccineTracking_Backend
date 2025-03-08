@@ -42,27 +42,33 @@ namespace SWP391_BackEnd.Controllers
             if (addBooking.BookingID == 0) orderInfo = (await _bookingService.AddBooking(addBooking))!;
             else orderInfo = (await _bookingService.RepurchaseBooking(addBooking.BookingID))!;
 
-            var client = _httpClientFactory.CreateClient();
-
-            var paymentApi = $"http://localhost:5272/api/Payment/create/{((PaymentEnum)addBooking.paymentId).ToString()}";
-
-            var jsonRequest = JsonConvert.SerializeObject(orderInfo);
-
-            var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
-
-            var response = await client.PostAsync(paymentApi, content);
-
-            if (response.IsSuccessStatusCode)
+            if (addBooking.paymentId != 0)
             {
-                var responseData = await response.Content.ReadAsStringAsync();
+                var client = _httpClientFactory.CreateClient();
 
-                if (!string.IsNullOrEmpty(responseData))
+                var paymentApi = $"http://localhost:5272/api/Payment/create/{((PaymentEnum)addBooking.paymentId).ToString()}";
+
+                var jsonRequest = JsonConvert.SerializeObject(orderInfo);
+
+                var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+
+                var response = await client.PostAsync(paymentApi, content);
+
+                if (response.IsSuccessStatusCode)
                 {
-                    return Ok(responseData);
+                    var responseData = await response.Content.ReadAsStringAsync();
+
+                    if (!string.IsNullOrEmpty(responseData))
+                    {
+                        return Ok(responseData);
+                    }
                 }
+
+                return BadRequest(new { message = "Failed to initiate payment" });
             }
 
-            return BadRequest(new { message = "Failed to initiate payment" });
+            return Ok("Payment By Cash success");
+
         }
 
         [HttpGet("booking-history/{userID}")]

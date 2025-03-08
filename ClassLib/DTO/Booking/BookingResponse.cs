@@ -21,7 +21,7 @@ namespace ClassLib.DTO.Booking
 
         public string Status { get; set; } = string.Empty;
 
-        public List<ChildrenResponeBooking>? ChildrenIds { get; set; }
+        public List<ChildrenResponeBooking>? ChildrenList { get; set; }
 
         public List<VaccineResponeBooking>? VaccineList { get; set; }
 
