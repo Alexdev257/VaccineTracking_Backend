@@ -81,6 +81,39 @@ namespace ClassLib.Service.VaccineCombo
             }
             return responses;
         }
+
+        public async Task<List<GetAllVaccineCombo>> GetAllVaccineComboAdmin()
+        {
+            var combo = await _vaccineComboRepository.GetAllVaccineComboAdmin();
+            List<GetAllVaccineCombo> responses = new List<GetAllVaccineCombo>();
+            foreach (var vaccineCombo in combo)
+            {
+                GetAllVaccineCombo response = new GetAllVaccineCombo()
+                {
+                    Id = vaccineCombo.Id,
+                    ComboName = vaccineCombo.ComboName,
+                    Discount = vaccineCombo.Discount,
+                    FinalPrice = vaccineCombo.FinalPrice,
+                    Status = vaccineCombo.Status,
+                    TotalPrice = vaccineCombo.TotalPrice,
+                };
+                var listVaccine = vaccineCombo.Vaccines.ToList();
+                response.Vaccines = new List<GetVaccineInVaccineCombo>();
+                foreach (var item in listVaccine)
+                {
+                    GetVaccineInVaccineCombo vcs = new()
+                    {
+                        Id = item.Id,
+                        Name = item.Name,
+                        Price = item.Price,
+
+                    };
+                    response.Vaccines.Add(vcs);
+                }
+                responses.Add(response);
+            }
+            return responses;
+        }
         //Lấy theo id
         public async Task<VaccinesCombo?> GetVaccineComboById(int id)
         {

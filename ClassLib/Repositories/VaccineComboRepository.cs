@@ -54,6 +54,13 @@ namespace ClassLib.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<VaccinesCombo>> GetAllVaccineComboAdmin()
+        {
+            return await _context.VaccinesCombos
+                .Include(vc => vc.Vaccines)
+                .ToListAsync();
+        }
+
         public async Task<VaccinesCombo?> GetById(int id)
         {
             return await _context.VaccinesCombos.Include(c => c.Vaccines).Where(c => c.Id == id).FirstOrDefaultAsync();

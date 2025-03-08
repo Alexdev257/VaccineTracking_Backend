@@ -36,6 +36,24 @@ namespace SWP391_BackEnd.Controllers
             //}
         }
 
+        [HttpGet("get-all-vaccine-combo-admin")]
+        public async Task<IActionResult> GetVaccineCombosAdmin()
+        {
+            //try
+            //{
+            var combos = await _vaccineComboService.GetAllVaccineComboAdmin();
+            if (combos == null || combos.Count == 0)
+            {
+                return NotFound("No combos found.");
+            }
+            return Ok(combos);
+            //}
+            //catch (Exception ex)
+            //{
+            //    return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            //}
+        }
+
         [HttpGet("get-vaccine-combo-detail/{id}")]
         public async Task<IActionResult> GetVaccineComBoDetailById(int id)
         {
