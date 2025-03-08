@@ -128,6 +128,28 @@ namespace SWP391_BackEnd.Controllers
             }
         }
 
+        [HttpPatch("soft-delete-combo/{id}")]
+        public async Task<IActionResult> SoftDeleteCombo(int id)
+        {
+            try
+            {
+                var rs = await _vaccineComboService.SoftDeleteVaccineCombo(id);
+                return Ok("Delete successfully");
+            }
+            catch(ArgumentNullException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch(ArgumentException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            //catch(Exception e)
+            //{
+            //    return StatusCode(500, "Something went wrong");
+            //}
+        }
+
         [HttpPut("removeVaccineFromCombo/{id}")]
         public async Task<IActionResult> RemoveVaccine([FromBody] AddVaccineIntoCombo rq, int id)// dung chung dto voi addvacineintocombo
         {

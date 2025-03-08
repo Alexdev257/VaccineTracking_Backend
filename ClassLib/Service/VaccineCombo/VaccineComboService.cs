@@ -153,6 +153,21 @@ namespace ClassLib.Service.VaccineCombo
             return await _vaccineComboRepository.DeleteVaccineCombo(currentVaccine);
         }
 
+        public async Task<bool> SoftDeleteVaccineCombo(int id)
+        {
+            if (string.IsNullOrWhiteSpace(id.ToString()))
+            {
+                throw new ArgumentNullException("Id can not be blank");
+            }
+            var combo = await _vaccineComboRepository.GetById(id);
+            if(combo == null)
+            {
+                throw new ArgumentException("Combo does not exist");
+            }
+            combo.IsDeleted = true;
+            return await _vaccineComboRepository.UpdateCombo(combo);
+        }
+
         public async Task<AddVaccineResponse> AddVaccine(AddVaccineIntoCombo rq, int id)
         {
             var currentCombo = await _vaccineComboRepository.GetById(id);

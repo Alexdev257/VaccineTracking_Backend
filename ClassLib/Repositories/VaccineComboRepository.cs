@@ -61,6 +61,12 @@ namespace ClassLib.Repositories
             return currentCombo;
         }
 
+        public async Task<bool> UpdateCombo(VaccinesCombo combo)
+        {
+            _context.VaccinesCombos.Update(combo);
+            return await _context.SaveChangesAsync() > 0;
+        } 
+
         public async Task<VaccinesCombo?> UpdateVaccineWithID(int comboID, VaccinesCombo updateCombo)
         {
             var currentCombo = await _context.Set<VaccinesCombo>().FindAsync(comboID);
