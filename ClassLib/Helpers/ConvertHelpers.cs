@@ -163,7 +163,8 @@ namespace ClassLib.Helpers
                     Name = item.ComboName,
                     Discount = item.Discount,
                     totalPrice = (int)item.TotalPrice,
-                    finalPrice = (int)item.FinalPrice
+                    finalPrice = (int)item.FinalPrice,
+                    vaccineResponeBooking = ConvertListVaccines((List<Vaccine>)item.Vaccines),
                 };
                 list.Add(crb);
             }
