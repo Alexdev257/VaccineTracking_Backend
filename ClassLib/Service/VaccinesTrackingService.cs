@@ -79,26 +79,44 @@ namespace ClassLib.Service
         public async Task<bool> UpdateVaccinesTrackingAsync(int id, UpdateVaccineTracking updateVaccineTracking)
         {
             var vt = await _vaccinesTrackingRepository.GetVaccinesTrackingByIdAsync(id);
+            if (vt == null) return false;
             var vaccine = _vaccineRepository.GetById(vt!.VaccineId).Result;
             int checkpointForThisVaccine = 1;
             while (vt != null)
             {
                 if (checkpointForThisVaccine == 1)
                 {
-                    vt.Status = updateVaccineTracking.Status ?? vt.Status;
-                    vt.Reaction = updateVaccineTracking.Reaction ?? vt.Reaction;
-                    vt.AdministeredBy = (updateVaccineTracking.AdministeredBy == 0) ? vt.AdministeredBy : updateVaccineTracking.AdministeredBy;
-                    if (updateVaccineTracking.Status!.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Success).ToString().ToLower())
+                    vt.Status = updateVaccineTracking?.Status ?? vt.Status;
+                    vt.Reaction = updateVaccineTracking?.Reaction ?? vt.Reaction;
+                    vt.AdministeredBy = (updateVaccineTracking?.AdministeredBy == 0) ? vt.AdministeredBy : updateVaccineTracking!.AdministeredBy;
+                    vt.VaccinationDate = updateVaccineTracking.Reschedule ?? vt.VaccinationDate;
+
+                    if (vt.PreviousVaccination == 0 && updateVaccineTracking.Reschedule != null)
+                    {
+                        vt.MinimumIntervalDate = updateVaccineTracking!.Reschedule.Value.AddDays(2);
+                        vt.MaximumIntervalDate = updateVaccineTracking!.Reschedule.Value.AddDays(7);
+                    }
+                    else if (updateVaccineTracking.Reschedule != null)
+                    {
+                        vt.MinimumIntervalDate = updateVaccineTracking!.Reschedule.Value.AddDays(vaccine!.MinimumIntervalDate!.Value);
+                        vt.MaximumIntervalDate = updateVaccineTracking!.Reschedule.Value.AddDays(vaccine!.MaximumIntervalDate!.Value);
+                    }
+
+                    if (updateVaccineTracking?.Status?.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Success).ToString().ToLower())
+                    {
                         await _vaccineRepository.DecreseQuantityVaccines(vaccine!, 1);
+                        vt.VaccinationDate = TimeProvider.GetVietnamNow();
+                    }
                 }
-                if (updateVaccineTracking.Status!.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Success).ToString().ToLower() && checkpointForThisVaccine == 2)
+                if (updateVaccineTracking?.Status?.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Success).ToString().ToLower() && checkpointForThisVaccine == 2)
                 {
-                    vt.VaccinationDate = TimeProvider.GetVietnamNow();
-                    vt.MinimumIntervalDate = vt.VaccinationDate!.Value.AddDays(vaccine!.MinimumIntervalDate!.Value);
-                    vt.MaximumIntervalDate = vt.VaccinationDate!.Value.AddDays(vaccine!.MaximumIntervalDate!.Value);
+                    vt.VaccinationDate = null;
+                    vt.MinimumIntervalDate = TimeProvider.GetVietnamNow().AddDays(vaccine!.MinimumIntervalDate.HasValue ? vaccine.MinimumIntervalDate.Value : 30);
+                    vt.MaximumIntervalDate = TimeProvider.GetVietnamNow().AddDays(vaccine!.MaximumIntervalDate.HasValue ? vaccine.MaximumIntervalDate.Value : 60);
+
                     vt.Status = ((VaccinesTrackingEnum)VaccinesTrackingEnum.Schedule).ToString();
                 }
-                if (updateVaccineTracking.Status!.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Cancel).ToString().ToLower())
+                if (updateVaccineTracking?.Status?.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Cancel).ToString().ToLower())
                 {
                     vt.VaccinationDate = null;
                     vt.MinimumIntervalDate = null;
