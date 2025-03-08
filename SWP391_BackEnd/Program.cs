@@ -65,6 +65,9 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<ChildRepository>();
             builder.Services.AddScoped<ChildService>();
 
+            builder.Services.AddScoped<FeedbackRepository>();
+            builder.Services.AddScoped<FeedbackService>();
+
             builder.Services.AddScoped<VaccineRepository>();
             builder.Services.AddScoped<VaccineService>();
 
