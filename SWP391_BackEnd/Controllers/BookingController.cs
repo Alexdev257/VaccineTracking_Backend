@@ -8,10 +8,13 @@ using ClassLib.DTO.Booking;
 using ClassLib.DTO.Payment;
 using ClassLib.Enum;
 using ClassLib.Helpers;
+using ClassLib.Models;
+using ClassLib.Repositories;
 using ClassLib.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using TimeProvider = ClassLib.Helpers.TimeProvider;
 
 namespace SWP391_BackEnd.Controllers
 {
@@ -21,10 +24,13 @@ namespace SWP391_BackEnd.Controllers
     {
         private readonly BookingService _bookingService;
         private readonly IHttpClientFactory _httpClientFactory;
-        public BookingController(BookingService bookingService, IHttpClientFactory httpClientFactory)
+
+        private readonly PaymentRepository _paymentRepository;
+        public BookingController(BookingService bookingService, IHttpClientFactory httpClientFactory, PaymentRepository paymentRepository)
         {
             _bookingService = bookingService;
             _httpClientFactory = httpClientFactory;
+            _paymentRepository = paymentRepository;
         }
 
 
@@ -39,9 +45,15 @@ namespace SWP391_BackEnd.Controllers
         public async Task<IActionResult> AddBooking([FromBody] AddBooking addBooking)
         {
             OrderInfoModel orderInfo;
+
+            // Create Model Info Include Create Booking Data, Booking Child Data, Booking Vaccine Data, ...
             if (addBooking.BookingID == 0) orderInfo = (await _bookingService.AddBooking(addBooking))!;
+
+            // Pay again for Booking have "Pending" status
             else orderInfo = (await _bookingService.RepurchaseBooking(addBooking.BookingID))!;
 
+
+            // Chose payment method
             if (addBooking.paymentId != 0)
             {
                 var client = _httpClientFactory.CreateClient();
@@ -65,6 +77,35 @@ namespace SWP391_BackEnd.Controllers
                 }
 
                 return BadRequest(new { message = "Failed to initiate payment" });
+            }
+
+            // If payment method is by cash
+            else
+            {
+                string bookingID = orderInfo.BookingID;
+                decimal amount = orderInfo.Amount;
+                string paymentID = TimeProvider.GetVietnamNow().Ticks.ToString();
+                string trancasionID = paymentID;
+                string userID = orderInfo.GuestName.Split(" ")[0];
+                int paymentMethod = (int)PaymentEnum.Cash;
+                string currency = "VND";
+                DateTime paymentDate = TimeProvider.GetVietnamNow();
+                string status = "Pending";
+
+                Payment payment = new Payment()
+                {
+                    PaymentId = paymentID,
+                    BookingId = int.Parse(bookingID),
+                    TransactionId = trancasionID,
+                    TotalPrice = amount,
+                    PayerId = userID,
+                    PaymentMethod = paymentMethod,
+                    Currency = currency,
+                    PaymentDate = paymentDate,
+                    Status = status
+                };
+
+                await _paymentRepository.AddPayment(payment);
             }
 
             return Ok("Payment By Cash success");

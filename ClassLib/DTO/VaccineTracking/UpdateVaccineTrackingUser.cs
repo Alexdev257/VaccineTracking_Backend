@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using ClassLib.Helpers;
+using TimeProvider = ClassLib.Helpers.TimeProvider;
 
 namespace ClassLib.DTO.VaccineTracking
 {
@@ -12,5 +14,6 @@ namespace ClassLib.DTO.VaccineTracking
 
         [DefaultValue(false)]
         public bool isCancel { get; set; } = false;
+        public DateTime? Reschedule { get; set; } = null!;
     }
 }

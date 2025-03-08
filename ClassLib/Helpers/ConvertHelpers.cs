@@ -212,7 +212,8 @@ namespace ClassLib.Helpers
             return new UpdateVaccineTracking()
             {
                 Reaction = updateVaccineTrackingUser.Reaction,
-                Status = ((updateVaccineTrackingUser.isCancel == true) ? "cancel" : null)!
+                Status = ((updateVaccineTrackingUser.isCancel == true) ? "cancel" : null)!,
+                Reschedule = updateVaccineTrackingUser?.Reschedule
             };
         }
     }
