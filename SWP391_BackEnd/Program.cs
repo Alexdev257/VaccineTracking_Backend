@@ -1,5 +1,5 @@
-﻿using ClassLib.Repositories; // Import UserRepo
-using ClassLib.Service;    // Import UserService
+﻿//using ClassLib.Repositories; // Import UserRepo
+using ClassLib.Service;    // Import UserService                
 using ClassLib.Helpers;
 //using ClassLib.Models;
 //using ClassLib.Repositories; // Import UserRepo
@@ -27,6 +27,7 @@ using ClassLib.DTO.Payment;
 using ClassLib.Job;
 using Hangfire;
 using Hangfire.SqlServer;
+using ClassLib.Repositories;
 namespace SWP391_BackEnd
 {
     public class Program
@@ -102,10 +103,10 @@ namespace SWP391_BackEnd
 
             builder.Services.Configure<VnPayConfigFromJson>(builder.Configuration.GetSection("VnpayAPI"));
             builder.Services.Configure<MomoConfigFromJSON>(builder.Configuration.GetSection("MomoAPI"));
-            builder.Services.Configure<PaypalConfigFromJson>(builder.Configuration.GetSection("PaypalAPI"));
+            builder.Services.Configure<PaypalConfigFromJson>(builder.Configuration.GetSection("PaypalAPI")); 
 
 
-            builder.Services.AddScoped<VaccineTrackingReminderJob>();
+            builder.Services.AddScoped<VaccineTrackingReminderJob>(); 
 
             // Add Json NewtonSoft to show more information
             builder.Services.AddControllers()
@@ -115,10 +116,10 @@ namespace SWP391_BackEnd
                 });
 
             // add jwthelper
-            builder.Services.AddScoped<JwtHelper>();
+            builder.Services.AddScoped<JwtHelper>(); 
 
             //Automapper
-            builder.Services.AddAutoMapper(typeof(MappingProfile));
+            builder.Services.AddAutoMapper(typeof(MappingProfile)); 
 
             // Test FE
             builder.Services.AddCors(options =>
