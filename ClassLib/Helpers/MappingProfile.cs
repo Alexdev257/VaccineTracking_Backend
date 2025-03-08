@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using ClassLib.DTO.Booking;
 using ClassLib.DTO.Child;
+using ClassLib.DTO.Feedback;
 using ClassLib.DTO.User;
 using ClassLib.DTO.Vaccine;
 using ClassLib.DTO.VaccineCombo;
@@ -43,6 +44,8 @@ namespace ClassLib.Helpers
             CreateMap<VaccinesCombo, GetAllVaccineCombo>();
 
             CreateMap<Vaccine, GetVaccineInVaccineComboDetail>();
+
+            CreateMap<Feedback, GetFeedbackResponse>();
 
         }
     }
