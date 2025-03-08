@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using ClassLib.DTO.Feedback;
+using ClassLib.Models;
 using ClassLib.Repositories;
 
 namespace ClassLib.Service
@@ -36,19 +37,44 @@ namespace ClassLib.Service
             return result;
         }
 
-        public async Task<GetFeedbackResponse> getFeedbackById(int id)
+        public async Task<List<GetFeedbackResponse>> GetFeedbackById(int id)
         {
             if (string.IsNullOrWhiteSpace(id.ToString()))
             {
                 throw new ArgumentNullException("Id can not be blank");
             }
             var feedback = await _feedbackRepository.getFeedBackById(id);
-            if(feedback == null)
+            if(feedback.Count == 0)
             {
                 throw new ArgumentException("Feedback is not exist");
             }
-            var result = _mapper.Map<GetFeedbackResponse>(feedback);
+            List<GetFeedbackResponse> result = new List<GetFeedbackResponse>();
+            foreach (var feedbackItem in feedback)
+            {
+                var rs = _mapper.Map<GetFeedbackResponse>(feedback);
+                result.Add(rs);
+            }
             return result;
+        }
+
+        public async Task<bool> CreateFeedback(CreateFeedbackRequest request)
+        {
+            if(string.IsNullOrWhiteSpace(request.UserId.ToString()))
+            {
+                throw new ArgumentNullException("User ID can not be blank");
+            }
+            if (string.IsNullOrWhiteSpace(request.RatingScore.ToString()))
+            {
+                throw new ArgumentNullException("Rating score can not be blank");
+            }
+            if (string.IsNullOrWhiteSpace(request.Description))
+            {
+                throw new ArgumentNullException("Description can not be blank");
+            }
+
+            var rs = _mapper.Map<Feedback>(request);
+            //rs.IsDeleted = false;
+            return await _feedbackRepository.addFeedback(rs);
         }
     }
 }

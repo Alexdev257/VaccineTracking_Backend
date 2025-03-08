@@ -45,7 +45,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
     {
         modelBuilder.Entity<Address>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Address__3213E83FDA884F52");
+            entity.HasKey(e => e.Id).HasName("PK__Address__3213E83F47ECEB7B");
 
             entity.ToTable("Address");
 
@@ -58,7 +58,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
 
         modelBuilder.Entity<Booking>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Booking__3213E83FFFE7BB17");
+            entity.HasKey(e => e.Id).HasName("PK__Booking__3213E83FF97782CE");
 
             entity.ToTable("Booking");
 
@@ -143,7 +143,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
 
         modelBuilder.Entity<Child>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Child__3213E83F20751F9D");
+            entity.HasKey(e => e.Id).HasName("PK__Child__3213E83F55362530");
 
             entity.ToTable("Child");
 
@@ -172,7 +172,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
 
         modelBuilder.Entity<Feedback>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Feedback__3213E83FD64DAA68");
+            entity.HasKey(e => e.Id).HasName("PK__Feedback__3213E83F6234ED67");
 
             entity.ToTable("Feedback");
 
@@ -192,7 +192,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
 
         modelBuilder.Entity<Payment>(entity =>
         {
-            entity.HasKey(e => e.PaymentId).HasName("PK__Payment__ED1FC9EAEE19D6A2");
+            entity.HasKey(e => e.PaymentId).HasName("PK__Payment__ED1FC9EA34A2E5D3");
 
             entity.ToTable("Payment");
 
@@ -234,7 +234,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
 
         modelBuilder.Entity<PaymentMethod>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Payment___3213E83F7D7132CF");
+            entity.HasKey(e => e.Id).HasName("PK__Payment___3213E83F1B82C022");
 
             entity.ToTable("Payment_Method");
 
@@ -250,7 +250,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
 
         modelBuilder.Entity<RefreshToken>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Refresh___3213E83FFC049DA7");
+            entity.HasKey(e => e.Id).HasName("PK__Refresh___3213E83F355708CA");
 
             entity.ToTable("Refresh_Token");
 
@@ -281,7 +281,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__User__3213E83F4AF8DEEE");
+            entity.HasKey(e => e.Id).HasName("PK__User__3213E83FBF757745");
 
             entity.ToTable("User");
 
@@ -328,7 +328,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
 
         modelBuilder.Entity<Vaccine>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Vaccines__3213E83F23BAE242");
+            entity.HasKey(e => e.Id).HasName("PK__Vaccines__3213E83F5798C4FD");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AddressId).HasColumnName("address_ID");
@@ -369,7 +369,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
 
         modelBuilder.Entity<VaccinesCombo>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Vaccines__3213E83FBE49913C");
+            entity.HasKey(e => e.Id).HasName("PK__Vaccines__3213E83FDFF8CDCD");
 
             entity.ToTable("Vaccines_Combo");
 
@@ -411,7 +411,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
 
         modelBuilder.Entity<VaccinesTracking>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Vaccines__3213E83F4D604895");
+            entity.HasKey(e => e.Id).HasName("PK__Vaccines__3213E83F5B1F2CDD");
 
             entity.ToTable("Vaccines_Tracking");
 

@@ -22,9 +22,9 @@ namespace ClassLib.Repositories
             return await _context.Feedbacks.ToListAsync();
         }
 
-        public async Task<Feedback?> getFeedBackById(int id)
+        public async Task<List<Feedback>> getFeedBackById(int id)
         {
-            return await _context.Feedbacks.FirstOrDefaultAsync(f => f.Id == id);
+            return await _context.Feedbacks.Where(f => f.Id == id).ToListAsync();
         }
 
         public async Task<bool> addFeedback(Feedback feedback)
