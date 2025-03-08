@@ -19,12 +19,32 @@ namespace ClassLib.Repositories
 
         public async Task<List<Feedback>> getAllFeedBackRepo()
         {
+            return await _context.Feedbacks.Where(f => f.IsDeleted == false).ToListAsync();
+        }
+
+        public async Task<Feedback?> getFeedBackById(int id)
+        {
+            return await _context.Feedbacks.FirstOrDefaultAsync(f => f.Id == id && f.IsDeleted == false);
+        }
+
+        public async Task<List<Feedback>> getFeedBackByUserId(int userId)
+        {
+            return await _context.Feedbacks.Where(f => f.UserId == userId && f.IsDeleted == false).ToListAsync();
+        }
+
+        public async Task<List<Feedback>> getAllFeedBackRepoAdmin()
+        {
             return await _context.Feedbacks.ToListAsync();
         }
 
-        public async Task<List<Feedback>> getFeedBackById(int id)
+        public async Task<Feedback?> getFeedBackByIdAdmin(int id)
         {
-            return await _context.Feedbacks.Where(f => f.Id == id).ToListAsync();
+            return await _context.Feedbacks.FirstOrDefaultAsync(f => f.Id == id);
+        }
+
+        public async Task<List<Feedback>> getFeedBackByUserIdAdmin(int userId)
+        {
+            return await _context.Feedbacks.Where(f => f.UserId == userId).ToListAsync();
         }
 
         public async Task<bool> addFeedback(Feedback feedback)
@@ -33,7 +53,7 @@ namespace ClassLib.Repositories
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> updateFeedBack(int id, Feedback feedback)
+        public async Task<bool> updateFeedBack(Feedback feedback)
         {
              _context.Feedbacks.Update(feedback);
             return await _context.SaveChangesAsync() > 0;
