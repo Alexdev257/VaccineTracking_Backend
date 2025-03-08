@@ -40,19 +40,19 @@ namespace SWP391_BackEnd
             builder.Services.AddDbContext<DbSwpVaccineTrackingFinalContext>(options =>
             options.UseSqlServer(connectionString));
 
-            // config hangfire to auto generate table in db if do not exist 
-            builder.Services.AddHangfire(config =>
-                config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-                      .UseSimpleAssemblyNameTypeSerializer()
-                      .UseRecommendedSerializerSettings()
-                      .UseSqlServerStorage(connectionString, new SqlServerStorageOptions
-                      {
-                          PrepareSchemaIfNecessary = true, //auto generate if do not exist
-                      })
-            );
+            //// config hangfire to auto generate table in db if do not exist 
+            //builder.Services.AddHangfire(config =>
+            //    config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            //          .UseSimpleAssemblyNameTypeSerializer()
+            //          .UseRecommendedSerializerSettings()
+            //          .UseSqlServerStorage(connectionString, new SqlServerStorageOptions
+            //          {
+            //              PrepareSchemaIfNecessary = true, //auto generate if do not exist
+            //          })
+            //);
 
-            // register Hangfire
-            builder.Services.AddHangfireServer();
+            //// register Hangfire
+            //builder.Services.AddHangfireServer();
 
 
             //IMemoryCache giúp lưu trữ dữ liệu trong bộ nhớ RAM của ứng dụng.
@@ -64,6 +64,9 @@ namespace SWP391_BackEnd
 
             builder.Services.AddScoped<ChildRepository>();
             builder.Services.AddScoped<ChildService>();
+
+            builder.Services.AddScoped<FeedbackRepository>();
+            builder.Services.AddScoped<FeedbackService>();
 
             builder.Services.AddScoped<VaccineRepository>();
             builder.Services.AddScoped<VaccineService>();
@@ -312,10 +315,11 @@ namespace SWP391_BackEnd
 
             //app.UseMiddleware<TokenExpiredMiddleware>();
 
-            //enable hangfire DASHBOARD
-            app.UseHangfireDashboard();
-            //app.UseHangfireServer();
+            ////enable hangfire DASHBOARD
+            //app.UseHangfireDashboard();
+            ////app.UseHangfireServer();
 
+            //// create job automatic running each day
             // create job automatic running each day
             //RecurringJob.AddOrUpdate<VaccineTrackingReminderJob>(
             //    "send-vaccine-reminders",
