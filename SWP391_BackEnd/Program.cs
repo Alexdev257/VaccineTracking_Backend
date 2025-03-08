@@ -6,7 +6,6 @@ using ClassLib.Helpers;
 //using ClassLib.Service;    // Import UserService
 using AutoMapper;
 using ClassLib.Models;
-using ClassLib.Service.Momo;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -78,7 +77,6 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<AddressRepository>();
             builder.Services.AddScoped<AddressService>();
 
-
             builder.Services.AddScoped<EmailRepository>();
             builder.Services.AddScoped<EmailService>();
 
@@ -88,10 +86,10 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<PaymentRepository>();
 
             builder.Services.AddScoped<PaymentMethodRepository>();
+            builder.Services.AddScoped<PaymentMethodService>();
 
             builder.Services.AddScoped<VaccinesTrackingRepository>();
             builder.Services.AddScoped<VaccinesTrackingService>();
-
 
             builder.Services.AddScoped<BookingComboIdReponsitory>();
             builder.Services.AddScoped<BookingIdVaccineIdReponsitory>();
@@ -100,6 +98,7 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<IPaymentServices, VnPayServices>();
             builder.Services.AddScoped<IPaymentServices, MomoServices>();
             builder.Services.AddScoped<IPaymentServices, PaypalServices>();
+            builder.Services.AddScoped<IPaymentServices, CashServices>();
 
             builder.Services.Configure<VnPayConfigFromJson>(builder.Configuration.GetSection("VnpayAPI"));
             builder.Services.Configure<MomoConfigFromJSON>(builder.Configuration.GetSection("MomoAPI"));
@@ -321,6 +320,7 @@ namespace SWP391_BackEnd
             ////app.UseHangfireServer();
 
             //// create job automatic running each day
+            // create job automatic running each day
             //RecurringJob.AddOrUpdate<VaccineTrackingReminderJob>(
             //    "send-vaccine-reminders",
             //    x => x.SendVaccineReminder(),

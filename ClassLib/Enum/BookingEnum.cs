@@ -4,6 +4,6 @@ namespace ClassLib.Enum
     {
         Pending,
         Success,
-        Cancel
+        Refund
     }
 }

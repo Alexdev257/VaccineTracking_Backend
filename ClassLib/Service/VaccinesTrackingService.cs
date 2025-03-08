@@ -1,14 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ClassLib.DTO.Child;
 using ClassLib.DTO.VaccineTracking;
 using ClassLib.Models;
 using ClassLib.Repositories;
 using ClassLib.Helpers;
 using ClassLib.Enum;
 using Microsoft.IdentityModel.Tokens;
+using TimeProvider = ClassLib.Helpers.TimeProvider;
 
 namespace ClassLib.Service
 {
@@ -43,23 +39,23 @@ namespace ClassLib.Service
         public async Task<VaccinesTrackingResponse> GetVaccinesTrackingByIdAsync(int id)
         {
             var vt = await _vaccinesTrackingRepository.GetVaccinesTrackingByIdAsync(id);
-            return ConvertHelpers.convertToVaccinesTrackingResponse(vt);
+            return ConvertHelpers.convertToVaccinesTrackingResponse(vt!);
         }
 
-        public async Task<bool> AddVaccinesComboToVaccinesTrackingAsync(AddVaccinesTrackingRequest request, List<int> vaccinesCombo, List<int> child)
+        public async Task<bool> AddVaccinesComboToVaccinesTrackingAsync(AddVaccinesTrackingRequest request, List<int> vaccinesCombo, List<int> child, int bookingId)
         {
-            if(vaccinesCombo.IsNullOrEmpty()) return false;
+            if (vaccinesCombo.IsNullOrEmpty()) return false;
             foreach (var vaccinesComboID in vaccinesCombo)
             {
                 var vaccineIDList = await _vaccineComboRepository.GetAllVaccineInVaccinesComboByID(vaccinesComboID);
-                await AddVaccinesToVaccinesTrackingAsync(request, vaccineIDList.Select(v => v.Id).ToList(), child);
+                await AddVaccinesToVaccinesTrackingAsync(request, vaccineIDList.Select(v => v.Id).ToList(), child, bookingId);
             }
             return true;
         }
-        public async Task<bool> AddVaccinesToVaccinesTrackingAsync(AddVaccinesTrackingRequest request, List<int> vaccines, List<int> child)
+        public async Task<bool> AddVaccinesToVaccinesTrackingAsync(AddVaccinesTrackingRequest request, List<int> vaccines, List<int> child, int bookingId)
         {
-            VaccinesTracking previousVaccination = null;
-            if(vaccines.IsNullOrEmpty()) return false;
+            VaccinesTracking previousVaccination = null!;
+            if (vaccines.IsNullOrEmpty()) return false;
             foreach (var childID in child)
             {
                 foreach (var vaccinesID in vaccines)
@@ -68,12 +64,12 @@ namespace ClassLib.Service
 
                     for (int dosesTimes = 1; dosesTimes <= vaccine!.DoesTimes; dosesTimes++)
                     {
-                        var vt = ConvertHelpers.convertToVaccinesTrackingModel(request, childID, vaccine, previousVaccination);
+                        var vt = ConvertHelpers.convertToVaccinesTrackingModel(request, childID, vaccine, previousVaccination!, bookingId);
                         await _vaccinesTrackingRepository.AddVaccinesTrackingAsync(vt);
-                        previousVaccination = await _vaccinesTrackingRepository.GetVaccinesTrackingByIdAsync(vt.Id);
+                        previousVaccination = (await _vaccinesTrackingRepository.GetVaccinesTrackingByIdAsync(vt.Id))!;
                     }
 
-                    previousVaccination = null;
+                    previousVaccination = null!;
                 }
             }
             return true;
@@ -95,16 +91,17 @@ namespace ClassLib.Service
                     if (updateVaccineTracking.Status!.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Success).ToString().ToLower())
                         await _vaccineRepository.DecreseQuantityVaccines(vaccine!, 1);
                 }
-                if (updateVaccineTracking.Status!.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Success).ToString().ToLower())
+                if (updateVaccineTracking.Status!.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Success).ToString().ToLower() && checkpointForThisVaccine == 2)
                 {
-                    vt.VaccinationDate = DateTime.Now;
+                    vt.VaccinationDate = TimeProvider.GetVietnamNow();
                     vt.MinimumIntervalDate = vt.VaccinationDate!.Value.AddDays(vaccine!.MinimumIntervalDate!.Value);
                     vt.MaximumIntervalDate = vt.VaccinationDate!.Value.AddDays(vaccine!.MaximumIntervalDate!.Value);
+                    vt.Status = ((VaccinesTrackingEnum)VaccinesTrackingEnum.Schedule).ToString();
                 }
                 if (updateVaccineTracking.Status!.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Cancel).ToString().ToLower())
                 {
                     vt.VaccinationDate = null;
-                    vt.MinimumIntervalDate = DateTime.Now;
+                    vt.MinimumIntervalDate = null;
                     vt.MaximumIntervalDate = null;
                     vt.Status = updateVaccineTracking.Status;
                     vt.Reaction = updateVaccineTracking.Reaction ?? vt.Reaction;
@@ -112,6 +109,21 @@ namespace ClassLib.Service
                 checkpointForThisVaccine++;
                 var vtUpdated = await _vaccinesTrackingRepository.UpdateVaccinesTrackingAsync(vt);
                 vt = await _vaccinesTrackingRepository.GetVaccinesTrackingByPreviousVaccination(vtUpdated.Id);
+            }
+
+            return true;
+        }
+
+
+        public async Task<bool> VaccinesTrackingRefund(int bookingID, VaccinesTrackingEnum vaccinesTrackingEnum = VaccinesTrackingEnum.Cancel)
+        {
+            var vaccinesTrackingList = await _vaccinesTrackingRepository.GetVaccinesTrackingByBookingID(bookingID);
+
+            var updateDetails = new UpdateVaccineTracking() { Status = vaccinesTrackingEnum.ToString() };
+
+            foreach (var item in vaccinesTrackingList)
+            {
+                await UpdateVaccinesTrackingAsync(item.Id, updateDetails);
             }
 
             return true;

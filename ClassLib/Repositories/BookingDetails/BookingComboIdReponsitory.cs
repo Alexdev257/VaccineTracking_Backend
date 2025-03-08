@@ -38,5 +38,19 @@ namespace ClassLib.Repositories
                 return false;
             }
         }
+
+        public async Task<bool> ClearAndAdd(Booking booking, List<int> comboId)
+        {
+            try
+            {
+                booking.Combos.Clear();
+                return await Add(booking, comboId);
+            }
+            catch (Exception e)
+            {
+                System.Console.WriteLine(e.Message);
+                return false;
+            }
+        }
     }
 }

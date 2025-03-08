@@ -22,5 +22,7 @@ namespace ClassLib.DTO.Booking
         public List<int>? vaccineIds { get; set; }
 
         public List<int>? vaccineComboIds { get; set; }
+
+        public int BookingID { get; set; } = 0;
     }
 }

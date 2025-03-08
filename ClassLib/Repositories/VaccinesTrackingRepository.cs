@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ClassLib.Job;
 using ClassLib.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,9 +34,14 @@ namespace ClassLib.Repositories
                                     .ToListAsync()!;
         }
 
+        public async Task<List<VaccinesTracking>> GetVaccinesTrackingByBookingID(int bookingID) => await _context.VaccinesTrackings.Where(vt => vt.BookingId == bookingID).ToListAsync();
+
         public async Task<VaccinesTracking?> GetVaccinesTrackingByIdAsync(int id)
         {
-            return await _context.VaccinesTrackings.FindAsync(id);
+            return await _context.VaccinesTrackings.Where(vt => vt.Id == id)
+                                    .Include(vt => vt.Vaccine)
+                                    .Include(vt => vt.User)
+                                    .FirstOrDefaultAsync();
         }
 
         public async Task<VaccinesTracking> AddVaccinesTrackingAsync(VaccinesTracking vaccinesTracking)
@@ -83,8 +89,6 @@ namespace ClassLib.Repositories
                                     .FirstOrDefaultAsync()!;
         }
 
-
-        
 
         //Alex5
         public async Task<List<VaccinesTracking>?> GetUpComingVaccinations(DateTime today)

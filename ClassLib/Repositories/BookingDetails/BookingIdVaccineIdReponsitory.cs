@@ -38,5 +38,19 @@ namespace ClassLib.Repositories
                 return false;
             }
         }
+
+        public async Task<bool> ClearAndAdd(Booking booking, List<int> vaccineId)
+        {
+            try
+            {
+                booking.Vaccines.Clear();
+                return await Add(booking, vaccineId);
+            }
+            catch (Exception e)
+            {
+                System.Console.WriteLine(e.Message);
+                return false;
+            }
+        }
     }
 }
