@@ -32,6 +32,7 @@ namespace ClassLib.Repositories
             return await _context.Bookings
                         .Include(x => x.Parent)
                         .Include(x => x.Combos)
+                            .ThenInclude(x => x.Vaccines)
                         .Include(x => x.Vaccines)
                         .Include(x => x.Parent)
                         .ToListAsync();
@@ -41,6 +42,7 @@ namespace ClassLib.Repositories
         public async Task<Booking?> GetByBookingID(int id) => await _context.Bookings
                                                                 .Include(x => x.Parent)
                                                                 .Include(x => x.Combos)
+                                                                    .ThenInclude(x => x.Vaccines)
                                                                 .Include(x => x.Vaccines)
                                                                 .Include(x => x.Children)
                                                                 .FirstOrDefaultAsync(x => x.Id == id);
@@ -53,6 +55,7 @@ namespace ClassLib.Repositories
                 .Include(x => x.Children)
                 .Include(x => x.Vaccines)
                 .Include(x => x.Combos)
+                    .ThenInclude(x => x.Vaccines)
                 .ToListAsync();
         }
         public async Task<List<Booking>?> GetByQuerry(BookingQuerryObject bookingQuerryObject)

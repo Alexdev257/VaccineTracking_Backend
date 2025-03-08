@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ClassLib.DTO.Vaccine;
 
 namespace ClassLib.DTO.VaccineCombo
 {
@@ -12,6 +13,7 @@ namespace ClassLib.DTO.VaccineCombo
         public int Discount { get; set; } = 0;
         public int totalPrice { get; set; } = 0;
         public int finalPrice { get; set; } = 0;
+        public List<VaccineResponeBooking> vaccineResponeBooking { get; set; } = null!;
 
     }
 }

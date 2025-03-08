@@ -78,11 +78,13 @@ namespace ClassLib.Service
                 var payment = (await _paymentRepository.GetByBookingIDAsync(item.ID))!;
                 string paymentMethod = "Does not purchase yet";
                 decimal amount = 0;
-                foreach(var vaccine in item.VaccineList!){
-                    amount+=vaccine.Price;
+                foreach (var vaccine in item.VaccineList!)
+                {
+                    amount += vaccine.Price;
                 }
-                foreach(var combo in item.ComboList!){
-                    amount+=combo.finalPrice;
+                foreach (var combo in item.ComboList!)
+                {
+                    amount += combo.finalPrice;
                 }
                 if (payment != null)
                 {
@@ -94,6 +96,8 @@ namespace ClassLib.Service
 
             return bookingResponses;
         }
+
+        //public async Task<List<Booking>?> GetBookingByUserAsync(int id) => await _bookingRepository.GetAllBookingByUserId(id);
 
     }
 }
