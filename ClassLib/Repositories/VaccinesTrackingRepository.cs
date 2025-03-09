@@ -91,7 +91,7 @@ namespace ClassLib.Repositories
 
 
         //Alex5
-        public async Task<List<VaccinesTracking>?> GetUpComingVaccinations(DateTime today)
+        public async Task<List<VaccinesTracking>> GetUpComingVaccinations(DateTime today)
         {
             return await _context.VaccinesTrackings
                                     .Where(vt => vt.VaccinationDate.HasValue && vt.VaccinationDate.Value.Date == today.AddDays(1).Date)

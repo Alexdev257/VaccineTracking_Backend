@@ -15,8 +15,8 @@ namespace SWP391_BackEnd.Controllers
     public class Test : ControllerBase
     {
         private readonly DbSwpVaccineTrackingFinalContext _context;
-        private readonly VaccineTrackingReminderJob _reminderJob;
-        public Test(DbSwpVaccineTrackingFinalContext context, VaccineTrackingReminderJob reminderJob)
+        private readonly VaccineTrackingReminderHangfire _reminderJob;
+        public Test(DbSwpVaccineTrackingFinalContext context, VaccineTrackingReminderHangfire reminderJob)
         {
             _context = context;
             _reminderJob = reminderJob;

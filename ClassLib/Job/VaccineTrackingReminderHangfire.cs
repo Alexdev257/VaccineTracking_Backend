@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace ClassLib.Job
 {
-    public class VaccineTrackingReminderJob
+    public class VaccineTrackingReminderHangfire
     {
         private readonly UserRepository _userRepository;
         private readonly VaccinesTrackingRepository _vaccinesTrackingRepository;
@@ -17,7 +17,7 @@ namespace ClassLib.Job
         private readonly IWebHostEnvironment _env;
 
 
-        public VaccineTrackingReminderJob(UserRepository userRepository, VaccinesTrackingRepository vaccinesTrackingRepository, EmailService emailService, IWebHostEnvironment env)
+        public VaccineTrackingReminderHangfire(UserRepository userRepository, VaccinesTrackingRepository vaccinesTrackingRepository, EmailService emailService, IWebHostEnvironment env)
         {
             _userRepository = userRepository;
             _vaccinesTrackingRepository = vaccinesTrackingRepository;
