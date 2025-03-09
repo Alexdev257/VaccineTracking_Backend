@@ -22,6 +22,6 @@ namespace ClassLib.DTO.Child
 
         public DateTime CreatedAt { get; set; }
 
-        public bool IsDeleted { get; set; }
+        //public bool IsDeleted { get; set; }
     }
 }

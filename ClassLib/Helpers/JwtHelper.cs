@@ -33,6 +33,7 @@ namespace ClassLib.Helpers
             var audience = _configuration["JwtSettings:Audience"];
 
             var key = Encoding.UTF8.GetBytes(secretKey);
+            //var key = Convert.FromBase64String(secretKey);
             var tokenHandler = new JwtSecurityTokenHandler();
 
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -59,10 +60,10 @@ namespace ClassLib.Helpers
 
                 }),
 
-                // time to expire is 30 minutes
-                //Expires = DateTime.UtcNow.AddMinutes(30),
+                // time to expire is 3 hours
                 //Expires = DateTime.UtcNow.AddSeconds(20),
-                Expires = DateTime.UtcNow.AddHours(3),
+
+                Expires = Helpers.TimeProvider.GetVietnamNow().AddHours(3),
                 Issuer = issuer,
                 Audience = audience,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
@@ -80,22 +81,13 @@ namespace ClassLib.Helpers
 
         public string generateRefreshToken()
         {
-            //var random = new byte[32];
-            //using (var rng = RandomNumberGenerator.Create())
-            //{
-            //    rng.GetBytes(random);
-
-            //    return Convert.ToBase64String(random);
-            //}
             return Guid.NewGuid().ToString("N");
         }
 
         public DateTime ConvertUnixTimeToDateTime(long utcExpiredDate)
         {
             var datTimeInterval = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            datTimeInterval.AddSeconds(utcExpiredDate).ToUniversalTime();
-
-            return datTimeInterval;
+             return datTimeInterval.AddSeconds(utcExpiredDate).ToUniversalTime();
         }
 
         public string? getSecretKey()

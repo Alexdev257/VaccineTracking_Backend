@@ -5,6 +5,7 @@ using ClassLib.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace SWP391_BackEnd.Controllers
 {
@@ -21,15 +22,21 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-all-user")]
-        [Authorize]
-        public async Task<ActionResult<IEnumerable<User>>> GetUser()
+        //[Authorize]
+        public async Task<ActionResult<List<GetUserResponse>>> GetUser()
         {
             return await _userService.getAllService();
+        }
+        [HttpGet("get-all-user-admin")]
+        //[Authorize]
+        public async Task<ActionResult<List<GetUserResponse>>> GetUserAdmin()
+        {
+            return await _userService.getAllServiceAdmin();
         }
 
         [HttpGet("get-user-by-id/{id}")]
         //[Authorize]
-        public async Task<ActionResult> GetUserById(int? id)
+        public async Task<ActionResult> GetUserById(int id)
         {
             try
             {
@@ -38,6 +45,25 @@ namespace SWP391_BackEnd.Controllers
                 //    return BadRequest(new { message = "Invalid ID format" });
                 //}
                 var userRes = await _userService.getUserByIdService(id);
+                return Ok(new { msg = "Get user successfully", user = userRes });
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return NotFound(new { error = e.Message });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { error = e.Message });
+            }
+        }
+
+        [HttpGet("get-user-by-id-admin/{id}")]
+        //[Authorize]
+        public async Task<ActionResult> GetUserByIdAdmin(int id)
+        {
+            try
+            {
+                var userRes = await _userService.getUserByIdServiceAdmin(id);
                 return Ok(new { msg = "Get user successfully", user = userRes });
             }
             catch (UnauthorizedAccessException e)
@@ -145,24 +171,6 @@ namespace SWP391_BackEnd.Controllers
             }
         }
 
-        //[HttpPost("refresh")]
-        //public async Task<IActionResult> refresh([FromBody] LoginResponse refreshRequest)
-        //{
-        //    try
-        //    {
-        //        var loginResponse = await _userService.refreshTokenAsync(refreshRequest);
-        //        return Ok(new { msg = "Refresh token successfully", loginResponse = loginResponse });
-        //    }
-        //    catch (UnauthorizedAccessException e)
-        //    {
-        //        return NotFound(new { error = e.Message });
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return StatusCode(500, new { error = "unauthenticated error", details = e });
-        //    }
-        //}
-
         [HttpPost("refresh")]
         public async Task<IActionResult> RefreshToken([FromBody] LoginResponse refreshRequest)
         {
@@ -171,13 +179,17 @@ namespace SWP391_BackEnd.Controllers
                 var loginResponse = await _userService.RefreshTokenService(refreshRequest);
                 return Ok(new { msg = "Token refreshed successfully", loginResponse });
             }
+            catch(SecurityTokenInvalidAlgorithmException e)
+            {
+                return BadRequest(e.Message);
+            }
             catch (UnauthorizedAccessException e)
             {
                 return Unauthorized(new { error = e.Message });
             }
             catch (Exception e)
             {
-                return StatusCode(500, new { error = "Internal server error", details = e.Message });
+                return BadRequest(e.Message);
             }
         }
 
@@ -239,7 +251,7 @@ namespace SWP391_BackEnd.Controllers
             {
                 return BadRequest(new { error = e.Message });
             }
-        }*/
+        }
 
         [HttpPost("send-otp")]
         public async Task<IActionResult> SendOtp(string phoneNumber)
@@ -274,7 +286,7 @@ namespace SWP391_BackEnd.Controllers
             {
                 return BadRequest(new { error = e.Message });
             }
-        }
+        }*/
 
         [HttpPut("update-user/{id}")]
         public async Task<IActionResult> updateUserController(int id, [FromBody] UpdateUserRequest request)
@@ -410,6 +422,29 @@ namespace SWP391_BackEnd.Controllers
             catch(ArgumentException e)
             {
                 return Conflict(e.Message);
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPatch("soft-delete-user/{id}")]
+        public async Task<IActionResult> SoftDeleteUser(int id)
+        {
+            try
+            {
+                var rs = await _userService.SoftDeleteUser(id);
+                return Ok("Delete successfully");
+            }
+            catch(ArgumentNullException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch(ArgumentException e)
+            {
+                return NotFound(e.Message);
+
             }
             catch(Exception e)
             {

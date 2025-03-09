@@ -30,6 +30,8 @@ using Google.Apis.Auth;
 using Amazon.SimpleNotificationService;
 using Amazon;
 using Amazon.SimpleNotificationService.Model;
+using PayPal.Core;
+using PayPal.v1.Orders;
 //using Microsoft.AspNetCore.Identity.Data;
 
 namespace ClassLib.Service
@@ -69,12 +71,58 @@ namespace ClassLib.Service
         }
 
 
-        public async Task<List<User>> getAllService()
+        public async Task<List<GetUserResponse>> getAllService()
         {
-            return await _userRepository.getAll();
+            var res = await _userRepository.getAll();
+            List<GetUserResponse> list = new List<GetUserResponse>();
+            foreach(var listItem in res)
+            {
+                if (listItem.IsDeleted == false)
+                {
+                    var rs = _mapper.Map<GetUserResponse>(listItem);
+                    list.Add(rs);
+                }
+            }
+            return list;
         }
 
-        public async Task<GetUserResponse?> getUserByIdService(int? Id)
+        public async Task<List<GetUserResponse>> getAllServiceAdmin()
+        {
+            var res = await _userRepository.getAll();
+            List<GetUserResponse> list = new List<GetUserResponse>();
+            foreach(var item in res)
+            {
+                var rs = _mapper.Map<GetUserResponse>(item);
+                list.Add(rs);
+            }
+            return list;
+        }
+
+        public async Task<GetUserResponse?> getUserByIdService(int Id)
+        {
+            var user = await _userRepository.getUserByIdAsync(Id);
+            if (string.IsNullOrWhiteSpace(Id.ToString()))
+            {
+                throw new Exception("Id can not blank");
+            }
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("User not found.");
+            }
+            if(user.IsDeleted == true)
+            {
+                throw new UnauthorizedAccessException("User was deleted.");
+            }
+            else if(user.Status != "Active")
+            {
+                throw new UnauthorizedAccessException("User was inactived.");
+            }
+            var userRes = _mapper.Map<GetUserResponse>(user);
+            return userRes;
+
+        }
+
+        public async Task<GetUserResponse?> getUserByIdServiceAdmin(int Id)
         {
             var user = await _userRepository.getUserByIdAsync(Id);
             if (string.IsNullOrWhiteSpace(Id.ToString()))
@@ -88,7 +136,6 @@ namespace ClassLib.Service
             var userRes = _mapper.Map<GetUserResponse>(user);
             return userRes;
         }
-
         public async Task<RegisterResponse?> registerAsync(RegisterRequest registerRequest)
         {
             if (string.IsNullOrWhiteSpace(registerRequest.Name) ||
@@ -119,10 +166,10 @@ namespace ClassLib.Service
             {
                 string encryptPassword = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);
                 var user = _mapper.Map<User>(registerRequest);
-                //user.Id = 1;
                 user.Password = encryptPassword;
                 user.Role = "User";
-                user.CreatedAt = DateTime.UtcNow;
+                //user.CreatedAt = DateTime.UtcNow;
+                user.CreatedAt = Helpers.TimeProvider.GetVietnamNow();
                 user.Status = "Active";
 
                 await _userRepository.addUserAsync(user);
@@ -131,11 +178,11 @@ namespace ClassLib.Service
             }
             catch (DbUpdateException ex)
             {
-                throw new Exception($"Lỗi khi lưu dữ liệu: {ex.InnerException?.Message ?? ex.Message}");
+                throw new Exception($"Error saving data: {ex.InnerException?.Message ?? ex.Message}");
             }
             catch (Exception ex)
             {
-                throw new Exception($"Lỗi không xác định: {ex.Message}");
+                throw new Exception($"Undefined Error: {ex.Message}");
             }
         }
 
@@ -170,7 +217,7 @@ namespace ClassLib.Service
                         var userRes = _mapper.Map<LoginResponse>(user);
                         userRes.AccessToken = accessToken;
                         userRes.RefreshToken = refreshToken;
-                        var refreshTokenModel = new RefreshToken
+                        var refreshTokenModel = new Models.RefreshToken
                         {
                             Id = long.Parse(tokenId),
                             UserId = user.Id,
@@ -179,8 +226,10 @@ namespace ClassLib.Service
                             RefreshToken1 = refreshToken,
                             IsUsed = false,
                             IsRevoked = false,
-                            IssuedAt = DateTime.UtcNow,
-                            ExpiredAt = DateTime.UtcNow.AddDays(1),
+                            //IssuedAt = DateTime.UtcNow,
+                            IssuedAt = Helpers.TimeProvider.GetVietnamNow(),
+                            //ExpiredAt = DateTime.UtcNow.AddDays(1),
+                            ExpiredAt = Helpers.TimeProvider.GetVietnamNow().AddDays(1),
 
                         };
                         await _userRepository.addRefreshToken(refreshTokenModel);
@@ -212,9 +261,11 @@ namespace ClassLib.Service
                     Password = BCrypt.Net.BCrypt.HashPassword("123"),
                     Gmail = payload.Email,
                     Avatar = payload.Picture,
-                    CreatedAt = DateTime.UtcNow,
+                    //CreatedAt = DateTime.UtcNow,
+                    CreatedAt = Helpers.TimeProvider.GetVietnamNow(),
                     PhoneNumber = "undefined",
-                    DateOfBirth = DateTime.UtcNow,
+                    //DateOfBirth = DateTime.UtcNow,
+                    DateOfBirth = Helpers.TimeProvider.GetVietnamNow(),
                     Gender = 0,
                     Role = "User",
                     Status = "Active",
@@ -227,7 +278,7 @@ namespace ClassLib.Service
             var loginRes = _mapper.Map<LoginResponse>(user);
             loginRes.AccessToken = accessToken;
             loginRes.RefreshToken = refreshToken;
-            var refreshTokenModel = new RefreshToken
+            var refreshTokenModel = new Models.RefreshToken
             {
                 Id = long.Parse(tokenId),
                 UserId = user.Id,
@@ -236,8 +287,10 @@ namespace ClassLib.Service
                 RefreshToken1 = refreshToken,
                 IsUsed = false,
                 IsRevoked = false,
-                IssuedAt = DateTime.UtcNow,
-                ExpiredAt = DateTime.UtcNow.AddDays(1),
+                //IssuedAt = DateTime.UtcNow,
+                IssuedAt = Helpers.TimeProvider.GetVietnamNow(),
+                //ExpiredAt = DateTime.UtcNow.AddDays(1),
+                ExpiredAt = Helpers.TimeProvider.GetVietnamNow().AddDays(1),
 
             };
             await _userRepository.addRefreshToken(refreshTokenModel);
@@ -247,53 +300,53 @@ namespace ClassLib.Service
 
         public async Task<bool> loginByPhoneAsync(string phoneNumber)
         {
-            //bool check = false;
-            //if (string.IsNullOrWhiteSpace(phoneNumber))
-            //{
-            //    throw new ArgumentNullException("Phone number can not be blank");
-            //    //return check;
-            //}
-            //var user = await _userRepository.getUserByPhoneAsync(phoneNumber);
-            //if (user == null)
-            //{
-            //    throw new Exception("Phone number is not exist");
-            //}
-            //if (!phoneNumber.StartsWith("+"))
-            //{
-            //    if (phoneNumber.StartsWith("0"))
-            //    {
-            //        phoneNumber = "+84" + phoneNumber.Substring(1);
-            //    }
-            //    else
-            //    {
-            //        throw new Exception("Invalid phone number format");
-            //    }
-            //}
-            //string? awsAccessKey = _configuration["AWS:AccessKey"];
-            //string? awsSecretKey = _configuration["AWS:SecretKey"];
-            //string? awsRegion = _configuration["AWS:Region"];
-            //var otp = VerifyCodeHelper.GenerateSixRandomCode();
-            //// luu otp vo cache
-            //_cache.Set($"OTPLogin_{otp}", otp, TimeSpan.FromMinutes(5));
+            // bool check = false;
+            // if (string.IsNullOrWhiteSpace(phoneNumber))
+            // {
+            //     throw new ArgumentNullException("Phone number can not be blank");
+            //     //return check;
+            // }
+            // var user = await _userRepository.getUserByPhoneAsync(phoneNumber);
+            // if (user == null)
+            // {
+            //     throw new Exception("Phone number is not exist");
+            // }
+            // if (!phoneNumber.StartsWith("+"))
+            // {
+            //     if (phoneNumber.StartsWith("0"))
+            //     {
+            //         phoneNumber = "+84" + phoneNumber.Substring(1);
+            //     }
+            //     else
+            //     {
+            //         throw new Exception("Invalid phone number format");
+            //     }
+            // }
+            // string? awsAccessKey = _configuration["AWS:AccessKey"];
+            // string? awsSecretKey = _configuration["AWS:SecretKey"];
+            // string? awsRegion = _configuration["AWS:Region"];
+            // var otp = VerifyCodeHelper.GenerateSixRandomCode();
+            // // luu otp vo cache
+            // _cache.Set($"OTPLogin_{otp}", otp, TimeSpan.FromMinutes(5));
 
             // using var snsClient = new AmazonSimpleNotificationServiceClient(
-            //    awsAccessKey, 
-            //    awsSecretKey, 
+            //    awsAccessKey,
+            //    awsSecretKey,
             //    RegionEndpoint.GetBySystemName(awsRegion)
             //);
 
-            //var request = new PublishRequest
-            //{
-            //    Message = $"Your OTP for login into Vaccine Tracking System is: {otp}",
-            //    PhoneNumber = phoneNumber,
-            //};
+            // var request = new PublishRequest
+            // {
+            //     Message = $"Your OTP for login into Vaccine Tracking System is: {otp}",
+            //     PhoneNumber = phoneNumber,
+            // };
 
-            //var n = await snsClient.PublishAsync(request);
-            //if(n != null)
-            //{
-            //    check = true;
-            //}
-            //return check;
+            // var n = await snsClient.PublishAsync(request);
+            // if (n != null)
+            // {
+            //     check = true;
+            // }
+            // return check;
 
             //sms
 
@@ -321,30 +374,8 @@ namespace ClassLib.Service
             return false;
         }
 
-        //_cache.Set("VerifyCodeKey", verifyCode, TimeSpan.FromMinutes(5));
-        //_cache.Remove("VerifyCodeKey");
 
-//        bool check = false;
-//            if (_cache.TryGetValue("VerifyCodeKey", out string? storedVerifyCode))
-//            {
-//                if (storedVerifyCode == request.VerifyCode)
-//                {
-//                    //string hashPassword = BCrypt.Net.BCrypt.HashPassword(_cache.Get<string>("NewPasswordKey"));
-//                    _cache.Remove("VerifyCodeKey");
-                    
-//                    check = true;
-//                    return check;
-//                }
-//                else
-//                {
-//                    throw new UnauthorizedAccessException("Invalid verify code.");
-//                    return check;
-//                }
-//            }
-//            else
-//    throw new UnauthorizedAccessException("Verify code has expired.");
-//    return check;
-public async Task<LoginResponse?> verifyOtpForLoginAsync(string phoneNumber, string otp)
+        public async Task<LoginResponse?> verifyOtpForLoginAsync(string phoneNumber, string otp)
         {
             var user = await _userRepository.getUserByPhoneAsync(phoneNumber);
             if (user == null)
@@ -356,12 +387,27 @@ public async Task<LoginResponse?> verifyOtpForLoginAsync(string phoneNumber, str
                 if(otpCache == otp)
                 {
                     _cache.Remove("OTPLogin");
-                    var (tokenID, accessToken, refreshToken) = _jwtHelper.generateToken(user);
+                    var (tokenId, accessToken, refreshToken) = _jwtHelper.generateToken(user);
                     LoginResponse res = new LoginResponse
                     {
                         AccessToken = accessToken,
                         RefreshToken = refreshToken,
                     };
+                    var refreshTokenModel = new Models.RefreshToken
+                    {
+                        Id = long.Parse(tokenId),
+                        UserId = user.Id,
+                        AccessToken = accessToken,
+                        RefreshToken1 = refreshToken,
+                        IsUsed = false,
+                        IsRevoked = false,
+                        //IssuedAt = DateTime.UtcNow,
+                        IssuedAt = Helpers.TimeProvider.GetVietnamNow(),
+                        //ExpiredAt = DateTime.UtcNow.AddDays(1),
+                        ExpiredAt = Helpers.TimeProvider.GetVietnamNow().AddDays(1),
+
+                    };
+                    await _userRepository.addRefreshToken(refreshTokenModel);
                     return res;
                 }
                 else
@@ -375,121 +421,12 @@ public async Task<LoginResponse?> verifyOtpForLoginAsync(string phoneNumber, str
             }
         }
 
-        public async Task<LoginResponse?> refreshTokenAsync1(LoginResponse refreshTokenRequest)
-        {
-            var secretKey = _jwtHelper.getSecretKey();
-            var secretKeyBytes = Encoding.UTF8.GetBytes(secretKey);
-            var tokenHandler = new JwtSecurityTokenHandler();
-
-            var tokenValidateParam = new TokenValidationParameters
-            {
-                ValidateIssuer = false,
-                ValidateAudience = false,
-
-                ValidateIssuerSigningKey = true,
-                //ValidIssuer = jwtSettings["Issuer"],
-                //ValidAudience = jwtSettings["Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(secretKeyBytes),
-
-                ValidateLifetime = false, // ko kiem token het han
-            };
-            //check 1: AccessToken vlid format
-            var tokenInVerification = tokenHandler.ValidateToken(refreshTokenRequest.AccessToken, tokenValidateParam, out var validatedToken);
-
-            //check 2: check algorithm
-            if (validatedToken is JwtSecurityToken jwtSecurityToken)
-            {
-                var result = jwtSecurityToken.Header.Alg.Equals
-                    (SecurityAlgorithms.HmacSha256,
-                    StringComparison.InvariantCultureIgnoreCase);
-                if (result == false)
-                {
-                    throw new SecurityTokenInvalidAlgorithmException("Invalid Token");
-                }
-            }
-
-            //check 3" check accessToken expired
-            var utcExpiredToken = long.Parse(tokenInVerification.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Exp).Value);
-
-
-            var expireDate = _jwtHelper.ConvertUnixTimeToDateTime(utcExpiredToken);
-
-            if (expireDate > DateTime.UtcNow)
-            {
-                throw new Exception("Access Token has not yet expired");
-            }
-
-            //check 4: refreshToken exist in DB
-            var storedToken = await _userRepository.getRefreshTokenAsync(refreshTokenRequest.RefreshToken);
-            if (storedToken == null)
-            {
-                throw new Exception("Refresh Token does not exist");
-            }
-
-            //check 5: refreshToken is revoked / used
-            if (storedToken.IsUsed == true)
-            {
-                throw new Exception("Refresh Token has been used");
-            }
-            if (storedToken.IsRevoked == true)
-            {
-                throw new Exception("Refresh Token has been revoked");
-            }
-
-            return new LoginResponse
-            {
-                AccessToken = refreshTokenRequest.AccessToken,
-                RefreshToken = refreshTokenRequest.RefreshToken
-            };
-        }
-
-        public async Task<LoginResponse?> RefreshTokenAsync(LoginResponse refreshRequest)
-        {
-            if (string.IsNullOrEmpty(refreshRequest.RefreshToken))
-                throw new UnauthorizedAccessException("Refresh token is required.");
-
-            var storedToken = await _userRepository.getRefreshTokenAsync(refreshRequest.RefreshToken);
-            if (storedToken == null || storedToken.IsRevoked)
-                throw new UnauthorizedAccessException("Invalid refresh token.");
-
-            if (storedToken.ExpiredAt < DateTime.UtcNow)
-                throw new UnauthorizedAccessException("Refresh token has expired.");
-
-            if (storedToken.IsUsed)
-                throw new UnauthorizedAccessException("Refresh token has already been used.");
-
-            var user = await _userRepository.getUserByIdAsync(storedToken.UserId);
-            if (user == null)
-                throw new UnauthorizedAccessException("User not found.");
-
-            var (tokenId, newAccessToken, newRefreshToken) = _jwtHelper.generateToken(user);
-
-            storedToken.IsUsed = true;
-            storedToken.IsRevoked = true;
-            await _userRepository.updateRefreshTokenAsync(storedToken);
-
-            var newRefreshTokenModel = new RefreshToken
-            {
-                Id = long.Parse(tokenId),
-                UserId = user.Id,
-                AccessToken = newAccessToken,
-                RefreshToken1 = newRefreshToken,
-                IsUsed = false,
-                IsRevoked = false,
-                IssuedAt = DateTime.UtcNow,
-                ExpiredAt = DateTime.UtcNow.AddHours(1),
-            };
-            await _userRepository.addRefreshToken(newRefreshTokenModel);
-
-            var userRes = _mapper.Map<LoginResponse>(user);
-            userRes.AccessToken = newAccessToken;
-            userRes.RefreshToken = newRefreshToken;
-
-            return userRes;
-        }
-
         public async Task<LoginResponse?> RefreshTokenService(LoginResponse refreshRequest)
         {
+            if (string.IsNullOrEmpty(refreshRequest.AccessToken))
+            {
+                throw new UnauthorizedAccessException("Access Token is missing.");
+            }
             try
             {
                 var secretKey = _jwtHelper.getSecretKey();
@@ -500,10 +437,7 @@ public async Task<LoginResponse?> verifyOtpForLoginAsync(string phoneNumber, str
                 {
                     ValidateIssuer = false,
                     ValidateAudience = false,
-
                     ValidateIssuerSigningKey = true,
-                    //ValidIssuer = jwtSettings["Issuer"],
-                    //ValidAudience = jwtSettings["Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(secretKeyBytes),
 
                     ValidateLifetime = false, // ko kiem token het han
@@ -512,24 +446,23 @@ public async Task<LoginResponse?> verifyOtpForLoginAsync(string phoneNumber, str
                 var tokenInVerification = tokenHandler.ValidateToken(refreshRequest.AccessToken, tokenValidateParam, out var validatedToken);
 
                 //check 2: check algorithm
-                if (validatedToken is JwtSecurityToken jwtSecurityToken)
+                if (validatedToken is not JwtSecurityToken jwtSecurityToken ||
+                    jwtSecurityToken.Header.Alg == null ||
+                    !jwtSecurityToken.Header.Alg.Equals(
+                        SecurityAlgorithms.HmacSha256, 
+                        StringComparison.InvariantCultureIgnoreCase)
+                    )
                 {
-                    var result = jwtSecurityToken.Header.Alg.Equals
-                        (SecurityAlgorithms.HmacSha256,
-                        StringComparison.InvariantCultureIgnoreCase);
-                    if (result == false)
-                    {
-                        throw new SecurityTokenInvalidAlgorithmException("Invalid Token");
-                    }
+                    throw new SecurityTokenInvalidAlgorithmException("Invalid Token Algorithm.");
                 }
                 //check 3" check accessToken expired
                 var utcExpiredToken = long.Parse(tokenInVerification.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Exp).Value);
 
-                var expireDate = _jwtHelper.ConvertUnixTimeToDateTime(utcExpiredToken);
+                var expireDate = _jwtHelper.ConvertUnixTimeToDateTime(utcExpiredToken).AddHours(7); // do UTC lệch giờ VN 7 tiếng
 
-                if (expireDate > DateTime.UtcNow)
+                if (expireDate > Helpers.TimeProvider.GetVietnamNow())
                 {
-                    throw new Exception("Access Token has not yer expired");
+                    throw new Exception("Access Token has not yet expired");
                 }
 
                 var refreshToken = await _userRepository.getRefreshTokenAsync(refreshRequest.RefreshToken);
@@ -548,7 +481,7 @@ public async Task<LoginResponse?> verifyOtpForLoginAsync(string phoneNumber, str
                     throw new UnauthorizedAccessException("Refresh token has been revoked.");
                 }
 
-                if (refreshToken.ExpiredAt < DateTime.UtcNow)
+                if (refreshToken.ExpiredAt < Helpers.TimeProvider.GetVietnamNow())
                 {
                     throw new UnauthorizedAccessException("Refresh token has expired.");
                 }
@@ -571,16 +504,20 @@ public async Task<LoginResponse?> verifyOtpForLoginAsync(string phoneNumber, str
                 await _userRepository.updateRefreshTokenAsync(refreshToken);
 
                 // generate new refresh token and save to db
-                var refreshTokenModel = new RefreshToken
+                var refreshTokenModel = new Models.RefreshToken
                 {
                     Id = long.Parse(tokenId),
                     UserId = user.Id,
+                    //AccessToken = "abc not luu",
                     AccessToken = newAccessToken,
                     RefreshToken1 = newRefreshToken,
                     IsUsed = false,
                     IsRevoked = false,
-                    IssuedAt = DateTime.UtcNow,
-                    ExpiredAt = DateTime.UtcNow.AddDays(1),
+                    //IssuedAt = DateTime.UtcNow,
+                    IssuedAt = Helpers.TimeProvider.GetVietnamNow(),
+                    //ExpiredAt = DateTime.UtcNow.AddDays(1),
+                    ExpiredAt = Helpers.TimeProvider.GetVietnamNow().AddDays(1),
+
                 };
                 await _userRepository.addRefreshToken(refreshTokenModel);
 
@@ -994,16 +931,15 @@ public async Task<LoginResponse?> verifyOtpForLoginAsync(string phoneNumber, str
                 {
                     string hashPassword = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
                     user.Password = hashPassword;
-                    await _userRepository.updateUserPassword(storedGmail, hashPassword);
+                    var updated = await _userRepository.updateUser(user);
                     _cache.Remove("GmailKey");
-                    check = true;
+                    check = updated;
                     return check;
                 }
             }
             else
             {
                 throw new UnauthorizedAccessException("Gmail has expired.");
-                return check;
             }
         }
 
@@ -1084,7 +1020,7 @@ public async Task<LoginResponse?> verifyOtpForLoginAsync(string phoneNumber, str
                 var user = _mapper.Map<User>(request);
                 user.Password = encryptPassword;
                 user.Role = "Staff";
-                user.CreatedAt = DateTime.UtcNow;
+                user.CreatedAt = Helpers.TimeProvider.GetVietnamNow();
                 user.Status = "Active";
 
                 var result = await _userRepository.addUserAsync(user);
@@ -1092,13 +1028,32 @@ public async Task<LoginResponse?> verifyOtpForLoginAsync(string phoneNumber, str
             }
             catch (DbUpdateException ex)
             {
-                throw new Exception($"Lỗi khi lưu dữ liệu: {ex.InnerException?.Message ?? ex.Message}");
+                throw new Exception($"Error saving data: {ex.InnerException?.Message ?? ex.Message}");
             }
             catch (Exception ex)
             {
-                throw new Exception($"Lỗi không xác định: {ex.Message}");
+                throw new Exception($"Undefined Error: {ex.Message}");
             }
 
+        }
+
+        public async Task<bool> SoftDeleteUser(int id)
+        {
+            if (string.IsNullOrWhiteSpace(id.ToString()))
+            {
+                throw new ArgumentNullException("ID can not be blank");
+            }
+            var user = await _userRepository.getUserByIdAsync(id);
+            if (user == null)
+            {
+                throw new ArgumentException("Do not exist user in the system");
+            }
+            if(user.IsDeleted == true)
+            {
+                throw new ArgumentException("User was deleted");
+            }
+            user.IsDeleted = true;
+            return await _userRepository.updateUser(user);
         }
 
 

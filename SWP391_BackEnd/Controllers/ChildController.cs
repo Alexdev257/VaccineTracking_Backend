@@ -2,6 +2,7 @@
 using ClassLib.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace SWP391_BackEnd.Controllers
 {
@@ -18,23 +19,37 @@ namespace SWP391_BackEnd.Controllers
         [HttpGet("get-all-child")]
         public async Task<IActionResult> getAllChild()
         {
-            var child = await _childService.GetAllChildAsync();
-            if(child == null)
+            try
             {
-                return NotFound("No child in the system");
+                var child = await _childService.GetAllChildAsync();
+                return Ok(child);
             }
-            return Ok(child);
+            catch(ArgumentException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet("get-all-child-admin")]
         public async Task<IActionResult> getAllChildAdmin()
         {
-            var child = await _childService.GetAllChildForAdminAsync();
-            if (child == null)
+            try
             {
-                return NotFound("No child in the system");
+                var child = await _childService.GetAllChildForAdminAsync();
+                return Ok(child);
             }
-            return Ok(child);
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet("get-child-by-id/{id}")]
@@ -45,9 +60,17 @@ namespace SWP391_BackEnd.Controllers
                 var child = await _childService.GetChildByIdAsync(id);
                 return Ok(child);
             }
-            catch (Exception e)
+            catch (ArgumentNullException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (ArgumentException e)
             {
                 return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
             }
         }
 
@@ -62,9 +85,13 @@ namespace SWP391_BackEnd.Controllers
             {
                 return BadRequest(e.Message);
             }
-            catch (Exception e)
+            catch (ArgumentException e)
             {
                 return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
             }
         }
 
@@ -78,6 +105,10 @@ namespace SWP391_BackEnd.Controllers
             }catch (ArgumentNullException e)
             {
                 return BadRequest(e.Message);
+            }
+            catch (DbUpdateException e)
+            {
+                return StatusCode(500, e.Message);
             }
             catch (Exception e)
             {
@@ -97,9 +128,17 @@ namespace SWP391_BackEnd.Controllers
             {
                 return BadRequest(e.Message);
             }
-            catch (Exception e)
+            catch (DbUpdateException e)
+            {
+                return StatusCode(500, e.Message);
+            }
+            catch (ArgumentException e)
             {
                 return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
             }
         }
 
@@ -115,9 +154,17 @@ namespace SWP391_BackEnd.Controllers
             {
                 return BadRequest(e.Message);
             }
-            catch (Exception e)
+            catch (DbUpdateException e)
+            {
+                return StatusCode(500, e.Message);
+            }
+            catch (ArgumentException e)
             {
                 return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
             }
         }
 
@@ -133,9 +180,17 @@ namespace SWP391_BackEnd.Controllers
             {
                 return BadRequest(e.Message);
             }
-            catch (Exception e)
+            catch (DbUpdateException e)
+            {
+                return StatusCode(500, e.Message);
+            }
+            catch (ArgumentException e)
             {
                 return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
             }
         }
     }

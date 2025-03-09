@@ -31,6 +31,11 @@ namespace ClassLib.Repositories
             return await _context.Children.FirstOrDefaultAsync(c => c.Id == id && c.IsDeleted == false);
         }
 
+        public async Task<Child?> GetChildByIdHardDelete(int id)
+        {
+            return await _context.Children.FirstOrDefaultAsync(c => c.Id == id);
+        }
+
         public async Task<List<Child>> getAllChildByParentsId(int parentId)
         {
             return await _context.Children.Where(c => c.ParentId == parentId && c.IsDeleted == false).ToListAsync();
@@ -49,31 +54,16 @@ namespace ClassLib.Repositories
             
         }
 
-        public async Task<bool> HardDeleteChild(int id)
+        public async Task<bool> HardDeleteChild(Child child)
         {
-            var child = await GetChildById(id);
-            if (child == null)
-            {
-                return false;
-            }
+            //var child = await GetChildById(id);
+            //if (child == null)
+            //{
+            //    return false;
+            //}
             _context.Children.Remove(child);
             return await _context.SaveChangesAsync() > 0;
         }
-
-        public async Task<bool> SoftDeleteChild(int id)
-        {
-            var child = await GetChildById(id);
-            if (child == null)
-            {
-                return false;
-            }
-            //child.IsDeleted = true;
-            _context.Children.Update(child);
-            return await _context.SaveChangesAsync() > 0;
-
-        }
-
-         
 
 
     }

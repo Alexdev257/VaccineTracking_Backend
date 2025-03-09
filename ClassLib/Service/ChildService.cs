@@ -30,19 +30,26 @@ namespace ClassLib.Service
                 var res = _mapper.Map<GetChildResponse>(childItem);
                 result.Add(res);
             }
+            if(result.Count == 0)
+            {
+                throw new ArgumentException("No child in the system");
+            }
             return result;
         }
 
         public async Task<List<GetChildResponse>> GetAllChildForAdminAsync()
         {
-            var child =  await _childRepository.GetAllForAdmin();
+            var child = await _childRepository.GetAllForAdmin();
             List<GetChildResponse> result = new List<GetChildResponse>();
-            foreach(var childItem in child)
+            foreach (var childItem in child)
             {
                 var res = _mapper.Map<GetChildResponse>(childItem);
                 result.Add(res);
             }
-
+            if (result.Count == 0)
+            {
+                throw new ArgumentException("No child in the system");
+            }
             return result;
         }
 
@@ -52,16 +59,13 @@ namespace ClassLib.Service
             {
                 throw new ArgumentNullException("ID can not be blank");
             }
-            try
+            var child = await _childRepository.GetChildById(id);
+            if(child == null)
             {
-                var child = await _childRepository.GetChildById(id);
-                var res = _mapper.Map<GetChildResponse>(child);
-                return res;
+                throw new ArgumentException("No child in the system");
             }
-            catch (Exception ex)
-            {
-                throw new Exception("No child in the system");
-            }
+            var res = _mapper.Map<GetChildResponse>(child);
+            return res;
         }
 
         public async Task<List<GetChildResponse>> GetAllChildByParentIdAsync(int parentId)
@@ -70,34 +74,25 @@ namespace ClassLib.Service
             {
                 throw new ArgumentNullException("Parent ID can not be blank");
             }
-            try
+            var child = await _childRepository.getAllChildByParentsId(parentId);
+            if(child.Count == 0)
             {
-                var child = await _childRepository.getAllChildByParentsId(parentId);
-                List<GetChildResponse> result = new List<GetChildResponse>();
-                foreach (var childItem in child)
-                {
-                    var res = _mapper.Map<GetChildResponse?>(childItem);
-                    result.Add(res);
-                }
-                return result;
+                throw new ArgumentException("No child was added by this parent");
+            }
+            List<GetChildResponse> result = new List<GetChildResponse>();
+            foreach (var childItem in child)
+            {
+                var res = _mapper.Map<GetChildResponse?>(childItem);
+                result.Add(res);
+            }
+            return result;
 
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("No child in the system");
-            }
+                
+            
         }
 
         public async Task<bool> CreateChildAsync(CreateChildRequest request)
         {
-            //    public int ParentId { get; set; }
-
-            //public string Name { get; set; } = null!;
-
-            //public DateTime DateOfBirth { get; set; }
-
-            //public int Gender { get; set; }
-            bool check = false;
             if (string.IsNullOrEmpty(request.ParentId.ToString()))
             {
                 throw new ArgumentNullException("Parent ID can not be blank");
@@ -114,20 +109,10 @@ namespace ClassLib.Service
             {
                 throw new ArgumentNullException("Gendere can not be blank");
             }
-
-            try
-            {
                 var child = _mapper.Map<Child>(request);
                 child.Status = "Active";
-                child.CreatedAt = DateTime.Now;
+                child.CreatedAt = Helpers.TimeProvider.GetVietnamNow();
                 return await _childRepository.CreateChild(child);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Can not create child");
-                return check;
-            }
-
         }
 
         public async Task<bool> UpdateChildAsync(int id, UpdateChildRequest request)
@@ -159,7 +144,7 @@ namespace ClassLib.Service
             var child = await _childRepository.GetChildById(id);
             if (child == null)
             {
-                throw new Exception("No child in the system");
+                throw new ArgumentException("No child in the system");
             }
             //var updateChild = _mapper.Map<Child>(request);
             //updateChild.Id = id;
@@ -180,12 +165,12 @@ namespace ClassLib.Service
             {
                 throw new ArgumentNullException("ID can not be blank");
             }
-            var child = await _childRepository.GetChildById(id);
+            var child = await _childRepository.GetChildByIdHardDelete(id);
             if (child == null)
             {
-                throw new Exception("No child in the system");
+                throw new ArgumentException("No child in the system");
             }
-            return await _childRepository.HardDeleteChild(id);
+            return await _childRepository.HardDeleteChild(child);
         }
 
         public async Task<bool> SoftDeleteChildAsync(int id)
@@ -197,7 +182,7 @@ namespace ClassLib.Service
             var child = await _childRepository.GetChildById(id);
             if (child == null)
             {
-                throw new Exception("No child in the system");
+                throw new ArgumentException("No child in the system");
             }
             child.IsDeleted = true;
             return await _childRepository.UpdateChild(child);
