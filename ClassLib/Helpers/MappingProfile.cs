@@ -48,6 +48,10 @@ namespace ClassLib.Helpers
 
             CreateMap<Feedback, GetFeedbackResponse>();
 
+            CreateMap<CreateFeedbackRequest, Feedback>();
+            CreateMap<UpdateFeedbackRequest, Feedback>()
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
         }
     }
 
