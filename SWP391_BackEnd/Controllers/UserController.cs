@@ -393,5 +393,28 @@ namespace SWP391_BackEnd.Controllers
                 return BadRequest(new { message = e.Message });
             }
         }
+
+        [HttpPost("create-staff")]
+        // admin only
+        public async Task<IActionResult> CreateStaff([FromBody] CreateStaffRequest request)
+        {
+            try
+            {
+                var rs = await _userService.CreateStaff(request);
+                return Ok("Create staff successful");
+            }
+            catch(ArgumentNullException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch(ArgumentException e)
+            {
+                return Conflict(e.Message);
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
