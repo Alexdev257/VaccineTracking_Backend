@@ -24,7 +24,7 @@ using SWP391_BackEnd.Controllers;
 using ClassLib.Repositories.BookingDetails;
 using ClassLib.Service.PaymentService;
 using ClassLib.DTO.Payment;
-using ClassLib.Job;
+//using ClassLib.Job;
 using Hangfire;
 using Hangfire.SqlServer;
 using ClassLib.Repositories;
