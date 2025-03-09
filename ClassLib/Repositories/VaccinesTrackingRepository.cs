@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ClassLib.Job;
 using ClassLib.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -94,7 +93,9 @@ namespace ClassLib.Repositories
         public async Task<List<VaccinesTracking>> GetUpComingVaccinations(DateTime today)
         {
             return await _context.VaccinesTrackings
-                                    .Where(vt => vt.VaccinationDate.HasValue && vt.VaccinationDate.Value.Date == today.AddDays(1).Date)
+                                    .Where(vt => vt.MinimumIntervalDate.HasValue && vt.MinimumIntervalDate.Value.Date == today.AddDays(1).Date)
+                                    .Include(vt => vt.Vaccine)
+                                    .Include(vt => vt.Child)
                                     .ToListAsync();
         }
     }
