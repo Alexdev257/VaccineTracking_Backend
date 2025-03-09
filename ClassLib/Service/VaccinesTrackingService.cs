@@ -86,8 +86,8 @@ namespace ClassLib.Service
             {
                 if (checkpointForThisVaccine == 1)
                 {
-                    vt.Status = updateVaccineTracking?.Status ?? vt.Status;
-                    vt.Reaction = updateVaccineTracking?.Reaction ?? vt.Reaction;
+                    vt.Status = updateVaccineTracking?.Status! ?? vt.Status;
+                    vt.Reaction = string.IsNullOrEmpty(updateVaccineTracking?.Reaction) ? vt.Reaction : updateVaccineTracking.Reaction;
                     vt.AdministeredBy = (updateVaccineTracking?.AdministeredBy == 0) ? vt.AdministeredBy : updateVaccineTracking!.AdministeredBy;
                     vt.VaccinationDate = updateVaccineTracking.Reschedule ?? vt.VaccinationDate;
 
