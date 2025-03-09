@@ -1,4 +1,3 @@
-CREATE DATABASE DB_SWP_Vaccine_Tracking_Final;
 CREATE TABLE "User"(
     "id" INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
     "name" NVARCHAR(255) NOT NULL,
@@ -169,7 +168,7 @@ CREATE TABLE "Feedback"(
     "user_id" INT NOT NULL,
     "rating_score" INT NOT NULL,
     "description" NVARCHAR(255),
-    "isDeleted" INT NOT NULL DEFAULT 0,
+    "isDeleted" BIT NOT NULL DEFAULT 0,
     CONSTRAINT "feedback_user_id_foreign" FOREIGN KEY("user_id") REFERENCES "User"("id")
 );
 
