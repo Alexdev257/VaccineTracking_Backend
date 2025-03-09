@@ -22,11 +22,11 @@ namespace ClassLib.Repositories
         {
             //return await _context.Users.ToListAsync();
             return await _context.Users
-        .Include(u => u.Bookings)
-        .Include(u => u.Children)
-        //.Include(u => u.RefreshTokens)
-        .Include(u => u.VaccinesTrackings)
-        .ToListAsync();
+                        //.Include(u => u.Bookings)
+                        //.Include(u => u.Children)
+                        //.Include(u => u.RefreshTokens)
+                        //.Include(u => u.VaccinesTrackings)
+                        .ToListAsync();
         }
 
         public async Task<User?> getUserByUsernameAsync(string Username)
@@ -45,11 +45,6 @@ namespace ClassLib.Repositories
         }
 
         public async Task<User?> getUserByIdAsync(int Id)
-        {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Id == Id);
-        }
-
-        public async Task<User?> getUserByIdAsync(int? Id)
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Id == Id);
         }
@@ -93,17 +88,6 @@ namespace ClassLib.Repositories
         public async Task<bool> deleteUser(User user)
         {
             _context.Users.Remove(user);
-            return await _context.SaveChangesAsync() > 0;
-        }
-
-        public async Task<bool> updateUserPassword(string gmail, string newHashPassword)
-        {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Gmail == gmail);
-            if (user == null)
-            {
-                return false;
-            }
-            user.Password = newHashPassword;
             return await _context.SaveChangesAsync() > 0;
         }
 
