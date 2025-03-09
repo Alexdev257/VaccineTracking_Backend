@@ -30,6 +30,7 @@ using Google.Apis.Auth;
 using Amazon.SimpleNotificationService;
 using Amazon;
 using Amazon.SimpleNotificationService.Model;
+//using Microsoft.AspNetCore.Identity.Data;
 
 namespace ClassLib.Service
 {
@@ -103,7 +104,7 @@ namespace ClassLib.Service
                 throw new Exception("Exist username. Please choose another.");
             }
 
-            var existPhone = await _userRepository.getUserByUsernameAsync(registerRequest.PhoneNumber);
+            var existPhone = await _userRepository.getUserByPhoneAsync(registerRequest.PhoneNumber);
             if (existPhone != null)
             {
                 throw new Exception("Exist phone number. Please choose another.");
@@ -1026,6 +1027,78 @@ public async Task<LoginResponse?> verifyOtpForLoginAsync(string phoneNumber, str
             }
             user.Status = "Inactive";
             return await _userRepository.updateUser(user);
+        }
+
+        public async Task<bool> CreateStaff(CreateStaffRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Name))
+            {
+                throw new ArgumentNullException("Name can not be blank");
+            }
+            if (string.IsNullOrWhiteSpace(request.Username))
+            {
+                throw new ArgumentNullException("Userame can not be blank");
+            }
+            if (string.IsNullOrWhiteSpace(request.Password))
+            {
+                throw new ArgumentNullException("Password can not be blank");
+            }
+            if (string.IsNullOrWhiteSpace(request.Gmail))
+            {
+                throw new ArgumentNullException("Gmail can not be blank");
+            }
+            if (string.IsNullOrWhiteSpace(request.PhoneNumber))
+            {
+                throw new ArgumentNullException("Phone number can not be blank");
+            }
+            if (string.IsNullOrWhiteSpace(request.DateOfBirth.ToString()))
+            {
+                throw new ArgumentNullException("Date of birth can not be blank");
+            }
+            if (string.IsNullOrWhiteSpace(request.Avatar))
+            {
+                throw new ArgumentNullException("Avatar can not be blank");
+            }
+            if (string.IsNullOrWhiteSpace(request.Gender.ToString()))
+            {
+                throw new ArgumentNullException("Gender can not be blank");
+            }
+            var existUserName = await _userRepository.getUserByUsernameAsync(request.Username);
+            if(existUserName != null)
+            {
+                throw new ArgumentException("Username is already exist");
+            }
+            var existPhone = await _userRepository.getUserByPhoneAsync(request.PhoneNumber);
+            if(existPhone != null)
+            {
+                throw new ArgumentException("Phone Number is already exist");
+            }
+            var existGmail = await _userRepository.getUserByGmailAsync(request.Gmail);
+            if(existGmail != null)
+            {
+                throw new ArgumentException("Gmail is already exist");
+            }
+            try
+            {
+                string encryptPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
+                var user = _mapper.Map<User>(request);
+                user.Password = encryptPassword;
+                user.Role = "Staff";
+                user.CreatedAt = DateTime.UtcNow;
+                user.Status = "Active";
+
+                var result = await _userRepository.addUserAsync(user);
+                return result;
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new Exception($"Lỗi khi lưu dữ liệu: {ex.InnerException?.Message ?? ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi không xác định: {ex.Message}");
+            }
+
         }
 
 

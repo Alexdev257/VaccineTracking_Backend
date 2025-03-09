@@ -26,6 +26,8 @@ namespace ClassLib.Helpers
 
             CreateMap<User, GetUserResponse>();
 
+            CreateMap<CreateStaffRequest, User>();
+
             CreateMap<CreateChildRequest, Child>();
 
             CreateMap<Child, GetChildResponse>();

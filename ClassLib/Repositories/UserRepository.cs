@@ -54,10 +54,10 @@ namespace ClassLib.Repositories
             return await _context.Users.FirstOrDefaultAsync(u => u.Id == Id);
         }
 
-        public async Task addUserAsync(User user)
+        public async Task<bool> addUserAsync(User user)
         {
             await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();
+            return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task addRefreshToken(RefreshToken refreshToken)
