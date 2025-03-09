@@ -18,20 +18,22 @@ namespace ClassLib.Repositories
     {
         private readonly DbSwpVaccineTrackingFinalContext _context;
 
+        public VaccineComboRepository(DbSwpVaccineTrackingFinalContext context)
+        {
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
 
         public async Task<VaccinesCombo?> GetDetailVaccineComboById(int id)
         {
             return await _context.VaccinesCombos.Include(c => c.Vaccines).FirstOrDefaultAsync(c => c.Id == id && c.IsDeleted == false);
         }
 
+        //Alex5
         public async Task<VaccinesCombo?> GetDetailVaccineComboByIdAdmin(int id)
         {
             return await _context.VaccinesCombos.Include(c => c.Vaccines).FirstOrDefaultAsync(c => c.Id == id);
         }
-        public VaccineComboRepository(DbSwpVaccineTrackingFinalContext context)
-        {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
-        }
+        
         public async Task<VaccinesCombo> CreateVaccine(VaccinesCombo newCombo)
         {
             _context.Add(newCombo);
@@ -54,6 +56,7 @@ namespace ClassLib.Repositories
                 .ToListAsync();
         }
 
+        //Alex5
         public async Task<List<VaccinesCombo>> GetAllVaccineComboAdmin()
         {
             return await _context.VaccinesCombos
@@ -66,6 +69,7 @@ namespace ClassLib.Repositories
             return await _context.VaccinesCombos.Include(c => c.Vaccines).Where(c => c.Id == id).FirstOrDefaultAsync();
         }
 
+        //Alex5
         public async Task<VaccinesCombo?> GetByIdAdmin(int id)
         {
             return await _context.VaccinesCombos.Include(c => c.Vaccines).Where(c => c.Id == id && c.IsDeleted == false).FirstOrDefaultAsync();
@@ -78,6 +82,7 @@ namespace ClassLib.Repositories
             return currentCombo;
         }
 
+        //Alex5
         public async Task<bool> UpdateCombo(VaccinesCombo combo)
         {
             _context.VaccinesCombos.Update(combo);

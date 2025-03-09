@@ -25,7 +25,7 @@ namespace ClassLib.Service.VaccineCombo
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
         //Lấy tất cả
-
+        //Alex5
         public async Task<List<GetAllVaccineCombo>> GetAllVaccineCombo()
         {
             //var listCombo = await _vaccineComboRepository.GetAllVaccineCombo();
@@ -82,6 +82,7 @@ namespace ClassLib.Service.VaccineCombo
             return responses;
         }
 
+        //Alex5
         public async Task<List<GetAllVaccineCombo>> GetAllVaccineComboAdmin()
         {
             var combo = await _vaccineComboRepository.GetAllVaccineComboAdmin();
@@ -120,6 +121,7 @@ namespace ClassLib.Service.VaccineCombo
             return await _vaccineComboRepository.GetById(id);
         }
 
+        //Alex5
         public async Task<GetVaccineComboDetail> GetDetailVaccineComboByIdAsync(int id)
         {
             if (string.IsNullOrWhiteSpace(id.ToString()))
@@ -150,6 +152,7 @@ namespace ClassLib.Service.VaccineCombo
             return res;
         }
 
+        //Alex5
         public async Task<GetVaccineComboDetail> GetDetailVaccineComboByIdAsyncAdmin(int id)
         {
             if (string.IsNullOrWhiteSpace(id.ToString()))
@@ -206,6 +209,7 @@ namespace ClassLib.Service.VaccineCombo
         //    return await _vaccineComboRepository.UpdateVaccine(currentVaccineCombo, u);
         //}
 
+        //Alex5
         public async Task<bool> UpdateVaccineCombo(int id, UpdateVaccineCombo request)
         {
             if (string.IsNullOrWhiteSpace(id.ToString()))
@@ -243,6 +247,7 @@ namespace ClassLib.Service.VaccineCombo
             return await _vaccineComboRepository.DeleteVaccineCombo(currentVaccine);
         }
 
+        //Alex5
         public async Task<bool> SoftDeleteVaccineCombo(int id)
         {
             if (string.IsNullOrWhiteSpace(id.ToString()))

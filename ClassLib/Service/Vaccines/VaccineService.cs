@@ -29,6 +29,7 @@ namespace ClassLib.Service.Vaccines
             return _mapper.Map<List<GetVaccine>>(listVaccine);
         }
 
+        //Alex5
         public async Task<List<GetVaccine>> GetAllVaccinesAdmin()
         {
             var listVaccine = await _vaccineRepository.GetAllVaccinesAdmin();
@@ -41,7 +42,8 @@ namespace ClassLib.Service.Vaccines
             var vaccine = await _vaccineRepository.GetById(id);
             return _mapper.Map<GetVaccine>(vaccine);
         }
-        
+
+        //Alex5
         public async Task<GetVaccine?> GetVaccineByIdAdmin(int id)
         {
             var vaccine = await _vaccineRepository.GetByIdAdmin(id);
@@ -67,6 +69,7 @@ namespace ClassLib.Service.Vaccines
         //    return await _vaccineRepository.UpdateVaccine(currentVaccine, _mapper.Map<Models.Vaccine>(rq));
         //}
 
+        //Alex5
         public async Task<bool> UdateVaccineAsync(int id, UpdateVaccine request)
         {
             if (string.IsNullOrWhiteSpace(request.Name))
@@ -158,6 +161,7 @@ namespace ClassLib.Service.Vaccines
             return await _vaccineRepository.DeleteVaccine(currentVaccine);
         }
 
+        //Alex5
         public async Task<bool> SoftDeleteVaccine(int id)
         {
             if (string.IsNullOrWhiteSpace(id.ToString()))

@@ -23,6 +23,7 @@ namespace ClassLib.Repositories
             return await _context.Vaccines.Include(v => v.Address).Where(v => v.IsDeleted == false).ToListAsync();
         }
 
+        //Alex5
         public async Task<List<Vaccine>> GetAllVaccinesAdmin()
         {
             return await _context.Vaccines.Include(v => v.Address).ToListAsync();
@@ -34,6 +35,7 @@ namespace ClassLib.Repositories
             return await _context.Vaccines.FirstOrDefaultAsync(v => v.Id == id && v.IsDeleted == false);
         }
 
+        //Alex5
         public async Task<Vaccine?> GetByIdAdmin(int id)
         {
             //return await _context.Set<Vaccine>().FindAsync(id);
@@ -54,6 +56,7 @@ namespace ClassLib.Repositories
         //    return currentVaccine;
         //}
 
+        //Alex5
         public async Task<bool> UpdateVaccine(Vaccine vaccine)
         {
             _context.Vaccines.Update(vaccine);
@@ -73,6 +76,7 @@ namespace ClassLib.Repositories
                 .ToListAsync();
         }
 
+        //Alex5
         public async Task<List<Vaccine>> GetVaccinesByAgeAdmin(int age)
         {
             return await _context.Vaccines
