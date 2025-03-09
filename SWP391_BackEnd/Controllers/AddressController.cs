@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace SWP391_BackEnd.Controllers
 {
-    [Route("api/addresses")]
+    [Route("api/[controller]")]
     [ApiController]
     public class AddressController : ControllerBase
     {
@@ -18,13 +18,13 @@ namespace SWP391_BackEnd.Controllers
             _addressService = addressService;
         }
 
-        [HttpGet("getAllAddress")]
+        [HttpGet("get-all-address")]
         public async Task<ActionResult<IEnumerable<Address>>> GetAllAddresses()
         {
             return await _addressService.GetAllAddresses();
         }
 
-        [HttpGet("getAddressById/{id}")]
+        [HttpGet("get-address-by-id/{id}")]
         public async Task<ActionResult<Address>> GetAddressById(int id)
         {
             var address = await _addressService.GetAddressById(id);
@@ -32,7 +32,7 @@ namespace SWP391_BackEnd.Controllers
             return address;
         }
 
-        [HttpPost("addAddresses")]
+        [HttpPost("create-address")]
         public async Task<ActionResult<Address>> AddAddress([FromBody] AddAddress addAddress)
         {
             if (addAddress == null) return BadRequest();
@@ -41,7 +41,7 @@ namespace SWP391_BackEnd.Controllers
             return CreatedAtAction(nameof(GetAddressById), new { id = createdAddress.Id }, createdAddress);
         }
 
-        [HttpPut("updateById{id}")]
+        [HttpPut("update-address-by-id{id}")]
         public async Task<ActionResult<Address>> UpdateAddress(int id, [FromBody] AddAddress updateAddress)
         {
             if (updateAddress == null) return BadRequest();
@@ -51,7 +51,7 @@ namespace SWP391_BackEnd.Controllers
             return updatedAddress;
         }
 
-        [HttpDelete("deleteById{id}")]
+        [HttpDelete("delete-address-by-id{id}")]
         public async Task<IActionResult> DeleteAddress(int id)
         {
             var result = await _addressService.DeleteAddress(id);
