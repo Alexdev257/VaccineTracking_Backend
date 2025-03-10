@@ -217,7 +217,7 @@ namespace ClassLib.Service.VaccineCombo
                 throw new ArgumentNullException("ID can not be blank");
             }
             var combo = await _vaccineComboRepository.GetById(id);
-            if(combo == null)
+            if (combo == null)
             {
                 throw new ArgumentException("Combo does not exist");
             }
@@ -227,13 +227,37 @@ namespace ClassLib.Service.VaccineCombo
             combo.FinalPrice = request.FinalPrice;
             combo.Status = request.Status;
             List<int> vaccineIds = request.vaccineIds;
+            //List<int> existVaccines = combo.Vaccines.Id.ToList();
             List<Vaccine> vaccines = combo.Vaccines.ToList();
-            foreach(var item in vaccineIds)
+            //List<int> existVaccineIds = new List<int>();
+            List<int> existVaccineIds = vaccines.Select(x => x.Id).ToList();
+            //foreach (var item in vaccines)
+            //{
+            //    existVaccineIds.Add(item.Id);
+            //}
+            //foreach(var item in vaccineIds)
+            //{
+            //    var vaccine = await _vaccineRepository.GetById(item);
+            //    vaccines.Add(vaccine);
+            //}
+            //combo.Vaccines = vaccines;
+            // Xác định vaccine cần thêm
+            var vaccinesToAdd = vaccineIds.Except(existVaccineIds).ToList();
+            foreach (var vaccineId in vaccinesToAdd)
             {
-                var vaccine = await _vaccineRepository.GetById(item);
-                vaccines.Add(vaccine);
+                var vaccine = await _vaccineRepository.GetById(vaccineId);
+                if (vaccine != null)
+                {
+                    combo.Vaccines.Add(vaccine);
+                }
             }
-            combo.Vaccines = vaccines;
+
+            // Xác định vaccine cần xóa
+            var vaccinesToRemove = vaccines.Where(v => !vaccineIds.Contains(v.Id)).ToList();
+            foreach (var vaccine in vaccinesToRemove)
+            {
+                combo.Vaccines.Remove(vaccine);
+            }
             return await _vaccineComboRepository.UpdateCombo(combo);
         }
         //xóa
