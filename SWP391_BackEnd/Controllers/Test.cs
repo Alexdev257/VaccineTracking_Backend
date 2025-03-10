@@ -32,7 +32,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<List<int>> GetListByID([FromRoute] int id){
+        public async Task<List<int>> GetListByID([FromRoute] int id) {
             return (await _context.VaccinesCombos.Include(v => v.Vaccines).Where(vc => vc.Id == id).SelectMany(vc => vc.Vaccines).ToListAsync()).Select(v => v.Id).ToList();
         }
 
@@ -43,11 +43,11 @@ namespace SWP391_BackEnd.Controllers
         //    return rs ? Ok("success send") : BadRequest("Failed send");
         //}
 
-        [HttpGet]
-        public async Task<IActionResult> getUpcoming()
+        [HttpGet("/{id}")]
+        public async Task<IActionResult> getUpcoming(int id)
         {
             var aa = ClassLib.Helpers.TimeProvider.GetVietnamNow();
-            var rs = await _vaccinesTrackingRepository.GetUpComingVaccinations(aa);
+            var rs = await _vaccinesTrackingRepository.GetUpComingVaccinations1(id);
             //var rs = await _vaccinesTrackingRepository.GetUpComingVaccinations1(aa);
             return Ok(rs);
         }
