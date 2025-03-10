@@ -21,11 +21,11 @@ namespace ClassLib.Repositories
         public async Task<bool> SendEmailAsync(string toEmail, string subject, string htmlMessage)
         {
             var emailSettings = _configuration.GetSection("EmailSettings");
-            string smtpServer = emailSettings["SmtpServer"];
-            int smtpPort = int.Parse(emailSettings["SmtpPort"]);
-            string senderEmail = emailSettings["SenderEmail"];
-            string senderPassword = emailSettings["SenderPassword"];
-            string senderName = emailSettings["SenderName"];
+            string smtpServer = emailSettings["SmtpServer"]!;
+            int smtpPort = int.Parse(emailSettings["SmtpPort"]!);
+            string senderEmail = emailSettings["SenderEmail"]!;
+            string senderPassword = emailSettings["SenderPassword"]!;
+            string senderName = emailSettings["SenderName"]!;
 
             using(var client = new SmtpClient(smtpServer))
             {
