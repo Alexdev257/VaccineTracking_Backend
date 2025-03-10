@@ -54,7 +54,7 @@ namespace SWP391_BackEnd.Controllers
 
 
             // Chose payment method
-            if (addBooking.paymentId != 0)
+            if (addBooking.paymentId != 1)
             {
                 var client = _httpClientFactory.CreateClient();
 
