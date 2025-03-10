@@ -127,7 +127,7 @@ namespace ClassLib.Service.PaymentService
                     TransactionId = transactionID.ToString()!,
                     Currency = "VND",
                     PaymentDate = TimeProvider.GetVietnamNow(),
-                    TotalPrice = (decimal)refundModel.amount,
+                    TotalPrice = ((decimal)refundModel.amount) * -1,
                     PaymentMethod = (await _paymentMethodRepository.getPaymentMethodByName("momo"))!.Id,
                     Status = ((PaymentStatusEnum)refundModel.RefundType).ToString(),
                     BookingId = (await _paymentRepository.GetByIDAsync(refundModel.paymentID))!.BookingId,

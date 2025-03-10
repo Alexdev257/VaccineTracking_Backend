@@ -1,9 +1,5 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Web;
 using ClassLib.DTO.Booking;
 using ClassLib.DTO.Payment;
 using ClassLib.Enum;
@@ -44,15 +40,7 @@ namespace SWP391_BackEnd.Controllers
         [HttpPost("add-booking")]
         public async Task<IActionResult> AddBooking([FromBody] AddBooking addBooking)
         {
-            OrderInfoModel orderInfo;
-
-            // Create Model Info Include Create Booking Data, Booking Child Data, Booking Vaccine Data, ...
-            if (addBooking.BookingID == 0) orderInfo = (await _bookingService.AddBooking(addBooking))!;
-
-            // Pay again for Booking have "Pending" status
-            else orderInfo = (await _bookingService.RepurchaseBooking(addBooking.BookingID))!;
-
-
+            OrderInfoModel orderInfo = (await _bookingService.AddBooking(addBooking))!;
             // Chose payment method
             if (addBooking.paymentId != 1)
             {
@@ -105,7 +93,8 @@ namespace SWP391_BackEnd.Controllers
                     Status = status
                 };
 
-                RespondModel response = new RespondModel(){
+                RespondModel response = new RespondModel()
+                {
                     BookingID = bookingID,
                     Amount = amount.ToString(),
                     TrancasionID = trancasionID,
@@ -114,12 +103,23 @@ namespace SWP391_BackEnd.Controllers
                     OrderDescription = "",
                 };
 
+                UriBuilder uriBuilder = new UriBuilder($"http://localhost:5173/confirm/pending");
 
-                await _paymentRepository.AddPayment(payment);
-                return Ok(response);
+                var queryParams = HttpUtility.ParseQueryString(string.Empty);
+
+                foreach (var prop in response.GetType().GetProperties())
+                {
+                    var value = prop.GetValue(response)?.ToString();
+                    if (value != null)
+                    {
+                        queryParams[prop.Name] = value;
+                    }
+                }
+
+                uriBuilder.Query = queryParams.ToString();
+
+                return Redirect(uriBuilder.ToString());
             }
-            return BadRequest();
-
         }
 
         [HttpGet("booking-history/{userID}")]
