@@ -72,25 +72,26 @@ namespace SWP391_BackEnd.Controllers
                 return BadRequest("Invalid booking id.");
             }
 
-            // UriBuilder uriBuilder = new UriBuilder("https://yourfrontend.com/payment-result");
-            // var queryParams = HttpUtility.ParseQueryString(string.Empty);
+            UriBuilder uriBuilder = new UriBuilder($"http://localhost:5173/confirm/{(response.Message.ToLower() == "success" ? "success" : "failed")}");
 
-            // // Use reflection to get all properties from the response object
-            // foreach (var prop in response.GetType().GetProperties())
-            // {
-            //     var value = prop.GetValue(response)?.ToString();
-            //     if (value != null)
-            //     {
-            //         queryParams[prop.Name] = value;
-            //     }
-            // }
+            var queryParams = HttpUtility.ParseQueryString(string.Empty);
 
-            // uriBuilder.Query = queryParams.ToString();
+            // Use reflection to get all properties from the response object
+            foreach (var prop in response.GetType().GetProperties())
+            {
+                var value = prop.GetValue(response)?.ToString();
+                if (value != null)
+                {
+                    queryParams[prop.Name] = value;
+                }
+            }
 
-            // // Redirect to frontend with all response data in URL
-            // return Redirect(uriBuilder.ToString());
+            uriBuilder.Query = queryParams.ToString();
 
-            return Ok(response);
+            // Redirect to frontend with all response data in URL
+            return Redirect(uriBuilder.ToString());
+
+            // return Ok(response);
         }
 
 
