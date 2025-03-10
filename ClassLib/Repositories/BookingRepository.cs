@@ -52,67 +52,15 @@ namespace ClassLib.Repositories
         // For user
         public async Task<List<Booking>?> GetAllBookingByUserId(int userId)
         {
-            return await _context.Bookings
-                .Where(x => x.ParentId == userId)
-                .Include(x => x.Children)
-                .Include(x => x.Vaccines)
-                .Include(x => x.Combos)
-                    .ThenInclude(x => x.Vaccines)
-                .Include(x => x.Payments)
-                .Where( x => x.Status == "Success" || x.Status == "Pending")
-                .ToListAsync();
+            var bookings = await GetAllBookingByUserIdStaff(userId);
+            return bookings?.Where(b => b.Status == "Success" || b.Status == "Pending").ToList();
         }
 
-        // Adjust Booking
-        public async Task<List<Booking>?> GetByQuerry(BookingQuerryObject bookingQuerryObject)
+        // For staff
+        public async Task<List<Booking>?> GetAllBookingByUserIdStaff(int userId)
         {
-            var booking = _context.Bookings
-                          .Include(x => x.Parent)
-                          .AsQueryable();
-
-            if (bookingQuerryObject.Id.HasValue)
-            {
-                booking = booking.Where(x => x.Id == bookingQuerryObject.Id);
-            }
-            if (bookingQuerryObject.ParentId.HasValue)
-            {
-                booking = booking.Where(x => x.ParentId == bookingQuerryObject.ParentId);
-            }
-            if (bookingQuerryObject.Status != null)
-            {
-                booking = booking.Where(x => x.Status == bookingQuerryObject.Status);
-            }
-            if (bookingQuerryObject.CreateDate.HasValue)
-            {
-                booking = booking.Where(x => x.CreatedAt == bookingQuerryObject.CreateDate);
-            }
-            if (bookingQuerryObject.PhoneNumber != null)
-            {
-                booking = booking.Where(x => x.Parent.PhoneNumber == bookingQuerryObject.PhoneNumber);
-            }
-            if (bookingQuerryObject.orderBy != null)
-            {
-                switch (bookingQuerryObject.orderBy)
-                {
-                    case "Id":
-                        booking = bookingQuerryObject.isDescending ? booking.OrderByDescending(x => x.Id) : booking.OrderBy(x => x.Id);
-                        break;
-                    case "ParentId":
-                        booking = bookingQuerryObject.isDescending ? booking.OrderByDescending(x => x.ParentId) : booking.OrderBy(x => x.ParentId);
-                        break;
-                    case "CreatedAt":
-                        booking = bookingQuerryObject.isDescending ? booking.OrderByDescending(x => x.CreatedAt) : booking.OrderBy(x => x.CreatedAt);
-                        break;
-                    case "ArrivedAt":
-                        booking = bookingQuerryObject.isDescending ? booking.OrderByDescending(x => x.ArrivedAt) : booking.OrderBy(x => x.ArrivedAt);
-                        break;
-                    case "Status":
-                        booking = bookingQuerryObject.isDescending ? booking.OrderByDescending(x => x.Status) : booking.OrderBy(x => x.Status);
-                        break;
-                }
-            }
-
-            return await booking.ToListAsync();
+            var bookings = await GetAll();
+            return bookings?.Where(b => b.ParentId == userId).ToList();
         }
 
         public async Task<Booking?> AddBooking(Booking booking, List<int> ChildrenIDs, List<int> VaccineIDs, List<int> VaccineComboIDs)

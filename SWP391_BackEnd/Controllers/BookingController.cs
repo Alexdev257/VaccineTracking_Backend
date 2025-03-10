@@ -29,14 +29,6 @@ namespace SWP391_BackEnd.Controllers
             _paymentRepository = paymentRepository;
         }
 
-
-        [HttpGet("get-all")]
-        public async Task<IActionResult> GetAll([FromQuery] BookingQuerryObject collection)
-        {
-            return Ok(await _bookingService.GetByQuerry(collection));
-        }
-
-
         [HttpPost("add-booking")]
         public async Task<IActionResult> AddBooking([FromBody] AddBooking addBooking)
         {
@@ -129,5 +121,23 @@ namespace SWP391_BackEnd.Controllers
             if (bookingList.IsNullOrEmpty()) return BadRequest("Dont have");
             return Ok(bookingList);
         }
-    }
+
+
+        [HttpGet("booking-history-staff/{userID}")]
+        public async Task<IActionResult> GetAllBookingByUserStaff([FromRoute] int userID)
+        {
+            var bookingList = await _bookingService.GetBookingByUserAsyncStaff(userID);
+            if (bookingList.IsNullOrEmpty()) return BadRequest("Dont have");
+            return Ok(bookingList);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllForStaff()
+        {
+            var bookingList = await _bookingService.GetAllBookingForStaff();
+            return Ok(bookingList);
+        }
+   
+        
+   }
 }
