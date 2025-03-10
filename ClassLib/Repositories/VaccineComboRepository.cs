@@ -1,16 +1,5 @@
-﻿using Amazon.SimpleNotificationService.Util;
-using ClassLib.DTO.Vaccine;
-using ClassLib.DTO.VaccineCombo;
-using ClassLib.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using ClassLib.Models;
 using Microsoft.EntityFrameworkCore;
-using PayPal.v1.BillingAgreements;
-using System;
-using System.CodeDom;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ClassLib.Repositories
 {
