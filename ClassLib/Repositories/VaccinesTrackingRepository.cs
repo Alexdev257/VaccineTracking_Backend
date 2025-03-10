@@ -102,7 +102,7 @@ namespace ClassLib.Repositories
         public async Task<List<VaccinesTracking>> GetUpComingVaccinations1(int id)
         {
             return await _context.VaccinesTrackings
-                                    .Where(vt => vt.Id == 2)
+                                    .Where(vt => vt.Id == id)
                                     .Include(vt => vt.Vaccine)
                                     .Include(vt => vt.Child)
                                     .ToListAsync();
