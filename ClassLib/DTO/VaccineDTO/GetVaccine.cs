@@ -28,6 +28,9 @@ namespace ClassLib.DTO.Vaccine
         public DateTime EntryDate { get; set; }
 
         public DateTime TimeExpired { get; set; }
+        public int? MinimumIntervalDate { get; set; }
+
+        public int? MaximumIntervalDate { get; set; }
 
         public string Status { get; set; } = null!;
 

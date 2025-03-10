@@ -110,7 +110,7 @@ namespace SWP391_BackEnd
             //builder.Services.AddScoped<VaccineTrackingReminderHangfire>();
 
             //add BackfroundService
-            builder.Services.AddHostedService<VaccineTrackingReminderJob>();
+            //builder.Services.AddHostedService<VaccineTrackingReminderJob>();
 
             // Add Json NewtonSoft to show more information
             builder.Services.AddControllers()

@@ -9,7 +9,7 @@ namespace SWP391_BackEnd.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class VaccineComboController : ControllerBase
+    public class VaccineComboController : ControllerBase 
     {
         private readonly VaccineComboService _vaccineComboService;
 

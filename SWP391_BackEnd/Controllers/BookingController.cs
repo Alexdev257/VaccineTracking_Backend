@@ -105,10 +105,20 @@ namespace SWP391_BackEnd.Controllers
                     Status = status
                 };
 
-                await _paymentRepository.AddPayment(payment);
-            }
+                RespondModel response = new RespondModel(){
+                    BookingID = bookingID,
+                    Amount = amount.ToString(),
+                    TrancasionID = trancasionID,
+                    Message = status,
+                    OrderId = paymentID,
+                    OrderDescription = "",
+                };
 
-            return Ok(orderInfo);
+
+                await _paymentRepository.AddPayment(payment);
+                return Ok(response);
+            }
+            return BadRequest();
 
         }
 
