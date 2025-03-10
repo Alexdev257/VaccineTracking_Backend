@@ -108,7 +108,7 @@ namespace SWP391_BackEnd.Controllers
                 await _paymentRepository.AddPayment(payment);
             }
 
-            return Ok("Payment By Cash success");
+            return Ok(orderInfo);
 
         }
 

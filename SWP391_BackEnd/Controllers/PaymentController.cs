@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using ClassLib.DTO.Payment;
 using ClassLib.Enum;
 using ClassLib.Helpers;
@@ -70,6 +71,24 @@ namespace SWP391_BackEnd.Controllers
             {
                 return BadRequest("Invalid booking id.");
             }
+
+            // UriBuilder uriBuilder = new UriBuilder("https://yourfrontend.com/payment-result");
+            // var queryParams = HttpUtility.ParseQueryString(string.Empty);
+
+            // // Use reflection to get all properties from the response object
+            // foreach (var prop in response.GetType().GetProperties())
+            // {
+            //     var value = prop.GetValue(response)?.ToString();
+            //     if (value != null)
+            //     {
+            //         queryParams[prop.Name] = value;
+            //     }
+            // }
+
+            // uriBuilder.Query = queryParams.ToString();
+
+            // // Redirect to frontend with all response data in URL
+            // return Redirect(uriBuilder.ToString());
 
             return Ok(response);
         }
