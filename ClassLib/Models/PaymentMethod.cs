@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace ClassLib.Models;
+﻿namespace ClassLib.Models;
 
 public partial class PaymentMethod
 {

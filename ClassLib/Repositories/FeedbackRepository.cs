@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ClassLib.Models;
+﻿using ClassLib.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ClassLib.Repositories

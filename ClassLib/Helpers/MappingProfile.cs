@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using ClassLib.DTO.Booking;
 using ClassLib.DTO.Child;
 using ClassLib.DTO.Feedback;
@@ -19,18 +14,25 @@ namespace ClassLib.Helpers
         public MappingProfile()
         {
             CreateMap<RegisterRequest, User>();
-            CreateMap<User, RegisterResponse>();
+            CreateMap<User, RegisterResponse>()
+                 .ForMember(d => d.DateOfBirth, o => o.MapFrom(src => src.DateOfBirth.ToString("HH:mm:ss dd-MM-yyyy")))
+                .ForMember(d => d.CreatedAt, o => o.MapFrom(src => src.CreatedAt.ToString("HH:mm:ss dd-MM-yyyy")));
 
             CreateMap<LoginRequest, User>();
             CreateMap<User, LoginResponse>();
 
-            CreateMap<User, GetUserResponse>();
+            CreateMap<User, GetUserResponse>()
+                .ForMember(d => d.DateOfBirth, o => o.MapFrom(src => src.DateOfBirth.ToString("HH:mm:ss dd-MM-yyyy")))
+                .ForMember(d => d.CreatedAt, o => o.MapFrom(src => src.CreatedAt.ToString("HH:mm:ss dd-MM-yyyy")));
 
             CreateMap<CreateStaffRequest, User>();
 
             CreateMap<CreateChildRequest, Child>();
 
-            CreateMap<Child, GetChildResponse>();
+
+            CreateMap<Child, GetChildResponse>()
+                .ForMember(d => d.DateOfBirth,o => o.MapFrom(src =>  src.DateOfBirth.ToString("HH:mm:ss dd-MM-yyyy")))
+                .ForMember(d => d.CreatedAt, o => o.MapFrom(src => src.CreatedAt.ToString("HH:mm:ss dd-MM-yyyy")));
 
             CreateMap<Booking, UpdateBooking>();
 
@@ -39,7 +41,10 @@ namespace ClassLib.Helpers
             //CreateMap<UpdateVaccine, Vaccine>();
             CreateMap<UpdateVaccine, Vaccine>()
                     .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
-            CreateMap<Vaccine, GetVaccine>();
+            CreateMap<Vaccine, GetVaccine>()
+                .ForMember(d => d.EntryDate, o => o.MapFrom(src => src.EntryDate.ToString("HH:mm:ss dd-MM-yyyy")))
+                .ForMember(d => d.TimeExpired, o => o.MapFrom(src => src.TimeExpired.ToString("HH:mm:ss dd-MM-yyyy")));
+
 
             CreateMap<CreateVaccineCombo, VaccinesCombo>().ForMember(d => d.Vaccines, o => o.Ignore()).ReverseMap();//hai chieu.
             CreateMap<UpdateVaccineCombo, VaccinesCombo>();

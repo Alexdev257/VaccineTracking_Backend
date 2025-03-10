@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ClassLib.DTO.Child
+﻿namespace ClassLib.DTO.Child
 {
     public class GetChildResponse
     {
@@ -14,13 +8,13 @@ namespace ClassLib.DTO.Child
 
         public string Name { get; set; } = null!;
 
-        public DateTime DateOfBirth { get; set; }
+        public string DateOfBirth { get; set; }
 
         public int Gender { get; set; }
 
         public string Status { get; set; } = null!;
 
-        public DateTime CreatedAt { get; set; }
+        public string CreatedAt { get; set; }
 
         //public bool IsDeleted { get; set; }
     }

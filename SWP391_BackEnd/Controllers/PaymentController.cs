@@ -1,21 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Web;
 using ClassLib.DTO.Payment;
 using ClassLib.Enum;
 using ClassLib.Helpers;
-using ClassLib.Models;
 using ClassLib.Repositories;
 using ClassLib.Service;
 using ClassLib.Service.PaymentService;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Extensions;
-using PayPal.v1.Orders;
 
 namespace SWP391_BackEnd.Controllers
 {

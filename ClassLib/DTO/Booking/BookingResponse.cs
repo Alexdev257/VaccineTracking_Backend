@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ClassLib.DTO.Child;
 using ClassLib.DTO.Vaccine;
 using ClassLib.DTO.VaccineCombo;
@@ -13,7 +9,7 @@ namespace ClassLib.DTO.Booking
         public int ID { get; set; } = 0;
         public string AdvisoryDetail { get; set; } = null!;
 
-        public DateTime ArrivedAt { get; set; }
+        public string ArrivedAt { get; set; }
 
         public string paymentName { get; set; } = string.Empty;
 

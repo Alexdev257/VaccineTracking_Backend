@@ -1,13 +1,7 @@
 ﻿using AutoMapper;
-using ClassLib.DTO.Vaccine;
 using ClassLib.DTO.VaccineCombo;
 using ClassLib.Models;
 using ClassLib.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 //using ClassLib.DTO.VaccineCombo;
 
 namespace ClassLib.Service.VaccineCombo
@@ -83,38 +77,38 @@ namespace ClassLib.Service.VaccineCombo
         }
 
         //Alex5
-        public async Task<List<GetAllVaccineCombo>> GetAllVaccineComboAdmin()
-        {
-            var combo = await _vaccineComboRepository.GetAllVaccineComboAdmin();
-            List<GetAllVaccineCombo> responses = new List<GetAllVaccineCombo>();
-            foreach (var vaccineCombo in combo)
-            {
-                GetAllVaccineCombo response = new GetAllVaccineCombo()
-                {
-                    Id = vaccineCombo.Id,
-                    ComboName = vaccineCombo.ComboName,
-                    Discount = vaccineCombo.Discount,
-                    FinalPrice = vaccineCombo.FinalPrice,
-                    Status = vaccineCombo.Status,
-                    TotalPrice = vaccineCombo.TotalPrice,
-                };
-                var listVaccine = vaccineCombo.Vaccines.ToList();
-                response.Vaccines = new List<GetVaccineInVaccineCombo>();
-                foreach (var item in listVaccine)
-                {
-                    GetVaccineInVaccineCombo vcs = new()
-                    {
-                        Id = item.Id,
-                        Name = item.Name,
-                        Price = item.Price,
+        //public async Task<List<GetAllVaccineCombo>> GetAllVaccineComboAdmin()
+        //{
+        //    var combo = await _vaccineComboRepository.GetAllVaccineComboAdmin();
+        //    List<GetAllVaccineCombo> responses = new List<GetAllVaccineCombo>();
+        //    foreach (var vaccineCombo in combo)
+        //    {
+        //        GetAllVaccineCombo response = new GetAllVaccineCombo()
+        //        {
+        //            Id = vaccineCombo.Id,
+        //            ComboName = vaccineCombo.ComboName,
+        //            Discount = vaccineCombo.Discount,
+        //            FinalPrice = vaccineCombo.FinalPrice,
+        //            Status = vaccineCombo.Status,
+        //            TotalPrice = vaccineCombo.TotalPrice,
+        //        };
+        //        var listVaccine = vaccineCombo.Vaccines.ToList();
+        //        response.Vaccines = new List<GetVaccineInVaccineCombo>();
+        //        foreach (var item in listVaccine)
+        //        {
+        //            GetVaccineInVaccineCombo vcs = new()
+        //            {
+        //                Id = item.Id,
+        //                Name = item.Name,
+        //                Price = item.Price,
 
-                    };
-                    response.Vaccines.Add(vcs);
-                }
-                responses.Add(response);
-            }
-            return responses;
-        }
+        //            };
+        //            response.Vaccines.Add(vcs);
+        //        }
+        //        responses.Add(response);
+        //    }
+        //    return responses;
+        //}
         //Lấy theo id
         public async Task<VaccinesCombo?> GetVaccineComboById(int id)
         {
@@ -153,35 +147,35 @@ namespace ClassLib.Service.VaccineCombo
         }
 
         //Alex5
-        public async Task<GetVaccineComboDetail> GetDetailVaccineComboByIdAsyncAdmin(int id)
-        {
-            if (string.IsNullOrWhiteSpace(id.ToString()))
-            {
-                throw new ArgumentNullException("ID can not be balnk");
-            }
-            var combo = await _vaccineComboRepository.GetDetailVaccineComboByIdAdmin(id);
-            if (combo == null)
-            {
-                throw new Exception("Do not exist this vaccine combo");
-            }
-            GetVaccineComboDetail res = new GetVaccineComboDetail
-            {
-                Id = combo.Id,
-                ComboName = combo.ComboName,
-                Discount = combo.Discount,
-                TotalPrice = combo.TotalPrice,
-                FinalPrice = combo.FinalPrice,
-                Status = combo.Status,
-                Vaccines = new List<GetVaccineInVaccineComboDetail>(),
-            };
-            var listVaccine = combo.Vaccines.ToList();
-            foreach (var item in listVaccine)
-            {
-                var vcs = _mapper.Map<GetVaccineInVaccineComboDetail>(item);
-                res.Vaccines.Add(vcs);
-            }
-            return res;
-        }
+        //public async Task<GetVaccineComboDetail> GetDetailVaccineComboByIdAsyncAdmin(int id)
+        //{
+        //    if (string.IsNullOrWhiteSpace(id.ToString()))
+        //    {
+        //        throw new ArgumentNullException("ID can not be balnk");
+        //    }
+        //    var combo = await _vaccineComboRepository.GetDetailVaccineComboByIdAdmin(id);
+        //    if (combo == null)
+        //    {
+        //        throw new Exception("Do not exist this vaccine combo");
+        //    }
+        //    GetVaccineComboDetail res = new GetVaccineComboDetail
+        //    {
+        //        Id = combo.Id,
+        //        ComboName = combo.ComboName,
+        //        Discount = combo.Discount,
+        //        TotalPrice = combo.TotalPrice,
+        //        FinalPrice = combo.FinalPrice,
+        //        Status = combo.Status,
+        //        Vaccines = new List<GetVaccineInVaccineComboDetail>(),
+        //    };
+        //    var listVaccine = combo.Vaccines.ToList();
+        //    foreach (var item in listVaccine)
+        //    {
+        //        var vcs = _mapper.Map<GetVaccineInVaccineComboDetail>(item);
+        //        res.Vaccines.Add(vcs);
+        //    }
+        //    return res;
+        //}
         //Tạo mới
         public async Task<VaccinesCombo> CreateVaccineCombo(CreateVaccineCombo rq)
         {

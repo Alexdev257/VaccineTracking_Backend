@@ -1,6 +1,5 @@
 ﻿using ClassLib.DTO.Email;
 using ClassLib.Service;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SWP391_BackEnd.Controllers

@@ -1,6 +1,6 @@
 ﻿using ClassLib.DTO.Child;
 using ClassLib.Service;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,11 +35,12 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-all-child-admin")]
+        [Authorize (Roles = "admin")]
         public async Task<IActionResult> getAllChildAdmin()
         {
             try
             {
-                var child = await _childService.GetAllChildForAdminAsync();
+                var child = await _childService.GetAllChildAsync();
                 return Ok(child);
             }
             catch (ArgumentException ex)

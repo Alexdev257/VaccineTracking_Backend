@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ClassLib.DTO.Vaccine
+﻿namespace ClassLib.DTO.Vaccine
 {
     public class GetVaccine
     {
@@ -25,9 +19,9 @@ namespace ClassLib.DTO.Vaccine
 
         public int SuggestAgeMax { get; set; }
 
-        public DateTime EntryDate { get; set; }
+        public string EntryDate { get; set; }
 
-        public DateTime TimeExpired { get; set; }
+        public string TimeExpired { get; set; }
         public int? MinimumIntervalDate { get; set; }
 
         public int? MaximumIntervalDate { get; set; }

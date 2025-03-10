@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using ClassLib.DTO.Address;
+﻿using ClassLib.DTO.Address;
 using ClassLib.Models;
 using Microsoft.EntityFrameworkCore;
 

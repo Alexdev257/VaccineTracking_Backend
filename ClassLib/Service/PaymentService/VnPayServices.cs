@@ -1,12 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using ClassLib.DTO.Payment;
-using ClassLib.Enum;
 using ClassLib.Models;
 using ClassLib.Repositories;
 using Microsoft.AspNetCore.Http;

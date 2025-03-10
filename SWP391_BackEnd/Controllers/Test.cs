@@ -1,14 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Threading.Tasks;
-//using ClassLib.Job;
 using ClassLib.Models;
 using ClassLib.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ClassLib.Helpers;
 
 namespace SWP391_BackEnd.Controllers
 {

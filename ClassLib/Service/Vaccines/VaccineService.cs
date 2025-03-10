@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using ClassLib.DTO.Vaccine;
 using ClassLib.Models;
 using ClassLib.Repositories;
-using Microsoft.EntityFrameworkCore;
 
 namespace ClassLib.Service.Vaccines
 {
@@ -30,11 +24,11 @@ namespace ClassLib.Service.Vaccines
         }
 
         //Alex5
-        public async Task<List<GetVaccine>> GetAllVaccinesAdmin()
-        {
-            var listVaccine = await _vaccineRepository.GetAllVaccinesAdmin();
-            return _mapper.Map<List<GetVaccine>>(listVaccine);
-        }
+        //public async Task<List<GetVaccine>> GetAllVaccinesAdmin()
+        //{
+        //    var listVaccine = await _vaccineRepository.GetAllVaccinesAdmin();
+        //    return _mapper.Map<List<GetVaccine>>(listVaccine);
+        //}
 
         //Lấy theo id
         public async Task<GetVaccine?> GetVaccineById(int id)
@@ -44,11 +38,11 @@ namespace ClassLib.Service.Vaccines
         }
 
         //Alex5
-        public async Task<GetVaccine?> GetVaccineByIdAdmin(int id)
-        {
-            var vaccine = await _vaccineRepository.GetByIdAdmin(id);
-            return _mapper.Map<GetVaccine>(vaccine);
-        }
+        //public async Task<GetVaccine?> GetVaccineByIdAdmin(int id)
+        //{
+        //    var vaccine = await _vaccineRepository.GetByIdAdmin(id);
+        //    return _mapper.Map<GetVaccine>(vaccine);
+        //}
 
         //Tạo mới
         public async Task<Vaccine> CreateVaccine(CreateVaccine rq)
@@ -183,10 +177,10 @@ namespace ClassLib.Service.Vaccines
             return await _vaccineRepository.GetVaccinesByAge(age);
         }
         
-        public async Task<List<Models.Vaccine>> GetVaccinesByAgeAdmin(int age)
-        {
-            return await _vaccineRepository.GetVaccinesByAgeAdmin(age);
-        }
+        //public async Task<List<Models.Vaccine>> GetVaccinesByAgeAdmin(int age)
+        //{
+        //    return await _vaccineRepository.GetVaccinesByAgeAdmin(age);
+        //}
 
 
     }

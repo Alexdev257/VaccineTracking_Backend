@@ -1,10 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ClassLib.Helpers;
-using TimeProvider = ClassLib.Helpers.TimeProvider;
-
 namespace ClassLib.DTO.VaccineTracking
 {
     public class UpdateVaccineTracking

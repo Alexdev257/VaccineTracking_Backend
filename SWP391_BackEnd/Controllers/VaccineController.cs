@@ -1,8 +1,7 @@
 ﻿using ClassLib.DTO.Vaccine;
 using ClassLib.Service.Vaccines;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 
 namespace SWP391_BackEnd.Controllers
 {
@@ -36,11 +35,12 @@ namespace SWP391_BackEnd.Controllers
         }
         
         [HttpGet("get-all-vaccines-admin")]
+        [Authorize (Roles = "admin")]
         public async Task<IActionResult> GetVaccinesAdmin()
         {
             try
             {
-                var vaccines = await _vaccineService.GetAllVaccinesAdmin();
+                var vaccines = await _vaccineService.GetAllVaccines();
                 if (vaccines == null || vaccines.Count == 0)
                 {
                     return NotFound("No vaccines found.");
@@ -72,11 +72,12 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-vaccine-by-id-admin/{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> GetVaccineAdmin(int id)
         {
             try
             {
-                var vaccine = await _vaccineService.GetVaccineByIdAdmin(id);
+                var vaccine = await _vaccineService.GetVaccineById(id);
                 if (vaccine == null)
                 {
                     return NotFound("No vaccine found.");
@@ -193,11 +194,12 @@ namespace SWP391_BackEnd.Controllers
             }
         }
         [HttpGet("get-vaccine-by-age-admin/{age}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> GetVaccinesByAgeAdmin(int age)
         {
             try
             {
-                var vaccines = await _vaccineService.GetVaccinesByAgeAdmin(age);
+                var vaccines = await _vaccineService.GetVaccinesByAge(age);
                 if (vaccines == null || vaccines.Count == 0)
                 {
                     return NotFound("No vaccines found for this age.");

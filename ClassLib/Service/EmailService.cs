@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ClassLib.Repositories;
+﻿using ClassLib.Repositories;
 
 namespace ClassLib.Service
 {

@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using ClassLib.DTO.Child;
 using ClassLib.Models;
 using ClassLib.Repositories;
-using Microsoft.IdentityModel.Tokens;
 
 namespace ClassLib.Service
 {
@@ -37,21 +31,21 @@ namespace ClassLib.Service
             return result;
         }
 
-        public async Task<List<GetChildResponse>> GetAllChildForAdminAsync()
-        {
-            var child = await _childRepository.GetAllForAdmin();
-            List<GetChildResponse> result = new List<GetChildResponse>();
-            foreach (var childItem in child)
-            {
-                var res = _mapper.Map<GetChildResponse>(childItem);
-                result.Add(res);
-            }
-            if (result.Count == 0)
-            {
-                throw new ArgumentException("No child in the system");
-            }
-            return result;
-        }
+        //public async Task<List<GetChildResponse>> GetAllChildForAdminAsync()
+        //{
+        //    var child = await _childRepository.GetAllForAdmin();
+        //    List<GetChildResponse> result = new List<GetChildResponse>();
+        //    foreach (var childItem in child)
+        //    {
+        //        var res = _mapper.Map<GetChildResponse>(childItem);
+        //        result.Add(res);
+        //    }
+        //    if (result.Count == 0)
+        //    {
+        //        throw new ArgumentException("No child in the system");
+        //    }
+        //    return result;
+        //}
 
         public async Task<GetChildResponse?> GetChildByIdAsync(int id)
         {

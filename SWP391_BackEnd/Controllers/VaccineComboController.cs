@@ -1,8 +1,6 @@
-﻿using ClassLib.DTO.Vaccine;
-using ClassLib.DTO.VaccineCombo;
+﻿using ClassLib.DTO.VaccineCombo;
 using ClassLib.Service.VaccineCombo;
-using ClassLib.Service.Vaccines;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SWP391_BackEnd.Controllers
@@ -37,11 +35,13 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-all-vaccine-combo-admin")]
+        [Authorize( Roles = "admin")]
         public async Task<IActionResult> GetVaccineCombosAdmin()
         {
+           
             //try
             //{
-            var combos = await _vaccineComboService.GetAllVaccineComboAdmin();
+            var combos = await _vaccineComboService.GetAllVaccineCombo();
             if (combos == null || combos.Count == 0)
             {
                 return NotFound("No combos found.");
@@ -73,11 +73,12 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-vaccine-combo-detail-admin/{id}")]
+        [Authorize ( Roles = "admin")]
         public async Task<IActionResult> GetVaccineComBoDetailByIdAdmin(int id)
         {
             try
             {
-                var combo = await _vaccineComboService.GetDetailVaccineComboByIdAsyncAdmin(id);
+                var combo = await _vaccineComboService.GetDetailVaccineComboByIdAsync(id);
                 return Ok(combo);
             }
             catch (ArgumentNullException e)
