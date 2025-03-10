@@ -98,5 +98,14 @@ namespace ClassLib.Repositories
                                     .Include(vt => vt.Child)
                                     .ToListAsync();
         }
+
+        public async Task<List<VaccinesTracking>> GetUpComingVaccinations1(int id)
+        {
+            return await _context.VaccinesTrackings
+                                    .Where(vt => vt.Id == 2)
+                                    .Include(vt => vt.Vaccine)
+                                    .Include(vt => vt.Child)
+                                    .ToListAsync();
+        }
     }
 }
