@@ -281,7 +281,7 @@ namespace ClassLib.Service.PaymentService
                         PaymentMethod = (await _paymentMethodRepository.getPaymentMethodByName("paypal"))!.Id,
                         Currency = "USD",
                         TransactionId = trancasionID,
-                        TotalPrice = (decimal)refundModel.amount,
+                        TotalPrice = ((decimal)refundModel.amount) * -1,
                         PaymentDate = TimeProvider.GetVietnamNow(),
                         Status = ((PaymentStatusEnum)refundModel.RefundType).ToString(),
                         IsDeleted = false

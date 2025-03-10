@@ -52,64 +52,15 @@ namespace ClassLib.Repositories
         // For user
         public async Task<List<Booking>?> GetAllBookingByUserId(int userId)
         {
-            return await _context.Bookings
-                .Where(x => x.ParentId == userId)
-                .Include(x => x.Children)
-                .Include(x => x.Vaccines)
-                .Include(x => x.Combos)
-                    .ThenInclude(x => x.Vaccines)
-                .Include(x => x.Payments)
-                .ToListAsync();
+            var bookings = await GetAllBookingByUserIdStaff(userId);
+            return bookings?.Where(b => b.Status == "Success" || b.Status == "Pending").ToList();
         }
-        public async Task<List<Booking>?> GetByQuerry(BookingQuerryObject bookingQuerryObject)
+
+        // For staff
+        public async Task<List<Booking>?> GetAllBookingByUserIdStaff(int userId)
         {
-            var booking = _context.Bookings
-                          .Include(x => x.Parent)
-                          .AsQueryable();
-
-            if (bookingQuerryObject.Id.HasValue)
-            {
-                booking = booking.Where(x => x.Id == bookingQuerryObject.Id);
-            }
-            if (bookingQuerryObject.ParentId.HasValue)
-            {
-                booking = booking.Where(x => x.ParentId == bookingQuerryObject.ParentId);
-            }
-            if (bookingQuerryObject.Status != null)
-            {
-                booking = booking.Where(x => x.Status == bookingQuerryObject.Status);
-            }
-            if (bookingQuerryObject.CreateDate.HasValue)
-            {
-                booking = booking.Where(x => x.CreatedAt == bookingQuerryObject.CreateDate);
-            }
-            if (bookingQuerryObject.PhoneNumber != null)
-            {
-                booking = booking.Where(x => x.Parent.PhoneNumber == bookingQuerryObject.PhoneNumber);
-            }
-            if (bookingQuerryObject.orderBy != null)
-            {
-                switch (bookingQuerryObject.orderBy)
-                {
-                    case "Id":
-                        booking = bookingQuerryObject.isDescending ? booking.OrderByDescending(x => x.Id) : booking.OrderBy(x => x.Id);
-                        break;
-                    case "ParentId":
-                        booking = bookingQuerryObject.isDescending ? booking.OrderByDescending(x => x.ParentId) : booking.OrderBy(x => x.ParentId);
-                        break;
-                    case "CreatedAt":
-                        booking = bookingQuerryObject.isDescending ? booking.OrderByDescending(x => x.CreatedAt) : booking.OrderBy(x => x.CreatedAt);
-                        break;
-                    case "ArrivedAt":
-                        booking = bookingQuerryObject.isDescending ? booking.OrderByDescending(x => x.ArrivedAt) : booking.OrderBy(x => x.ArrivedAt);
-                        break;
-                    case "Status":
-                        booking = bookingQuerryObject.isDescending ? booking.OrderByDescending(x => x.Status) : booking.OrderBy(x => x.Status);
-                        break;
-                }
-            }
-
-            return await booking.ToListAsync();
+            var bookings = await GetAll();
+            return bookings?.Where(b => b.ParentId == userId).ToList();
         }
 
         public async Task<Booking?> AddBooking(Booking booking, List<int> ChildrenIDs, List<int> VaccineIDs, List<int> VaccineComboIDs)
@@ -118,14 +69,30 @@ namespace ClassLib.Repositories
 
             try
             {
-                _context.Bookings.Add(booking);
-                if (!ChildrenIDs.IsNullOrEmpty()) await _bookingChildIdRepository.Add(booking, ChildrenIDs);
-                if (!VaccineIDs.IsNullOrEmpty()) await _bookingIdVaccineIdReponsitory.Add(booking, VaccineIDs);
-                if (!VaccineComboIDs.IsNullOrEmpty()) await _bookingComboIdReponsitory.Add(booking, VaccineComboIDs);
+                // This is new booking
+                if (booking.Id == 0)
+                {
+                    _context.Bookings.Add(booking);
+                    if (!ChildrenIDs.IsNullOrEmpty()) await _bookingChildIdRepository.Add(booking, ChildrenIDs);
+                    if (!VaccineIDs.IsNullOrEmpty()) await _bookingIdVaccineIdReponsitory.Add(booking, VaccineIDs);
+                    if (!VaccineComboIDs.IsNullOrEmpty()) await _bookingComboIdReponsitory.Add(booking, VaccineComboIDs);
 
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-                return booking;
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    return booking;
+                }
+
+                // This is existed booking but the Staff change vaccine for User
+                else
+                {
+                    if (!ChildrenIDs.IsNullOrEmpty()) await _bookingChildIdRepository.ClearAndAdd(booking, ChildrenIDs);
+                    if (!VaccineIDs.IsNullOrEmpty()) await _bookingIdVaccineIdReponsitory.ClearAndAdd(booking, VaccineIDs);
+                    if (!VaccineComboIDs.IsNullOrEmpty()) await _bookingComboIdReponsitory.ClearAndAdd(booking, VaccineComboIDs);
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    return booking;
+                }
             }
             catch (Exception e)
             {
@@ -135,8 +102,10 @@ namespace ClassLib.Repositories
             }
         }
 
+
         public async Task<Booking?> UpdateBooking(string id, string msg)
         {
+            // Update booking status
             var booking = await _context.Bookings.FindAsync(int.Parse(id));
             if (booking == null)
             {
@@ -182,7 +151,6 @@ namespace ClassLib.Repositories
         }
 
         //Get all element by dayrange
-
         public async Task<List<Booking>> GetAllByDayRange(int day) => await _context.Bookings.Where(x => x.CreatedAt < (TimeProvider.GetVietnamNow()).AddDays(-day)).ToListAsync();
 
         //Soft delete by day range
@@ -198,6 +166,28 @@ namespace ClassLib.Repositories
             }
             await _context.SaveChangesAsync();
             return true;
+        }
+        // Hard delete
+        public async Task<int> HardDelete()
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var deletedBookings = await _context.Bookings.Where(b => b.IsDeleted).ToListAsync();
+                _context.Bookings.RemoveRange(deletedBookings);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return deletedBookings.Count();
+            }
+            catch (Exception e)
+            {
+                System.Console.WriteLine(e.Message);
+                await transaction.RollbackAsync();
+                return 0;
+            }
         }
     }
 }

@@ -43,8 +43,29 @@ namespace ClassLib.Repositories
         {
             try
             {
-                booking.Vaccines.Clear();
-                return await Add(booking, vaccineId);
+                // Clear
+                var result = await _context.Bookings
+                            .Include(b => b.Vaccines)
+                            .Where(b => b.Id == booking.Id)
+                            .ToListAsync();
+                foreach (var b in result)
+                {
+                    b.Vaccines.Clear();
+                }
+                await _context.SaveChangesAsync();
+
+                // Add
+                foreach (var id in vaccineId)
+                {
+                    var vaccine = await _context.Vaccines.FindAsync(id);
+                    if (vaccine == null)
+                    {
+                        return false;
+                    }
+                    booking.Vaccines.Add(vaccine);
+                }
+                await _context.SaveChangesAsync();
+                return true;
             }
             catch (Exception e)
             {

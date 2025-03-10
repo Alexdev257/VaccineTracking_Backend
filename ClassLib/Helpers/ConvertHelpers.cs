@@ -88,7 +88,8 @@ namespace ClassLib.Helpers
                 ArrivedAt = addBooking.ArrivedAt,
                 CreatedAt = TimeProvider.GetVietnamNow(),
                 Status = ((BookingEnum)BookingEnum.Pending).ToString(),
-                IsDeleted = false
+                IsDeleted = false,
+                Id = addBooking.BookingID
             };
         }
 

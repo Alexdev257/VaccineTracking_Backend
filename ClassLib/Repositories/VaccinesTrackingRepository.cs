@@ -15,6 +15,7 @@ namespace ClassLib.Repositories
             _context = context;
         }
 
+        // For admin
         public async Task<List<VaccinesTracking>> GetVaccinesTrackingAsync()
         {
             return await _context.VaccinesTrackings
@@ -24,12 +25,15 @@ namespace ClassLib.Repositories
                                     .ToListAsync()!;
         }
 
+
+        // For user
         public async Task<List<VaccinesTracking>> GetVaccinesTrackingByParentIdAsync(int id)
         {
             return await _context.VaccinesTrackings.Where(vt => vt.UserId == id)
                                     .Include(vt => vt.User)
                                     .Include(vt => vt.Child)
                                     .Include(vt => vt.Vaccine)
+                                    .Where(x => x.Status == "Schedule" || x.Status == "Pending")
                                     .ToListAsync()!;
         }
 
@@ -42,6 +46,24 @@ namespace ClassLib.Repositories
                                     .Include(vt => vt.User)
                                     .FirstOrDefaultAsync();
         }
+
+        // Soft delete by bookingID
+        public async Task<int> SoftDeleteByBookingID(int id)
+        {
+            var searchingResult = await GetVaccinesTrackingByBookingID(id);
+
+            if (searchingResult == null || !searchingResult.Any())
+            {
+                return 0;
+            }
+
+            searchingResult.ForEach(b => b.IsDeleted = true);
+
+            await _context.SaveChangesAsync();
+
+            return searchingResult.Count;
+        }
+
 
         public async Task<VaccinesTracking> AddVaccinesTrackingAsync(VaccinesTracking vaccinesTracking)
         {
