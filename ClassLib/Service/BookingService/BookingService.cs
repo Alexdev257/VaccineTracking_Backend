@@ -1,9 +1,11 @@
 using ClassLib.DTO.Booking;
 using ClassLib.DTO.Payment;
 using ClassLib.DTO.VaccineTracking;
+using ClassLib.Enum;
 using ClassLib.Helpers;
 using ClassLib.Models;
 using ClassLib.Repositories;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ClassLib.Service
@@ -15,17 +17,23 @@ namespace ClassLib.Service
         private readonly VaccinesTrackingService _vaccineTrackingService;
         private readonly PaymentMethodRepository _paymentMethodRepository;
         private readonly PaymentRepository _paymentRepository;
+        private readonly IWebHostEnvironment _env;
+        private readonly EmailService _emailService;
         public BookingService(BookingRepository bookingRepository
                             , UserRepository userRepository
                             , VaccinesTrackingService vaccinesTrackingService
                             , PaymentMethodRepository paymentMethodRepository
-                            , PaymentRepository paymentRepository)
+                            , PaymentRepository paymentRepository
+                            , EmailService emailService
+                            , IWebHostEnvironment env)
         {
             _bookingRepository = bookingRepository;
             _userRepository = userRepository;
             _vaccineTrackingService = vaccinesTrackingService;
             _paymentMethodRepository = paymentMethodRepository;
             _paymentRepository = paymentRepository;
+            _emailService = emailService;
+            _env = env;
         }
 
         public async Task<OrderInfoModel?> AddBooking(AddBooking addBooking)
@@ -51,13 +59,25 @@ namespace ClassLib.Service
 
             return ConvertHelpers.convertToOrderInfoModel(booking!, user!, addBooking);
         }
-
         public async Task<Booking?> UpdateBookingStatus(string bookingId, string msg)
         {
-            return await _bookingRepository.UpdateBooking(bookingId, msg);
+            var booking = await _bookingRepository.UpdateBooking(bookingId, msg);
+            if (msg == PaymentStatusEnum.Success.ToString())
+            {
+                string templatePath = Path.Combine(_env.WebRootPath, "templates", "bookingSuccessTemplate.html");
+                var parent = await _bookingRepository.GetByBookingID(int.Parse(bookingId));
+
+                Dictionary<string, string> newDictonary = new Dictionary<string, string>(){
+                    { "bookingId" , bookingId},
+                    { "dateTimeArrived" , booking!.ArrivedAt.ToString()},
+                    { "userName" ,parent!.Parent.Name}
+                };
+                await _emailService.sendEmailService(parent.Parent.Gmail, "Booking Successful", templatePath, newDictonary);
+            }
+
+
+            return booking;
         }
-
-
         public async Task<List<BookingResponse>?> GetBookingByUserAsync(int id)
         {
             List<BookingResponse> bookingResponses = ConvertHelpers.ConvertBookingResponse((await _bookingRepository.GetAllBookingByUserId(id))!);
@@ -84,7 +104,6 @@ namespace ClassLib.Service
 
             return bookingResponses;
         }
-
         public async Task<List<BookingResponse>?> GetBookingByUserAsyncStaff(int id)
         {
             List<BookingResponse> bookingResponses = ConvertHelpers.ConvertBookingResponse((await _bookingRepository.GetAllBookingByUserIdStaff(id))!);
@@ -111,7 +130,6 @@ namespace ClassLib.Service
 
             return bookingResponses;
         }
-
         public async Task<List<BookingResponse>?> GetAllBookingForStaff()
         {
             List<BookingResponse> bookingResponses = ConvertHelpers.ConvertBookingResponse(await _bookingRepository.GetAll());
