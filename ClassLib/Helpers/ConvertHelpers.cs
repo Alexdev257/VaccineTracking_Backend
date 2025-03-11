@@ -64,7 +64,8 @@ namespace ClassLib.Helpers
                 Status = vt.Status,
                 AdministeredByDoctorName = vt.User.Name ?? "Not Vaccination Yet",
                 Reaction = vt.Reaction,
-                VaccineID = vt.VaccineId
+                VaccineID = vt.VaccineId,
+                BookingId = vt.Booking.Id
             };
         }
 

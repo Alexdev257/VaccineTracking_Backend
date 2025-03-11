@@ -287,7 +287,7 @@ namespace ClassLib.Service.PaymentService
 
                     //return message;
 
-                    return "Success";
+                    return PaymentStatusEnum.Success.ToString();
                 }
 
                 return "This booking cannot return please go to apointment to have better services";
