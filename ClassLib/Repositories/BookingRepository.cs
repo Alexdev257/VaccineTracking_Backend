@@ -31,10 +31,10 @@ namespace ClassLib.Repositories
         {
             return await _context.Bookings
                         .Include(x => x.Parent)
+                        .Include(x => x.Children)
                         .Include(x => x.Combos)
                             .ThenInclude(x => x.Vaccines)
                         .Include(x => x.Vaccines)
-                        .Include(x => x.Parent)
                         .Include(x => x.Payments)
                         .ToListAsync();
         }
