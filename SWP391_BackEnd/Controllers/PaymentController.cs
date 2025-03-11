@@ -1,21 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Web;
 using ClassLib.DTO.Payment;
 using ClassLib.Enum;
 using ClassLib.Helpers;
-using ClassLib.Models;
 using ClassLib.Repositories;
 using ClassLib.Service;
 using ClassLib.Service.PaymentService;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Extensions;
-using PayPal.v1.Orders;
 
 namespace SWP391_BackEnd.Controllers
 {
@@ -50,7 +41,6 @@ namespace SWP391_BackEnd.Controllers
             // if( paymentUrl == null ) => direct to fail
             return Ok(paymentUrl);
         }
-
         // Get payment status + Update booking status
         [HttpGet("callback/{payment_name}")]
         public async Task<IActionResult> Callback([FromRoute] string payment_name)
@@ -66,11 +56,7 @@ namespace SWP391_BackEnd.Controllers
                 return BadRequest("Invalid payment method.");
             }
 
-            var booking = await _bookingService.UpdateBookingStatus(response.BookingID, response.Message);
-            if (booking == null)
-            {
-                return BadRequest("Invalid booking id.");
-            }
+            await _bookingService.UpdateBookingStatus(response.BookingID, response.Message);
 
             UriBuilder uriBuilder = new UriBuilder($"http://localhost:5173/confirm/{(response.Message.ToLower() == "success" ? "success" : "failed")}");
 
@@ -93,8 +79,6 @@ namespace SWP391_BackEnd.Controllers
 
             // return Ok(response);
         }
-
-
         // Refund Money
         [HttpPost("refund")]
         public async Task<IActionResult> RefundPayment([FromBody] RefundModelRequest refundModelRequest)
@@ -110,13 +94,14 @@ namespace SWP391_BackEnd.Controllers
             var payment = await _paymentRepository.GetByBookingIDAsync(int.Parse(refundModelRequest.BookingID));
 
             if (payment!.Status.Contains("refund", StringComparison.OrdinalIgnoreCase)) return BadRequest("The Booking is already refund");
+
             var refundModel = ConvertHelpers.convertToRefundModel(payment!, (double)((refundModelRequest.paymentStatusEnum == (int)PaymentStatusEnum.FullyRefunded) ? payment.TotalPrice * 1m : payment.TotalPrice * 0.5m), refundModelRequest.paymentStatusEnum);
 
             var refundDetail = await paymentService.CreateRefund(refundModel, HttpContext);
 
-            System.Console.WriteLine("Payment ID:" + payment.PaymentId);
 
-            if (!refundDetail.IsNullOrEmpty()) await _paymentRepository.UpdateStatusPayment(payment.PaymentId, "Refund");
+
+            if (!refundDetail.IsNullOrEmpty()) await _paymentRepository.UpdateStatusPayment(payment.PaymentId, PaymentStatusEnum.Refunded.ToString());
 
             return Ok(refundDetail);
         }

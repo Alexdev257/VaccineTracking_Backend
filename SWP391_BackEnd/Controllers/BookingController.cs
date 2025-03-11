@@ -38,6 +38,7 @@ namespace SWP391_BackEnd.Controllers
             {
                 var client = _httpClientFactory.CreateClient();
 
+                System.Console.WriteLine((PaymentEnum)addBooking.paymentId);
                 var paymentApi = $"http://localhost:5272/api/Payment/create/{((PaymentEnum)addBooking.paymentId).ToString()}";
 
                 var jsonRequest = JsonConvert.SerializeObject(orderInfo);
@@ -113,7 +114,6 @@ namespace SWP391_BackEnd.Controllers
                 return Redirect(uriBuilder.ToString());
             }
         }
-
         [HttpGet("booking-history/{userID}")]
         public async Task<IActionResult> GetAllBookingByUser([FromRoute] int userID)
         {
@@ -121,8 +121,6 @@ namespace SWP391_BackEnd.Controllers
             if (bookingList.IsNullOrEmpty()) return BadRequest("Dont have");
             return Ok(bookingList);
         }
-
-
         [HttpGet("booking-history-staff/{userID}")]
         public async Task<IActionResult> GetAllBookingByUserStaff([FromRoute] int userID)
         {
@@ -130,14 +128,11 @@ namespace SWP391_BackEnd.Controllers
             if (bookingList.IsNullOrEmpty()) return BadRequest("Dont have");
             return Ok(bookingList);
         }
-
         [HttpGet]
         public async Task<IActionResult> GetAllForStaff()
         {
             var bookingList = await _bookingService.GetAllBookingForStaff();
             return Ok(bookingList);
         }
-   
-        
-   }
+    }
 }

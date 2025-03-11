@@ -7,5 +7,6 @@ namespace ClassLib.Enum
         Success,
         Pending,
         Refunded,
+        Failed,
     }
 }

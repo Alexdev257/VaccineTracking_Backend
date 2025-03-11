@@ -1,18 +1,14 @@
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using ClassLib.DTO.Payment;
 using ClassLib.Enum;
-using ClassLib.Helpers;
 using ClassLib.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using PayPal.Core;
 using PayPal.v1.Payments;
 using ModelPayment = ClassLib.Models.Payment;
@@ -59,7 +55,7 @@ namespace ClassLib.Service.PaymentService
         {
             var envSandbox = new SandboxEnvironment(_paypalConfig.Value.ClientId, _paypalConfig.Value.SecretKey);
             var client = new PayPalHttpClient(envSandbox);
-            var paypalOrderId = DateTime.Now.Ticks;
+            var paypalOrderId = TimeProvider.GetVietnamNow().Ticks;
             var urlCallBack = _paypalConfig.Value.ReturnUrl;
 
             var payment = new PayPal.v1.Payments.Payment()
@@ -89,7 +85,7 @@ namespace ClassLib.Service.PaymentService
                     ReturnUrl =
                         $"{urlCallBack}?payment_method=PayPal&success=1&order_id={paypalOrderId}&amount={ConvertVndToDollar((double)orderInfo.Amount).ToString()}&order_description={orderInfo.OrderDescription}&BookingID={orderInfo.BookingID}",
                     CancelUrl =
-                        $"{urlCallBack}?payment_method=PayPal&success=0&order_id={paypalOrderId}"
+                        $"{urlCallBack}?payment_method=PayPal&success=0&order_id={paypalOrderId}&BookingID={orderInfo.BookingID}"
                 },
                 Payer = new Payer()
                 {
@@ -125,29 +121,32 @@ namespace ClassLib.Service.PaymentService
         {
             var totalPrice = collection.FirstOrDefault(s => s.Key == "amount").Value;
             var paymentId = collection.FirstOrDefault(s => s.Key == "paymentId").Value;
-            var status = (collection.FirstOrDefault(s => s.Key == "success").Value == "1") ? "Success" : "Fail";
+            var status = (collection.FirstOrDefault(s => s.Key == "success").Value == "1") ? PaymentStatusEnum.Success.ToString() : PaymentStatusEnum.Failed.ToString();
             var BookingID = collection.FirstOrDefault(s => s.Key == "BookingID").Value;
-            var PaymentDate = DateTime.Now;
+            var PaymentDate = TimeProvider.GetVietnamNow();
             var currency = "USD";
-            var paymentMethod = (await _paymentMethodRepository.getPaymentMethodByName("paypal"))!.Id;
+            var paymentMethod = (await _paymentMethodRepository.getPaymentMethodByName(PaymentEnum.Paypal.ToString()))!.Id;
             var payerId = collection.FirstOrDefault(s => s.Key == "PayerID").Value;
-            var TrancasionID = await GetSaleID(paymentId!, payerId!);
+            var TrancasionID = await GetSaleID(paymentId!, payerId!) ?? PaymentStatusEnum.Failed.ToString();
 
 
-            ModelPayment payment = new()
+            if (status == PaymentStatusEnum.Success.ToString())
             {
-                PaymentId = paymentId!,
-                BookingId = int.Parse(BookingID!),
-                TransactionId = TrancasionID,
-                PayerId = payerId!,
-                PaymentMethod = paymentMethod,
-                Currency = currency,
-                TotalPrice = decimal.Parse(totalPrice!),
-                PaymentDate = PaymentDate,
-                Status = status,
-                IsDeleted = false
-            };
-            await _paymentRepository.AddPayment(payment);
+                ModelPayment payment = new()
+                {
+                    PaymentId = paymentId!,
+                    BookingId = int.Parse(BookingID!),
+                    TransactionId = TrancasionID,
+                    PayerId = payerId!,
+                    PaymentMethod = paymentMethod,
+                    Currency = currency,
+                    TotalPrice = decimal.Parse(totalPrice!),
+                    PaymentDate = PaymentDate,
+                    Status = status,
+                    IsDeleted = false
+                };
+                await _paymentRepository.AddPayment(payment);
+            }
 
             return await Task.FromResult(new RespondModel()
             {
@@ -185,6 +184,7 @@ namespace ClassLib.Service.PaymentService
 
         public async Task<string> GetSaleID(string paymentID, string payerID)
         {
+            if (payerID.IsNullOrEmpty() || paymentID.IsNullOrEmpty()) return null!;
             using (HttpClient client = new HttpClient())
             {
                 var authToken = await GetAccessTokenAsync();
@@ -232,10 +232,7 @@ namespace ClassLib.Service.PaymentService
             }
         }
 
-        public string PaymentName()
-        {
-            return "paypal";
-        }
+        public string PaymentName() => PaymentEnum.Paypal.ToString();
 
         public async Task<string> CreateRefund(RefundModel refundModel, HttpContext context)
         {
@@ -278,7 +275,7 @@ namespace ClassLib.Service.PaymentService
                         PaymentId = refundId,
                         BookingId = (await _paymentRepository.GetByIDAsync(refundModel.paymentID))!.BookingId,
                         PayerId = (await _bookingRepository.GetByBookingID((await _paymentRepository.GetByIDAsync(refundModel.paymentID))!.BookingId))!.ParentId.ToString(),
-                        PaymentMethod = (await _paymentMethodRepository.getPaymentMethodByName("paypal"))!.Id,
+                        PaymentMethod = (await _paymentMethodRepository.getPaymentMethodByName(PaymentEnum.Paypal.ToString()))!.Id,
                         Currency = "USD",
                         TransactionId = trancasionID,
                         TotalPrice = ((decimal)refundModel.amount) * -1,
