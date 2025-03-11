@@ -118,6 +118,15 @@ namespace ClassLib.Repositories
                                     .ToListAsync();
         }
 
+        public async Task<List<VaccinesTracking>> GetDeadlineVaccinations(DateTime today)
+        {
+            return await _context.VaccinesTrackings
+                                 .Where(vt => vt.MaximumIntervalDate.HasValue && vt.MaximumIntervalDate.Value.Date == today.AddDays(3).Date)
+                                 .Include(vt => vt.Vaccine)
+                                 .Include (vt => vt.Child)
+                                 .ToListAsync();
+        }
+
         public async Task<List<VaccinesTracking>> GetUpComingVaccinations1(int id)
         {
             return await _context.VaccinesTrackings
