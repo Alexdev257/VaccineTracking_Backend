@@ -8,6 +8,7 @@ namespace ClassLib.DTO.VaccineTracking
     public class VaccinesTrackingResponse
     {
         public int TrackingID { get; set; } = 0;
+
         public string VaccineName { get; set; } = null!;
 
         public string UserName { get; set; } = null!;
@@ -30,5 +31,6 @@ namespace ClassLib.DTO.VaccineTracking
 
         public int VaccineID {get; set;} = 0;
 
+        public int BookingId {get; set;} = 0;
     }
 }

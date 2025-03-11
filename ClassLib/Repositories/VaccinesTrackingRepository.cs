@@ -22,22 +22,19 @@ namespace ClassLib.Repositories
                                     .Include(vt => vt.User)
                                     .Include(vt => vt.Child)
                                     .Include(vt => vt.Vaccine)
+                                    .Include(vt => vt.Booking)
                                     .ToListAsync()!;
         }
 
 
         // For user
-        public async Task<List<VaccinesTracking>> GetVaccinesTrackingByParentIdAsync(int id)
-        {
-            return await _context.VaccinesTrackings.Where(vt => vt.UserId == id)
-                                    .Include(vt => vt.User)
-                                    .Include(vt => vt.Child)
-                                    .Include(vt => vt.Vaccine)
-                                    .Where(x => x.Status == "Schedule" && x.IsDeleted == false || x.Status == "Pending" && x.IsDeleted == false)
-                                    .ToListAsync()!;
-        }
-
-        public async Task<List<VaccinesTracking>> GetVaccinesTrackingByBookingID(int bookingID) => await _context.VaccinesTrackings.Where(vt => vt.BookingId == bookingID).ToListAsync();
+        public async Task<List<VaccinesTracking>> GetVaccinesTrackingByParentIdAsync(int id) => (await GetVaccinesTrackingAsync())
+                                                                                                    .Where(vt => vt.UserId == id)
+                                                                                                    .Where(x => (x.Status == "Schedule" || x.Status == "Pending") && !x.IsDeleted)
+                                                                                                    .ToList();
+        // For admin
+        public async Task<List<VaccinesTracking>> GetVaccinesTrackingByBookingID(int bookingID) => (await GetVaccinesTrackingAsync())
+                                                                                                    .Where(vt => vt.BookingId == bookingID).ToList();
 
         public async Task<VaccinesTracking?> GetVaccinesTrackingByIdAsync(int id)
         {

@@ -99,7 +99,9 @@ namespace SWP391_BackEnd.Controllers
 
             var refundDetail = await paymentService.CreateRefund(refundModel, HttpContext);
 
+            // if( refundDetail == PaymentStatusEnum.Success.ToString()){
 
+            // }
 
             if (!refundDetail.IsNullOrEmpty()) await _paymentRepository.UpdateStatusPayment(payment.PaymentId, PaymentStatusEnum.Refunded.ToString());
 
