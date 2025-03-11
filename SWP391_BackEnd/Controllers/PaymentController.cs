@@ -17,14 +17,19 @@ namespace SWP391_BackEnd.Controllers
         private readonly IDictionary<string, IPaymentServices> _payment;
         private readonly BookingService _bookingService;
         private readonly PaymentRepository _paymentRepository;
-
+        private readonly EmailService _emailService;
+        private readonly IWebHostEnvironment _env;
         public PaymentController(IEnumerable<IPaymentServices> payment
                                 , BookingService bookingService
-                                , PaymentRepository paymentRepository)
+                                , PaymentRepository paymentRepository
+                                , EmailService emailService
+                                , IWebHostEnvironment env)
         {
             _bookingService = bookingService;
             _payment = payment.ToDictionary(s => s.PaymentName().ToLower());
             _paymentRepository = paymentRepository;
+            _emailService = emailService;
+            _env = env;
         }
 
         // Create payment URL
@@ -98,10 +103,6 @@ namespace SWP391_BackEnd.Controllers
             var refundModel = ConvertHelpers.convertToRefundModel(payment!, (double)((refundModelRequest.paymentStatusEnum == (int)PaymentStatusEnum.FullyRefunded) ? payment.TotalPrice * 1m : payment.TotalPrice * 0.5m), refundModelRequest.paymentStatusEnum);
 
             var refundDetail = await paymentService.CreateRefund(refundModel, HttpContext);
-
-            // if( refundDetail == PaymentStatusEnum.Success.ToString()){
-
-            // }
 
             if (!refundDetail.IsNullOrEmpty()) await _paymentRepository.UpdateStatusPayment(payment.PaymentId, PaymentStatusEnum.Refunded.ToString());
 
