@@ -33,7 +33,7 @@ namespace ClassLib.Repositories
                                     .Include(vt => vt.User)
                                     .Include(vt => vt.Child)
                                     .Include(vt => vt.Vaccine)
-                                    .Where(x => x.Status == "Schedule" || x.Status == "Pending")
+                                    .Where(x => x.Status == "Schedule" && x.IsDeleted == false || x.Status == "Pending" && x.IsDeleted == false)
                                     .ToListAsync()!;
         }
 
