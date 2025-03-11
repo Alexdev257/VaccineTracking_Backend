@@ -62,7 +62,7 @@ namespace ClassLib.Service
         public async Task<Booking?> UpdateBookingStatus(string bookingId, string msg)
         {
             var booking = await _bookingRepository.UpdateBooking(bookingId, msg);
-            if (msg == PaymentStatusEnum.Success.ToString())
+            if (msg == BookingEnum.Success.ToString())
             {
                 string templatePath = Path.Combine(_env.WebRootPath, "templates", "bookingSuccessTemplate.html");
                 var parent = await _bookingRepository.GetByBookingID(int.Parse(bookingId));
@@ -73,6 +73,18 @@ namespace ClassLib.Service
                     { "userName" ,parent!.Parent.Name}
                 };
                 await _emailService.sendEmailService(parent.Parent.Gmail, "Booking Successful", templatePath, newDictonary);
+            }
+            if (msg == BookingEnum.Refund.ToString())
+            {
+                string templatePath = Path.Combine(_env.WebRootPath, "templates", "refundSuccessTemplate.html");
+                var parent = await _bookingRepository.GetByBookingID(int.Parse(bookingId));
+
+                Dictionary<string, string> newDictonary = new Dictionary<string, string>(){
+                    { "bookingId" , bookingId},
+                    { "amount" , ((await _paymentRepository.GetByBookingIDAsync(int.Parse(bookingId)))!.TotalPrice*-1).ToString()},
+                    { "userName" ,parent!.Parent.Name}
+                };
+                await _emailService.sendEmailService(parent.Parent.Gmail, "Refund Successful", templatePath, newDictonary);
             }
 
 

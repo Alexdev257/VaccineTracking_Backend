@@ -13,17 +13,11 @@ namespace ClassLib.Repositories
     {
         private readonly DbSwpVaccineTrackingFinalContext _context;
 
-        private readonly BookingRepository _bookingRepository;
-
         private readonly PaymentMethodRepository _paymentMethodRepository;
-
-        private readonly VaccinesTrackingService _vaccinesTrackingService;
-        public PaymentRepository(DbSwpVaccineTrackingFinalContext context, BookingRepository bookingRepository, PaymentMethodRepository paymentMethodRepository, VaccinesTrackingService vaccinesTrackingService)
+        public PaymentRepository(DbSwpVaccineTrackingFinalContext context, PaymentMethodRepository paymentMethodRepository)
         {
             _context = context;
-            _bookingRepository = bookingRepository;
             _paymentMethodRepository = paymentMethodRepository;
-            _vaccinesTrackingService = vaccinesTrackingService;
         }
 
         public async Task<List<Payment>> GetAllAsync() => await _context.Payments.ToListAsync();
@@ -38,14 +32,12 @@ namespace ClassLib.Repositories
             return (await _paymentMethodRepository.getPaymentMethodById(payment.PaymentMethod))!.Name;
         }
 
-        public async Task<bool> UpdateStatusPayment(string id, string msg)
+        public async Task<Payment> UpdateStatusPayment(string id, string msg)
         {
             Payment payment = (await GetByIDAsync(id))!;
             payment.Status = msg;
-            await _bookingRepository.UpdateBooking((payment.BookingId).ToString(), ((BookingEnum)BookingEnum.Refund).ToString());
-            await _vaccinesTrackingService.VaccinesTrackingRefund(payment.BookingId, VaccinesTrackingEnum.Cancel);
             await _context.SaveChangesAsync();
-            return true;
+            return payment;
         }
         public async Task<Payment> AddPayment(Payment payment)
         {
