@@ -93,7 +93,7 @@ namespace ClassLib.Repositories
         public async Task<List<VaccinesTracking>> GetUpComingVaccinations(DateTime today)
         {
             return await _context.VaccinesTrackings
-                                    .Where(vt => vt.MinimumIntervalDate.HasValue && vt.MinimumIntervalDate.Value.Date == today.AddDays(1).Date)
+                                    .Where(vt => vt.MinimumIntervalDate.HasValue && vt.PreviousVaccination != 0 && vt.MinimumIntervalDate.Value.Date == today.AddDays(1).Date)
                                     .Include(vt => vt.Vaccine)
                                     .Include(vt => vt.Child)
                                     .ToListAsync();
@@ -102,7 +102,7 @@ namespace ClassLib.Repositories
         public async Task<List<VaccinesTracking>> GetDeadlineVaccinations(DateTime today)
         {
             return await _context.VaccinesTrackings
-                                 .Where(vt => vt.MaximumIntervalDate.HasValue && vt.MaximumIntervalDate.Value.Date == today.AddDays(3).Date)
+                                 .Where(vt => vt.MaximumIntervalDate.HasValue && vt.PreviousVaccination != 0 && vt.MaximumIntervalDate.Value.Date == today.AddDays(3).Date)
                                  .Include(vt => vt.Vaccine)
                                  .Include (vt => vt.Child)
                                  .ToListAsync();
