@@ -17,19 +17,16 @@ namespace SWP391_BackEnd.Controllers
         private readonly IDictionary<string, IPaymentServices> _payment;
         private readonly BookingService _bookingService;
         private readonly PaymentRepository _paymentRepository;
-        private readonly EmailService _emailService;
-        private readonly IWebHostEnvironment _env;
+        private readonly VaccinesTrackingService _vaccinesTrackingService;
         public PaymentController(IEnumerable<IPaymentServices> payment
                                 , BookingService bookingService
                                 , PaymentRepository paymentRepository
-                                , EmailService emailService
-                                , IWebHostEnvironment env)
+                                , VaccinesTrackingService vaccinesTrackingService)
         {
             _bookingService = bookingService;
             _payment = payment.ToDictionary(s => s.PaymentName().ToLower());
             _paymentRepository = paymentRepository;
-            _emailService = emailService;
-            _env = env;
+            _vaccinesTrackingService = vaccinesTrackingService;
         }
 
         // Create payment URL
@@ -104,7 +101,12 @@ namespace SWP391_BackEnd.Controllers
 
             var refundDetail = await paymentService.CreateRefund(refundModel, HttpContext);
 
-            if (!refundDetail.IsNullOrEmpty()) await _paymentRepository.UpdateStatusPayment(payment.PaymentId, PaymentStatusEnum.Refunded.ToString());
+            if (!refundDetail.IsNullOrEmpty())
+            {
+                var result = await _paymentRepository.UpdateStatusPayment(payment.PaymentId, PaymentStatusEnum.Refunded.ToString());
+                await _bookingService.UpdateBookingStatus(result.BookingId.ToString(), BookingEnum.Refund.ToString());
+                await _vaccinesTrackingService.VaccinesTrackingRefund(result.BookingId, VaccinesTrackingEnum.Cancel);
+            }
 
             return Ok(refundDetail);
         }
