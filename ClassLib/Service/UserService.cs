@@ -77,7 +77,7 @@ namespace ClassLib.Service
             List<GetUserResponse> list = new List<GetUserResponse>();
             foreach(var listItem in res)
             {
-                if (listItem.IsDeleted == false)
+                if (listItem.IsDeleted == false && listItem.Status.ToLower() == "active")
                 {
                     var rs = _mapper.Map<GetUserResponse>(listItem);
                     list.Add(rs);
@@ -839,6 +839,7 @@ namespace ClassLib.Service
                 throw new Exception("User not found.");
                 //return false;
             }
+            
 
             //user.Username = request.Username;
             user.Name = request.Name;
@@ -847,6 +848,15 @@ namespace ClassLib.Service
             user.Avatar = request.Avatar;
             user.Gmail = request.Gmail;
             user.PhoneNumber = request.PhoneNumber;
+            user.IsDeleted = request.isDeleted;
+            if (request.isDeleted == false)
+            {
+                user.Status = "Active";
+            }
+            else
+            {
+                user.Status = "Inactive";
+            }
             return await _userRepository.updateUser(user);
         }
 
@@ -1053,6 +1063,7 @@ namespace ClassLib.Service
                 throw new ArgumentException("User was deleted");
             }
             user.IsDeleted = true;
+            user.Status = "Inactive";
             return await _userRepository.updateUser(user);
         }
 
