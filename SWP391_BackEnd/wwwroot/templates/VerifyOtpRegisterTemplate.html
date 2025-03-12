@@ -1,0 +1,219 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác nhận đăng ký</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .wrapper {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+            .header h1 {
+                color: white;
+                margin: 0;
+                font-size: 28px;
+                letter-spacing: 0.5px;
+            }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 15px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: #4F46E5;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 30px;
+            background-color: white;
+        }
+
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .message {
+            margin-bottom: 30px;
+            font-size: 16px;
+            color: #555;
+        }
+
+        .verification-container {
+            text-align: center;
+            margin: 35px 0;
+        }
+
+        .verification-title {
+            font-size: 16px;
+            color: #777;
+            margin-bottom: 15px;
+        }
+
+        .verification-code {
+            background: linear-gradient(to right, #f5f7fa, #eef2f7);
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+            margin: 0 auto;
+            max-width: 300px;
+            letter-spacing: 8px;
+            border-radius: 6px;
+            color: #4338ca;
+            border: 1px dashed #c7d2fe;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            font-size: 32px;
+        }
+
+        .expiry-info {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #e5e7eb;
+            margin: 30px 0;
+        }
+
+        .security-note {
+            background-color: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #475569;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .help-text {
+            margin-top: 25px;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .footer {
+            background-color: #f8fafc;
+            padding: 20px;
+            text-align: center;
+            font-size: 13px;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .social-links {
+            margin: 15px 0;
+        }
+
+            .social-links a {
+                display: inline-block;
+                margin: 0 10px;
+                color: #6366f1;
+                text-decoration: none;
+            }
+
+        .button {
+            display: inline-block;
+            background-color: #4F46E5;
+            color: white;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+            .button:hover {
+                background-color: #4338CA;
+            }
+
+        .auto-message {
+            font-style: italic;
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px dashed #e2e8f0;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <div class="logo">OTP</div>
+            <h1>Xác Thực Tài Khoản</h1>
+        </div>
+
+        <div class="content">
+            <p class="greeting">Xin chào <strong>{{UserName}}</strong>,</p>
+
+            <div class="message">
+                <p>Cảm ơn bạn đã đăng ký tài khoản với chúng tôi. Để đảm bảo tính bảo mật cho tài khoản của bạn, chúng tôi cần xác nhận địa chỉ email này thuộc về bạn.</p>
+            </div>
+
+            <div class="verification-container">
+                <p class="verification-title">Mã xác thực của bạn là:</p>
+                <div class="verification-code">{{VerifyCode}}</div>
+                <p class="expiry-info">Mã này sẽ hết hạn sau 5 phút</p>
+            </div>
+
+            <div class="security-note">
+                <strong>Lưu ý bảo mật:</strong> Đừng bao giờ chia sẻ mã OTP này với bất kỳ ai, kể cả nhân viên hỗ trợ. Chúng tôi không bao giờ yêu cầu mã OTP của bạn qua điện thoại hoặc tin nhắn.
+            </div>
+
+            <div class="help-text">
+                <p>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này hoặc liên hệ với đội ngũ hỗ trợ của chúng tôi ngay lập tức.</p>
+                <p>Nếu bạn gặp bất kỳ vấn đề nào, vui lòng liên hệ với chúng tôi qua email hỗ trợ: <a href="mailto:healthbluecaresystem@gmail.com">healthbluecaresystem@gmail.com</a></p>
+            </div>
+
+            <div class="auto-message">
+                Đây là email tự động, vui lòng không trả lời email này.
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2025 [Tên Công Ty]. Tất cả các quyền được bảo lưu.</p>
+            <div class="social-links">
+                <a href="#">Website</a> |
+                <a href="#">Facebook</a> |
+                <a href="#">Instagram</a> |
+                <a href="#">LinkedIn</a>
+            </div>
+            <p>Địa chỉ: [Địa chỉ công ty của bạn]</p>
+        </div>
+    </div>
+</body>
+</html>
