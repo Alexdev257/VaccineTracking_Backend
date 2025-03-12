@@ -60,6 +60,13 @@ namespace SWP391_BackEnd
             //IMemoryCache giúp lưu trữ dữ liệu trong bộ nhớ RAM của ứng dụng.
             builder.Services.AddMemoryCache();
 
+            //redis cache
+            builder.Services.AddStackExchangeRedisCache(option =>
+            {
+                option.Configuration = "localhost:6379"; //port redis in alex's computer
+                option.InstanceName = "VaccineTracking";
+            });
+
             // Add services to the container.
             builder.Services.AddScoped<UserRepository>();
             builder.Services.AddScoped<UserService>();

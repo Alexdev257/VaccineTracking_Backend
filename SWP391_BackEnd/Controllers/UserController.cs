@@ -5,6 +5,7 @@ using ClassLib.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace SWP391_BackEnd.Controllers
@@ -82,7 +83,7 @@ namespace SWP391_BackEnd.Controllers
             try
             {
                 var registerResponse = await _userService.registerAsync(registerRequest);
-                return Ok(new { msg = "Register successfully", user = registerResponse });
+                return Ok("Send otp successfully");
             }
             catch (Exception e)
             {
@@ -90,6 +91,33 @@ namespace SWP391_BackEnd.Controllers
             }
 
         }
+
+        [HttpPost("verify-register")]
+        public async Task<IActionResult> verifyRegister([FromBody] VerifyRegisterRequest request)
+        {
+            try
+            {
+                var res = await _userService.verifyCodeRegisterAsync(request);
+                return Ok(new { msg = "Register successfully", user = res });
+            }
+            catch(ArgumentNullException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch(UnauthorizedAccessException e)
+            {
+                return Unauthorized(e.Message);
+            }
+            catch(DbUpdateException e)
+            {
+                return StatusCode(500, e.Message);
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
 
         [HttpPost("login-by-account")]
         public async Task<IActionResult> login([FromBody] LoginRequest loginRequest) //IActionResult
