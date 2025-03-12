@@ -30,7 +30,7 @@ namespace ClassLib.Repositories
         // For user
         public async Task<List<VaccinesTracking>> GetVaccinesTrackingByParentIdAsync(int id) => (await GetVaccinesTrackingAsync())
                                                                                                     .Where(vt => vt.UserId == id)
-                                                                                                    .Where(x => (x.Status == "Schedule" || x.Status == "Waiting") && x.IsDeleted == false)
+                                                                                                    .Where(x => (x.Status == "Schedule" || x.Status == "Waiting" || x.Status == "Success") && x.IsDeleted == false)
                                                                                                     .ToList();
         // For admin
         public async Task<List<VaccinesTracking>> GetVaccinesTrackingByBookingID(int bookingID) => (await GetVaccinesTrackingAsync())
