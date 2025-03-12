@@ -141,7 +141,7 @@ namespace ClassLib.Service
             {
                 throw new ArgumentNullException("Status can not be blank");
             }
-            var child = await _childRepository.GetChildById(id);
+            var child = await _childRepository.GetChildByIdAdmin(id);
             if (child == null)
             {
                 throw new ArgumentException("No child in the system");
@@ -155,6 +155,14 @@ namespace ClassLib.Service
             child.DateOfBirth = request.DateOfBirth;
             child.Gender = request.Gender;
             child.Status = request.Status;
+            if (request.Status.ToLower() == "inactive")
+            {
+                child.IsDeleted = true;
+            }
+            else if (request.Status.ToLower() == "active")
+            {
+                child.IsDeleted = false;
+            }
 
             return await _childRepository.UpdateChild(child);
         }
@@ -185,6 +193,7 @@ namespace ClassLib.Service
                 throw new ArgumentException("No child in the system");
             }
             child.IsDeleted = true;
+            child.Status = "Inactive";
             return await _childRepository.UpdateChild(child);
         }
     }

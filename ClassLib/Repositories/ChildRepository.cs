@@ -30,6 +30,10 @@ namespace ClassLib.Repositories
         {
             return await _context.Children.FirstOrDefaultAsync(c => c.Id == id && c.IsDeleted == false);
         }
+        public async Task<Child?> GetChildByIdAdmin(int id)
+        {
+            return await _context.Children.FirstOrDefaultAsync(c => c.Id == id);
+        }
 
         public async Task<Child?> GetChildByIdHardDelete(int id)
         {
