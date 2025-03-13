@@ -17,14 +17,16 @@ namespace SWP391_BackEnd.Controllers
         private readonly IDictionary<string, IPaymentServices> _payment;
         private readonly BookingService _bookingService;
         private readonly PaymentRepository _paymentRepository;
-
+        private readonly VaccinesTrackingService _vaccinesTrackingService;
         public PaymentController(IEnumerable<IPaymentServices> payment
                                 , BookingService bookingService
-                                , PaymentRepository paymentRepository)
+                                , PaymentRepository paymentRepository
+                                , VaccinesTrackingService vaccinesTrackingService)
         {
             _bookingService = bookingService;
             _payment = payment.ToDictionary(s => s.PaymentName().ToLower());
             _paymentRepository = paymentRepository;
+            _vaccinesTrackingService = vaccinesTrackingService;
         }
 
         // Create payment URL
@@ -41,7 +43,6 @@ namespace SWP391_BackEnd.Controllers
             // if( paymentUrl == null ) => direct to fail
             return Ok(paymentUrl);
         }
-
         // Get payment status + Update booking status
         [HttpGet("callback/{payment_name}")]
         public async Task<IActionResult> Callback([FromRoute] string payment_name)
@@ -57,11 +58,7 @@ namespace SWP391_BackEnd.Controllers
                 return BadRequest("Invalid payment method.");
             }
 
-            var booking = await _bookingService.UpdateBookingStatus(response.BookingID, response.Message);
-            if (booking == null)
-            {
-                return BadRequest("Invalid booking id.");
-            }
+            await _bookingService.UpdateBookingStatus(response.BookingID, response.Message);
 
             UriBuilder uriBuilder = new UriBuilder($"http://localhost:5173/confirm/{(response.Message.ToLower() == "success" ? "success" : "failed")}");
 
@@ -84,8 +81,6 @@ namespace SWP391_BackEnd.Controllers
 
             // return Ok(response);
         }
-
-
         // Refund Money
         [HttpPost("refund")]
         public async Task<IActionResult> RefundPayment([FromBody] RefundModelRequest refundModelRequest)
@@ -101,13 +96,17 @@ namespace SWP391_BackEnd.Controllers
             var payment = await _paymentRepository.GetByBookingIDAsync(int.Parse(refundModelRequest.BookingID));
 
             if (payment!.Status.Contains("refund", StringComparison.OrdinalIgnoreCase)) return BadRequest("The Booking is already refund");
+
             var refundModel = ConvertHelpers.convertToRefundModel(payment!, (double)((refundModelRequest.paymentStatusEnum == (int)PaymentStatusEnum.FullyRefunded) ? payment.TotalPrice * 1m : payment.TotalPrice * 0.5m), refundModelRequest.paymentStatusEnum);
 
             var refundDetail = await paymentService.CreateRefund(refundModel, HttpContext);
 
-            System.Console.WriteLine("Payment ID:" + payment.PaymentId);
-
-            if (!refundDetail.IsNullOrEmpty()) await _paymentRepository.UpdateStatusPayment(payment.PaymentId, "Refund");
+            if (!refundDetail.IsNullOrEmpty())
+            {
+                var result = await _paymentRepository.UpdateStatusPayment(payment.PaymentId, PaymentStatusEnum.Refunded.ToString());
+                await _bookingService.UpdateBookingStatus(result.BookingId.ToString(), BookingEnum.Refund.ToString());
+                await _vaccinesTrackingService.VaccinesTrackingRefund(result.BookingId, VaccinesTrackingEnum.Cancel);
+            }
 
             return Ok(refundDetail);
         }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ClassLib.DTO.VaccineCombo;
 using ClassLib.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -43,8 +44,29 @@ namespace ClassLib.Repositories
         {
             try
             {
-                booking.Combos.Clear();
-                return await Add(booking, comboId);
+                // Clear
+                var result = await _context.Bookings
+                            .Include(b => b.Combos) // Ensure EF Core loads the related data
+                            .Where(b => b.Id == booking.Id)
+                            .ToListAsync();
+                foreach (var b in result)
+                {
+                    b.Combos.Clear();
+                }
+                await _context.SaveChangesAsync();
+
+                // Add
+                foreach (var id in comboId)
+                {
+                    var combo = await _context.VaccinesCombos.FindAsync(id);
+                    if (combo == null)
+                    {
+                        return false;
+                    }
+                    booking.Combos.Add(combo);
+                }
+                await _context.SaveChangesAsync();
+                return true;
             }
             catch (Exception e)
             {

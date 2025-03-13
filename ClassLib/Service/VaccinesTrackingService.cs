@@ -42,6 +42,12 @@ namespace ClassLib.Service
             return ConvertHelpers.convertToVaccinesTrackingResponse(vt!);
         }
 
+        public async Task<int> SoftDeleteByBookingId(int id)
+        {
+            return await _vaccinesTrackingRepository.SoftDeleteByBookingID(id);
+        }
+
+
         public async Task<bool> AddVaccinesComboToVaccinesTrackingAsync(AddVaccinesTrackingRequest request, List<int> vaccinesCombo, List<int> child, int bookingId)
         {
             if (vaccinesCombo.IsNullOrEmpty()) return false;
@@ -74,7 +80,6 @@ namespace ClassLib.Service
             }
             return true;
         }
-
 
         public async Task<bool> UpdateVaccinesTrackingAsync(int id, UpdateVaccineTracking updateVaccineTracking)
         {

@@ -43,8 +43,30 @@ namespace ClassLib.Repositories.BookingDetails
         {
             try
             {
-                booking.Children.Clear();
-                return await Add(booking, childId);
+
+                // Clear
+                var result = await _context.Bookings
+                            .Include(b => b.Children) 
+                            .Where(b => b.Id == booking.Id)
+                            .ToListAsync();
+                foreach (var b in result)
+                {
+                    b.Children.Clear();
+                }
+                await _context.SaveChangesAsync();
+
+                // Add
+                foreach (var id in childId)
+                {
+                    var child = await _context.Children.FindAsync(id);
+                    if (child == null)
+                    {
+                        return false;
+                    }
+                    booking.Children.Add(child);
+                }
+                await _context.SaveChangesAsync();
+                return true;
             }
             catch (Exception e)
             {
@@ -52,5 +74,6 @@ namespace ClassLib.Repositories.BookingDetails
                 return false;
             }
         }
+
     }
 }

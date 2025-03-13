@@ -13,6 +13,18 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using ClassLib.DTO.Email;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Caching.Memory;
+using static System.Net.WebRequestMethods;
+using Google.Apis.Auth;
+using Amazon.SimpleNotificationService;
+using Amazon;
+using Amazon.SimpleNotificationService.Model;
+using PayPal.Core;
+using PayPal.v1.Orders;
+using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.Extensions.Caching.Distributed;
 //using Microsoft.AspNetCore.Identity.Data;
 
 namespace ClassLib.Service
@@ -30,8 +42,9 @@ namespace ClassLib.Service
         private readonly EmailService _emailService;
         private readonly IWebHostEnvironment _env;
         private readonly IMemoryCache _cache;
+        private readonly IDistributedCache _redisCache;
 
-        public UserService(UserRepository userRepository, IMapper mapper, JwtHelper jwtHelper, IConfiguration configuration, EmailService emailService, IWebHostEnvironment env, IMemoryCache cache)
+        public UserService(UserRepository userRepository, IMapper mapper, JwtHelper jwtHelper, IConfiguration configuration, EmailService emailService, IWebHostEnvironment env, IMemoryCache cache, IDistributedCache redisCache)
         {
             _userRepository = userRepository;
             _mapper = mapper;
@@ -49,6 +62,7 @@ namespace ClassLib.Service
             _emailService = emailService;
             _env = env;
             _cache = cache;
+            _redisCache = redisCache;
         }
 
 
@@ -58,7 +72,7 @@ namespace ClassLib.Service
             List<GetUserResponse> list = new List<GetUserResponse>();
             foreach(var listItem in res)
             {
-                if (listItem.IsDeleted == false)
+                if (listItem.IsDeleted == false && listItem.Status.ToLower() == "active")
                 {
                     var rs = _mapper.Map<GetUserResponse>(listItem);
                     list.Add(rs);
@@ -117,14 +131,14 @@ namespace ClassLib.Service
             var userRes = _mapper.Map<GetUserResponse>(user);
             return userRes;
         }
-        public async Task<RegisterResponse?> registerAsync(RegisterRequest registerRequest)
+        public async Task<bool> registerAsync(DTO.User.RegisterRequest registerRequest)
         {
             if (string.IsNullOrWhiteSpace(registerRequest.Name) ||
                 string.IsNullOrWhiteSpace(registerRequest.PhoneNumber) ||
                 string.IsNullOrWhiteSpace(registerRequest.Username) ||
                 string.IsNullOrWhiteSpace(registerRequest.Password))
             {
-                throw new Exception("Vui lòng nhập đầy đủ thông tin.");
+                throw new Exception("Please fill all information.");
             }
             var existUsername = await _userRepository.getUserByUsernameAsync(registerRequest.Username);
             if (existUsername != null)
@@ -143,7 +157,35 @@ namespace ClassLib.Service
             {
                 throw new Exception("Exist gmail. Please choose another.");
             }
-            try
+            string otp = VerifyCodeHelper.GenerateSixRandomCode();
+
+            //_cache.Set($"VerifyCode_{otp}", otp, TimeSpan.FromMinutes(5));
+            //_cache.Set($"RegisterName_{otp}", registerRequest.Name, TimeSpan.FromMinutes(5));
+            //_cache.Set($"RegisterUserName_{otp}", registerRequest.Username, TimeSpan.FromMinutes(5));
+            //_cache.Set($"RegisterGmail_{otp}", registerRequest.Gmail, TimeSpan.FromMinutes(5));
+            //_cache.Set($"RegisterPassword_{otp}", registerRequest.Password, TimeSpan.FromMinutes(5));
+            //_cache.Set($"RegisterPhoneNumber_{otp}", registerRequest.PhoneNumber, TimeSpan.FromMinutes(5));
+            //_cache.Set($"RegisterDateOfBirth_{otp}", registerRequest.DateOfBirth, TimeSpan.FromMinutes(5));
+            //_cache.Set($"RegisterAvatar_{otp}", registerRequest.Avatar, TimeSpan.FromMinutes(5));
+            //_cache.Set($"RegisterGender_{otp}", registerRequest.Gender, TimeSpan.FromMinutes(5));
+            var data = new DTO.User.RegisterRequest()
+            {
+                Name = registerRequest.Name,
+                Username = registerRequest.Username,
+                Gmail = registerRequest.Gmail,
+                Password = registerRequest.Password,
+                PhoneNumber = registerRequest.PhoneNumber,
+                DateOfBirth = registerRequest.DateOfBirth,
+                Avatar = registerRequest.Avatar,
+                Gender = registerRequest.Gender,
+            };
+
+            string jsonData = System.Text.Json.JsonSerializer.Serialize(data);
+            await _redisCache.SetStringAsync($"RegisterRequest_{otp}", jsonData, new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+            });
+            /*try
             {
                 string encryptPassword = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);
                 var user = _mapper.Map<User>(registerRequest);
@@ -164,10 +206,116 @@ namespace ClassLib.Service
             catch (Exception ex)
             {
                 throw new Exception($"Undefined Error: {ex.Message}");
-            }
+            }*/
+            string templatePath = Path.Combine(_env.WebRootPath, "templates", "VerifyOtpRegisterTemplate.html");
+            var placeholders = new Dictionary<string, string>
+            {
+                { "UserName", registerRequest.Name},
+                { "VerifyCode", otp}
+            };
+             return await _emailService.sendEmailService(registerRequest.Gmail, "Verify Register", templatePath, placeholders);
         }
 
-        public async Task<LoginResponse?> loginAsync(LoginRequest loginRequest)
+        public async Task<RegisterResponse?> verifyCodeRegisterAsync(VerifyRegisterRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Otp))
+            {
+                throw new ArgumentNullException("Otp can not be blank");
+            }
+            //RegisterResponse result = new RegisterResponse();
+            //_cache.TryGetValue("GmailKey", out string? storedGmail)
+            //if (_cache.TryGetValue($"VerifyCode_{request.Otp}", out string? storedOtp) &&
+            //    _cache.TryGetValue($"RegisterName_{request.Otp}", out string? storedName) &&
+            //    _cache.TryGetValue($"RegisterUserName_{request.Otp}", out string? storedUserName) &&
+            //    _cache.TryGetValue($"RegisterGmail_{request.Otp}", out string? storedGmail) &&
+            //    _cache.TryGetValue($"RegisterPassword_{request.Otp}", out string? storedPassword) &&
+            //    _cache.TryGetValue($"RegisterPhoneNumber_{request.Otp}", out string? storedPhoneNumber) &&
+            //    (_cache.TryGetValue($"RegisterDateOfBirth_{request.Otp}", out string? storedDateOfBirth) && DateTime.TryParse(storedDateOfBirth, out DateTime castedDateOfBirth)) &&
+            //    _cache.TryGetValue($"RegisterAvatar_{request.Otp}", out string? storedAvatar) &&
+            //    _cache.TryGetValue($"RegisterGender_{request.Otp}", out string? storedGender))
+            //{
+
+            string? jsonData = await _redisCache.GetStringAsync($"RegisterRequest_{request.Otp}");
+            if (string.IsNullOrEmpty(jsonData))
+            {
+                throw new UnauthorizedAccessException("Expired");
+            }
+
+            var registerRequest = System.Text.Json.JsonSerializer.Deserialize<DTO.User.RegisterRequest>(jsonData);
+            if (registerRequest == null)
+            {
+                throw new Exception("Invalid registration data");
+            }
+            try
+            {
+                    //    public string Name { get; set; } = null!;
+                    //public string Username { get; set; } = null!;
+                    //public string Gmail { get; set; } = null!;
+                    //public string Password { get; set; } = null!;
+                    //public string PhoneNumber { get; set; } = null!;
+                    //public DateTime DateOfBirth { get; set; }
+                    //public string Avatar { get; set; } = null!;
+                    //public int Gender { get; set; }
+                    //if(request.Otp == storedOtp)
+                    //{
+                    //    _cache.Remove($"VerifyCode_{request.Otp}");
+                    //    DTO.User.RegisterRequest registerRequest = new DTO.User.RegisterRequest()
+                    //    {
+                    //        Name = storedName,
+                    //        Username = storedUserName,
+                    //        Gmail = storedGmail,
+                    //        Password = storedPassword,
+                    //        PhoneNumber = storedPhoneNumber,
+                    //        DateOfBirth = castedDateOfBirth,
+                    //        Avatar = storedAvatar,
+                    //        Gender = int.Parse(storedGender),
+                    //    };
+                        
+                        //_cache.Remove($"RegisterName_{request.Otp}");
+                        //_cache.Remove($"RegisterUserName_{request.Otp}");
+                        //_cache.Remove($"RegisterGmail_{request.Otp}");
+                        //_cache.Remove($"RegisterPassword_{request.Otp}");
+                        //_cache.Remove($"RegisterPhoneNumber_{request.Otp}");
+                        //_cache.Remove($"RegisterDateOfBirth_{request.Otp}");
+                        //_cache.Remove($"RegisterAvatar_{request.Otp}");
+                        //_cache.Remove($"RegisterGender_{request.Otp}");
+                        
+                        var user = _mapper.Map<User>(registerRequest);
+                        string encryptPassword = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);
+                        user.Password = encryptPassword;
+                        user.Role = "User";
+                        
+                        user.CreatedAt = Helpers.TimeProvider.GetVietnamNow();
+                        user.Status = "Active";
+
+                        await _userRepository.addUserAsync(user);
+                        var result = _mapper.Map<RegisterResponse>(user);
+
+                await _redisCache.RemoveAsync($"RegisterRequest_{request.Otp}");
+                return result;
+
+                //}
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new DbUpdateException($"Error saving data: {ex.InnerException?.Message ?? ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Undefined Error: {ex.Message}");
+            }
+            //}
+            //else
+            //{
+            //    throw new UnauthorizedAccessException("Expired");
+            //}
+            //return result;
+
+        }
+
+
+
+        public async Task<LoginResponse?> loginAsync(DTO.User.LoginRequest loginRequest)
         {
             var user = await _userRepository.getUserByUsernameAsync(loginRequest.Username);
 
@@ -820,6 +968,7 @@ namespace ClassLib.Service
                 throw new Exception("User not found.");
                 //return false;
             }
+            
 
             //user.Username = request.Username;
             user.Name = request.Name;
@@ -828,6 +977,15 @@ namespace ClassLib.Service
             user.Avatar = request.Avatar;
             user.Gmail = request.Gmail;
             user.PhoneNumber = request.PhoneNumber;
+            user.IsDeleted = request.isDeleted;
+            if (request.isDeleted == false)
+            {
+                user.Status = "Active";
+            }
+            else
+            {
+                user.Status = "Inactive";
+            }
             return await _userRepository.updateUser(user);
         }
 
@@ -847,7 +1005,7 @@ namespace ClassLib.Service
 
         }
 
-        public async Task<bool> forgotPasswordAsync(ForgotPasswordRequest request)
+        public async Task<bool> forgotPasswordAsync(DTO.User.ForgotPasswordRequest request)
         {
             var user = await _userRepository.getUserByGmailAsync(request.Gmail);
             if (user == null)
@@ -1034,6 +1192,7 @@ namespace ClassLib.Service
                 throw new ArgumentException("User was deleted");
             }
             user.IsDeleted = true;
+            user.Status = "Inactive";
             return await _userRepository.updateUser(user);
         }
 

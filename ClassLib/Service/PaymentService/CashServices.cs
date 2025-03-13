@@ -1,4 +1,5 @@
 using ClassLib.DTO.Payment;
+using ClassLib.Enum;
 using Microsoft.AspNetCore.Http;
 
 namespace ClassLib.Service.PaymentService
@@ -20,6 +21,6 @@ namespace ClassLib.Service.PaymentService
             throw new NotImplementedException();
         }
 
-        public string PaymentName() => "Cash";
+        public string PaymentName() => PaymentEnum.Cash.ToString();
     }
 }

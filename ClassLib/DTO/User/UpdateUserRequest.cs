@@ -7,7 +7,7 @@
         public DateTime DateOfBirth { get; set; }
         public int Gender { get; set; }
         public string Avatar { get; set; } = null!;
-
+        public bool isDeleted { get; set; }
         public string Gmail { get; set; } = null!;
         public string PhoneNumber { get; set; } = null!;
     }

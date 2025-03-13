@@ -36,11 +36,11 @@ namespace SWP391_BackEnd.Controllers
         //    return rs ? Ok("success send") : BadRequest("Failed send");
         //}
 
-        [HttpGet("/{id}")]
-        public async Task<IActionResult> getUpcoming(int id)
+        [HttpGet]
+        public async Task<IActionResult> getUpcoming()
         {
             var aa = ClassLib.Helpers.TimeProvider.GetVietnamNow();
-            var rs = await _vaccinesTrackingRepository.GetUpComingVaccinations1(id);
+            var rs = await _vaccinesTrackingRepository.GetUpComingVaccinations(aa);
             //var rs = await _vaccinesTrackingRepository.GetUpComingVaccinations1(aa);
             return Ok(rs);
         }
@@ -62,5 +62,16 @@ namespace SWP391_BackEnd.Controllers
         //    var rs = await _vaccinesTrackingRepository.compare(aa);
         //    return Ok(rs);
         //}
+
+        [HttpGet("abc")]
+        public async Task<IActionResult> getDeadline()
+        {
+            var aa = ClassLib.Helpers.TimeProvider.GetVietnamNow();
+            var rs = await _vaccinesTrackingRepository.GetDeadlineVaccinations(aa);
+            //var rs = await _vaccinesTrackingRepository.GetUpComingVaccinations1(aa);
+            return Ok(rs);
+        }
     }
+
+
 }

@@ -74,29 +74,32 @@ namespace ClassLib.Service.PaymentService
             var amount = decimal.Parse(collection.FirstOrDefault(s => s.Key == "vnp_Amount").Value!) / 100;
             var orderInfo = collection.FirstOrDefault(s => s.Key == "vnp_OrderInfo").Value;
             var orderId = collection.FirstOrDefault(s => s.Key == "vnp_TransactionNo").Value;
-            var message = (collection.FirstOrDefault(s => s.Key == "vnp_ResponseCode").Value == "00") ? "Success" : "Failed";
+            var message = (collection.FirstOrDefault(s => s.Key == "vnp_ResponseCode").Value == "00") ? PaymentStatusEnum.Success.ToString() : PaymentStatusEnum.Failed.ToString();
             var trancasionID = collection.FirstOrDefault(s => s.Key == "vnp_TxnRef").Value;
             var bookingId = orderInfo.ToString().Split("bookingID")[1];
+            System.Console.WriteLine(bookingId);
             var paymentdate = collection.FirstOrDefault(s => s.Key == "vnp_PayDate").Value;
             var payerID = orderInfo.ToString().Split(" ")[0];
             var currency = "VND";
 
-
-            Payment payment = new Payment()
+            if (message == "success")
             {
-                PaymentId = orderId!,
-                BookingId = int.Parse(bookingId),
-                TransactionId = trancasionID!,
-                PayerId = payerID,
-                PaymentMethod = (await _paymentMethodRepository.getPaymentMethodByName("vnpay"))!.Id,
-                Currency = currency,
-                TotalPrice = amount,
-                PaymentDate = DateTime.ParseExact(paymentdate!, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture),
-                Status = message,
-                IsDeleted = false
-            };
+                Payment payment = new Payment()
+                {
+                    PaymentId = orderId!,
+                    BookingId = int.Parse(bookingId),
+                    TransactionId = trancasionID!,
+                    PayerId = payerID,
+                    PaymentMethod = (await _paymentMethodRepository.getPaymentMethodByName(PaymentEnum.VnPay.ToString()))!.Id,
+                    Currency = currency,
+                    TotalPrice = amount,
+                    PaymentDate = DateTime.ParseExact(paymentdate!, "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture),
+                    Status = message,
+                    IsDeleted = false
+                };
 
-            await _paymentRepository.AddPayment(payment);
+                await _paymentRepository.AddPayment(payment);
+            }
 
             return await Task.FromResult(new RespondModel()
             {
@@ -109,9 +112,6 @@ namespace ClassLib.Service.PaymentService
             });
         }
 
-        public string PaymentName()
-        {
-            return "vnpay";
-        }
+        public string PaymentName() => PaymentEnum.VnPay.ToString();
     }
 }

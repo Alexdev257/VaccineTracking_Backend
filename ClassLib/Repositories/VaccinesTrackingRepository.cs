@@ -11,25 +11,26 @@ namespace ClassLib.Repositories
             _context = context;
         }
 
+        // For admin
         public async Task<List<VaccinesTracking>> GetVaccinesTrackingAsync()
         {
             return await _context.VaccinesTrackings
                                     .Include(vt => vt.User)
                                     .Include(vt => vt.Child)
                                     .Include(vt => vt.Vaccine)
+                                    .Include(vt => vt.Booking)
                                     .ToListAsync()!;
         }
 
-        public async Task<List<VaccinesTracking>> GetVaccinesTrackingByParentIdAsync(int id)
-        {
-            return await _context.VaccinesTrackings.Where(vt => vt.UserId == id)
-                                    .Include(vt => vt.User)
-                                    .Include(vt => vt.Child)
-                                    .Include(vt => vt.Vaccine)
-                                    .ToListAsync()!;
-        }
 
-        public async Task<List<VaccinesTracking>> GetVaccinesTrackingByBookingID(int bookingID) => await _context.VaccinesTrackings.Where(vt => vt.BookingId == bookingID).ToListAsync();
+        // For user
+        public async Task<List<VaccinesTracking>> GetVaccinesTrackingByParentIdAsync(int id) => (await GetVaccinesTrackingAsync())
+                                                                                                    .Where(vt => vt.UserId == id)
+                                                                                                    .Where(x => (x.Status == "Schedule" || x.Status == "Waiting" || x.Status == "Success") && x.IsDeleted == false)
+                                                                                                    .ToList();
+        // For admin
+        public async Task<List<VaccinesTracking>> GetVaccinesTrackingByBookingID(int bookingID) => (await GetVaccinesTrackingAsync())
+                                                                                                    .Where(vt => vt.BookingId == bookingID).ToList();
 
         public async Task<VaccinesTracking?> GetVaccinesTrackingByIdAsync(int id)
         {
@@ -38,6 +39,24 @@ namespace ClassLib.Repositories
                                     .Include(vt => vt.User)
                                     .FirstOrDefaultAsync();
         }
+
+        // Soft delete by bookingID
+        public async Task<int> SoftDeleteByBookingID(int id)
+        {
+            var searchingResult = await GetVaccinesTrackingByBookingID(id);
+
+            if (searchingResult == null || !searchingResult.Any())
+            {
+                return 0;
+            }
+
+            searchingResult.ForEach(b => b.IsDeleted = true);
+
+            await _context.SaveChangesAsync();
+
+            return searchingResult.Count;
+        }
+
 
         public async Task<VaccinesTracking> AddVaccinesTrackingAsync(VaccinesTracking vaccinesTracking)
         {
@@ -89,10 +108,19 @@ namespace ClassLib.Repositories
         public async Task<List<VaccinesTracking>> GetUpComingVaccinations(DateTime today)
         {
             return await _context.VaccinesTrackings
-                                    .Where(vt => vt.MinimumIntervalDate.HasValue && vt.MinimumIntervalDate.Value.Date == today.AddDays(1).Date)
+                                    .Where(vt => vt.MinimumIntervalDate.HasValue && vt.PreviousVaccination != 0 && vt.MinimumIntervalDate.Value.Date == today.AddDays(1).Date)
                                     .Include(vt => vt.Vaccine)
                                     .Include(vt => vt.Child)
                                     .ToListAsync();
+        }
+
+        public async Task<List<VaccinesTracking>> GetDeadlineVaccinations(DateTime today)
+        {
+            return await _context.VaccinesTrackings
+                                 .Where(vt => vt.MaximumIntervalDate.HasValue && vt.PreviousVaccination != 0 && vt.MaximumIntervalDate.Value.Date == today.AddDays(3).Date)
+                                 .Include(vt => vt.Vaccine)
+                                 .Include (vt => vt.Child)
+                                 .ToListAsync();
         }
 
         public async Task<List<VaccinesTracking>> GetUpComingVaccinations1(int id)

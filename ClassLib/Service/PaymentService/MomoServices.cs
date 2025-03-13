@@ -121,16 +121,16 @@ namespace ClassLib.Service.PaymentService
                     TransactionId = transactionID.ToString()!,
                     Currency = "VND",
                     PaymentDate = TimeProvider.GetVietnamNow(),
-                    TotalPrice = (decimal)refundModel.amount,
-                    PaymentMethod = (await _paymentMethodRepository.getPaymentMethodByName("momo"))!.Id,
+                    TotalPrice = ((decimal)refundModel.amount) * -1,
+                    PaymentMethod = (await _paymentMethodRepository.getPaymentMethodByName(PaymentEnum.Momo.ToString()))!.Id,
                     Status = ((PaymentStatusEnum)refundModel.RefundType).ToString(),
                     BookingId = (await _paymentRepository.GetByIDAsync(refundModel.paymentID))!.BookingId,
                 };
                 await _paymentRepository.AddPayment(payment);
-                
+
                 //return message;
 
-                return "Success";
+                return PaymentStatusEnum.Success.ToString();
             }
 
             return "This booking cannot return please go to apointment to have better services";
@@ -143,22 +143,26 @@ namespace ClassLib.Service.PaymentService
             var amount = collection.FirstOrDefault(s => s.Key == "amount").Value;
             var orderInfo = collection.FirstOrDefault(s => s.Key == "orderInfo").Value;
             var orderId = collection.FirstOrDefault(s => s.Key == "orderId").Value;
-            var message = (collection.FirstOrDefault(s => s.Key == "message").Value == "Success") ? "Success" : "Failed";
+            var message = (collection.FirstOrDefault(s => s.Key == "message").Value == "Success") ? PaymentStatusEnum.Success.ToString() : PaymentStatusEnum.Failed.ToString();
             var trancasionID = collection.FirstOrDefault(s => s.Key == "transId").Value;
             var bookingID = collection.FirstOrDefault(s => s.Key == "extraData").Value;
-            Payment payment = new Payment()
+
+            if (message == PaymentStatusEnum.Success.ToString())
             {
-                PaymentId = orderId!,
-                PayerId = orderInfo.ToString().Split(" ")[1],
-                TransactionId = trancasionID!,
-                Currency = "VND",
-                PaymentDate = TimeProvider.GetVietnamNow(),
-                TotalPrice = decimal.Parse(amount!),
-                PaymentMethod = (await _paymentMethodRepository.getPaymentMethodByName("momo"))!.Id,
-                Status = message,
-                BookingId = int.Parse(bookingID!)
-            };
-            await _paymentRepository.AddPayment(payment);
+                Payment payment = new Payment()
+                {
+                    PaymentId = orderId!,
+                    PayerId = orderInfo.ToString().Split(" ")[1],
+                    TransactionId = trancasionID!,
+                    Currency = "VND",
+                    PaymentDate = TimeProvider.GetVietnamNow(),
+                    TotalPrice = decimal.Parse(amount!),
+                    PaymentMethod = (await _paymentMethodRepository.getPaymentMethodByName(PaymentEnum.Momo.ToString()))!.Id,
+                    Status = message,
+                    BookingId = int.Parse(bookingID!)
+                };
+                await _paymentRepository.AddPayment(payment);
+            }
 
             return await Task.FromResult(new RespondModel()
             {
@@ -171,10 +175,7 @@ namespace ClassLib.Service.PaymentService
             });
         }
 
-        public string PaymentName()
-        {
-            return "momo";
-        }
+        public string PaymentName() => PaymentEnum.Momo.ToString();
 
         private string ComputeHmacSha256(string message, string secretKey)
         {
