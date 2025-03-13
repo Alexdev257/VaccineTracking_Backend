@@ -14,26 +14,30 @@ namespace ClassLib.Repositories
 
         public async Task<List<Vaccine>> GetAllVaccines()
         {
-            return await _context.Vaccines.Include(v => v.Address).Where(v => v.IsDeleted == false).ToListAsync();
+            return await GetAllVaccineHelper().Where(v => v.IsDeleted == false).ToListAsync();
         }
-
-        //Alex5
         public async Task<List<Vaccine>> GetAllVaccinesAdmin()
         {
-            return await _context.Vaccines.Include(v => v.Address).ToListAsync();
+            return await GetAllVaccineHelper().ToListAsync();
         }
 
-        public async Task<Vaccine?> GetById(int id)
+        private IQueryable<Vaccine> GetAllVaccineHelper()
         {
-            //return await _context.Set<Vaccine>().FindAsync(id);
-            return await _context.Vaccines.FirstOrDefaultAsync(v => v.Id == id && v.IsDeleted == false);
+            return  _context.Vaccines.Include(v => v.Address);
         }
 
-        //Alex5
+        public async Task<Vaccine?>GetById(int id)
+        {
+            return await GetByIDHelper(id).FirstOrDefaultAsync(v => v.IsDeleted == false);
+        }
         public async Task<Vaccine?> GetByIdAdmin(int id)
         {
-            //return await _context.Set<Vaccine>().FindAsync(id);
-            return await _context.Vaccines.FirstOrDefaultAsync(v => v.Id == id);
+            return await GetByIDHelper(id).FirstOrDefaultAsync();
+        }
+
+        private IQueryable<Vaccine> GetByIDHelper(int id)
+        {
+            return _context.Vaccines.Where(v => v.Id == id);
         }
 
         public async Task<Vaccine> CreateVaccine(Vaccine newVaccine)
@@ -65,21 +69,21 @@ namespace ClassLib.Repositories
         }
         public async Task<List<Vaccine>> GetVaccinesByAge(int age)
         {
-            return await _context.Vaccines
-                .Where(v => age > v.SuggestAgeMin && age < v.SuggestAgeMax && v.IsDeleted == false)
+            return await GetVaccinesByAgeHelper(age)
+                .Where(v => v.IsDeleted == false)
                 .ToListAsync();
         }
 
-        //Alex5
         public async Task<List<Vaccine>> GetVaccinesByAgeAdmin(int age)
         {
-            return await _context.Vaccines
-                .Where(v => age > v.SuggestAgeMin && age < v.SuggestAgeMax)
-                .ToListAsync();
+            return await GetVaccinesByAgeHelper(age).ToListAsync(); 
         }
 
-
-
+        private IQueryable<Vaccine> GetVaccinesByAgeHelper(int age)
+        {
+            return _context.Vaccines
+               .Where(v => age > v.SuggestAgeMin && age < v.SuggestAgeMax);
+        }
 
         //TieHung
         public async Task<bool> DecreseQuantityVaccines(Vaccine vaccine, int amount)

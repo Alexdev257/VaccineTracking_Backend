@@ -35,12 +35,11 @@ namespace SWP391_BackEnd.Controllers
         }
         
         [HttpGet("get-all-vaccines-admin")]
-        [Authorize (Roles = "admin")]
         public async Task<IActionResult> GetVaccinesAdmin()
         {
             try
             {
-                var vaccines = await _vaccineService.GetAllVaccines();
+                var vaccines = await _vaccineService.GetAllVaccinesAdmin();
                 if (vaccines == null || vaccines.Count == 0)
                 {
                     return NotFound("No vaccines found.");
@@ -72,12 +71,11 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-vaccine-by-id-admin/{id}")]
-        [Authorize(Roles = "admin")]
         public async Task<IActionResult> GetVaccineAdmin(int id)
         {
             try
             {
-                var vaccine = await _vaccineService.GetVaccineById(id);
+                var vaccine = await _vaccineService.GetVaccineByIdAdmin(id);
                 if (vaccine == null)
                 {
                     return NotFound("No vaccine found.");
@@ -194,12 +192,11 @@ namespace SWP391_BackEnd.Controllers
             }
         }
         [HttpGet("get-vaccine-by-age-admin/{age}")]
-        [Authorize(Roles = "admin")]
         public async Task<IActionResult> GetVaccinesByAgeAdmin(int age)
         {
             try
             {
-                var vaccines = await _vaccineService.GetVaccinesByAge(age);
+                var vaccines = await _vaccineService.GetVaccinesByAgeAdmin(age);
                 if (vaccines == null || vaccines.Count == 0)
                 {
                     return NotFound("No vaccines found for this age.");

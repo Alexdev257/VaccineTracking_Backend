@@ -11,16 +11,33 @@ namespace ClassLib.Repositories
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
+        //Cung logic voi getbyId();
+        //public async Task<VaccinesCombo?> GetDetailVaccineComboById(int id)
+        //{
+        //    return await GetVaccine(id).Where(c => c.IsDeleted == false).FirstOrDefaultAsync();
+        //}
 
-        public async Task<VaccinesCombo?> GetDetailVaccineComboById(int id)
+        ////Alex5
+        //public async Task<VaccinesCombo?> GetDetailVaccineComboByIdAdmin(int id)
+        //{
+        //    return await GetVaccine(id).FirstOrDefaultAsync();
+        //}
+
+
+        public async Task<VaccinesCombo?> GetById(int id)
         {
-            return await _context.VaccinesCombos.Include(c => c.Vaccines).FirstOrDefaultAsync(c => c.Id == id && c.IsDeleted == false);
+            return await GetVaccinecombo(id).Where(c => c.IsDeleted == false).FirstOrDefaultAsync();
         }
 
-        //Alex5
-        public async Task<VaccinesCombo?> GetDetailVaccineComboByIdAdmin(int id)
+
+        public async Task<VaccinesCombo?> GetByIdAdmin(int id)
         {
-            return await _context.VaccinesCombos.Include(c => c.Vaccines).FirstOrDefaultAsync(c => c.Id == id);
+            return await GetVaccinecombo(id).FirstOrDefaultAsync();
+        }
+
+        private IQueryable<VaccinesCombo> GetVaccinecombo(int id)
+        {
+            return _context.VaccinesCombos.Include(c => c.Vaccines).Where(c => c.Id == id);
         }
         
         public async Task<VaccinesCombo> CreateVaccine(VaccinesCombo newCombo)
@@ -39,30 +56,24 @@ namespace ClassLib.Repositories
 
         public async Task<List<VaccinesCombo>> GetAllVaccineCombo()
         {
-            return await _context.VaccinesCombos
-                .Include(vc => vc.Vaccines)
-                .Where(vc => vc.IsDeleted == false) // 
+            return await GetAll()
+                .Where(vc => vc.IsDeleted == false) 
                 .ToListAsync();
         }
 
-        //Alex5
         public async Task<List<VaccinesCombo>> GetAllVaccineComboAdmin()
         {
-            return await _context.VaccinesCombos
-                .Include(vc => vc.Vaccines)
+            return await GetAll()
                 .ToListAsync();
         }
 
-        public async Task<VaccinesCombo?> GetById(int id)
+        private IQueryable<VaccinesCombo> GetAll()
         {
-            return await _context.VaccinesCombos.Include(c => c.Vaccines).Where(c => c.Id == id).FirstOrDefaultAsync();
+            return _context.VaccinesCombos
+               .Include(vc => vc.Vaccines);
         }
 
-        //Alex5
-        public async Task<VaccinesCombo?> GetByIdAdmin(int id)
-        {
-            return await _context.VaccinesCombos.Include(c => c.Vaccines).Where(c => c.Id == id && c.IsDeleted == false).FirstOrDefaultAsync();
-        }
+  
 
         public async Task<VaccinesCombo> UpdateVaccine(VaccinesCombo currentCombo, VaccinesCombo updateCombo)
         {
