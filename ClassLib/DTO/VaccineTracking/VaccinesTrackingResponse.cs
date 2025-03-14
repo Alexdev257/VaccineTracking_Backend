@@ -15,11 +15,11 @@ namespace ClassLib.DTO.VaccineTracking
 
         public int ChildId { get; set; } = 0;
 
-        public string MinimumIntervalDate { get; set; }
+        public DateTime MinimumIntervalDate { get; set; }
 
-        public string VaccinationDate { get; set; }
+        public DateTime VaccinationDate { get; set; }
 
-        public string MaximumIntervalDate { get; set; }
+        public DateTime MaximumIntervalDate { get; set; }
 
         public int PreviousVaccination { get; set; } = 0;
 
