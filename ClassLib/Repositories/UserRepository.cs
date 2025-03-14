@@ -16,7 +16,7 @@ namespace ClassLib.Repositories
             //return await _context.Users.ToListAsync();
             return await _context.Users
                         //.Include(u => u.Bookings)
-                        //.Include(u => u.Children)
+                        .Include(u => u.Children)
                         //.Include(u => u.RefreshTokens)
                         //.Include(u => u.VaccinesTrackings)
                         .ToListAsync();
@@ -39,7 +39,7 @@ namespace ClassLib.Repositories
 
         public async Task<User?> getUserByIdAsync(int Id)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Id == Id);
+            return await _context.Users.Include(u => u.Children).FirstOrDefaultAsync(u => u.Id == Id);
         }
 
         public async Task<bool> addUserAsync(User user)
