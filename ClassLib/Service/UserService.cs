@@ -25,6 +25,8 @@ using PayPal.Core;
 using PayPal.v1.Orders;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.Extensions.Caching.Distributed;
+using ClassLib.DTO.VaccineCombo;
+using ClassLib.DTO.Child;
 //using Microsoft.AspNetCore.Identity.Data;
 
 namespace ClassLib.Service
@@ -40,11 +42,12 @@ namespace ClassLib.Service
 
         private readonly IConfiguration _configuration;
         private readonly EmailService _emailService;
+        private readonly ChildRepository _childRepository;
         private readonly IWebHostEnvironment _env;
         private readonly IMemoryCache _cache;
         private readonly IDistributedCache _redisCache;
 
-        public UserService(UserRepository userRepository, IMapper mapper, JwtHelper jwtHelper, IConfiguration configuration, EmailService emailService, IWebHostEnvironment env, IMemoryCache cache, IDistributedCache redisCache)
+        public UserService(UserRepository userRepository, IMapper mapper, JwtHelper jwtHelper, IConfiguration configuration, EmailService emailService, ChildRepository childRepository, IWebHostEnvironment env, IMemoryCache cache, IDistributedCache redisCache)
         {
             _userRepository = userRepository;
             _mapper = mapper;
@@ -60,6 +63,7 @@ namespace ClassLib.Service
             //_firebaseApiKey = configuration["Firebase:ApiKey"];
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _emailService = emailService;
+            _childRepository = childRepository;
             _env = env;
             _cache = cache;
             _redisCache = redisCache;
@@ -108,7 +112,7 @@ namespace ClassLib.Service
             {
                 throw new UnauthorizedAccessException("User was deleted.");
             }
-            else if(user.Status != "Active")
+            else if(user.Status.ToLower() != "active")
             {
                 throw new UnauthorizedAccessException("User was inactived.");
             }
@@ -131,6 +135,8 @@ namespace ClassLib.Service
             var userRes = _mapper.Map<GetUserResponse>(user);
             return userRes;
         }
+
+        
         public async Task<bool> registerAsync(DTO.User.RegisterRequest registerRequest)
         {
             if (string.IsNullOrWhiteSpace(registerRequest.Name) ||
@@ -987,6 +993,190 @@ namespace ClassLib.Service
                 user.Status = "Inactive";
             }
             return await _userRepository.updateUser(user);
+        }
+
+
+        public async Task<bool> UpdateUserAdmin(int userId, UpdateUserAdminRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(userId.ToString()))
+            {
+                throw new ArgumentNullException("User id can not be blank");
+            }
+            if(string.IsNullOrWhiteSpace(request.Name) ||
+               string.IsNullOrWhiteSpace(request.DateOfBirth.ToString()) ||
+               string.IsNullOrWhiteSpace(request.Gender.ToString()) ||
+               string.IsNullOrWhiteSpace(request.Avatar) ||
+               string.IsNullOrWhiteSpace(request.Gmail) ||
+               string.IsNullOrWhiteSpace(request.PhoneNumber) ||
+               string.IsNullOrWhiteSpace(request.Status))
+            {
+                throw new ArgumentNullException("Please fill all the blank");
+            }
+            var user = await _userRepository.getUserByIdAsync(userId);
+            if(user == null)
+            {
+                throw new ArgumentException("User is not exist");
+            }
+            user.Name = request.Name;
+            user.DateOfBirth = request.DateOfBirth;
+            user.Gender = request.Gender;
+            user.Avatar = request.Avatar;
+            user.Gmail = request.Gmail;
+            user.PhoneNumber = request.PhoneNumber;
+            user.Status = request.Status;
+            if(request.Status.ToLower() == "active")
+            {
+                user.IsDeleted = false;
+            }
+            else if(request.Status.ToLower() == "inactive")
+            {
+                user.IsDeleted = true;
+            }
+            List<int> requestChildIds = request.childIds.ToList();
+            List<Child> currentChildren = user.Children.Where(c => !c.IsDeleted).ToList();
+            List<int> existChildIds = currentChildren.Select(c => c.Id).ToList();
+
+            // Tìm những Child cần thêm
+            var childIdsToAdd = requestChildIds.Except(existChildIds).ToList();
+            List<Child> childrenToAdd = new List<Child>();
+            foreach (var childId in childIdsToAdd)
+            {
+                var child = await _childRepository.GetChildById(childId);
+                if (child != null)
+                {
+                    if (child.ParentId != userId)
+                    {
+                        throw new UnauthorizedAccessException($"Child with ID {childId} does not belong to this user.");
+                    }
+                    child.IsDeleted = false;
+                    child.Status = "Active";
+                    await _childRepository.UpdateChild(child);
+                    childrenToAdd.Add(child);
+                }
+            }
+
+            foreach (var child in childrenToAdd)
+            {
+                user.Children.Add(child);
+            }
+
+            // Tìm những Child cần xóa (Soft Delete)
+            var childrenToRemove = currentChildren.Where(c => !requestChildIds.Contains(c.Id)).ToList();
+            foreach (var child in childrenToRemove)
+            {
+                child.IsDeleted = true;
+                child.Status = "Inactive";
+                await _childRepository.UpdateChild(child);
+            }
+
+            return await _userRepository.updateUser(user);
+        }
+
+        public async Task<GetUserChildResponse?> getUserChildByIdAdmin(int id)
+        {
+            if (string.IsNullOrWhiteSpace(id.ToString()))
+            {
+                throw new ArgumentNullException("ID can not be blank");
+            }
+            var user = await _userRepository.getUserByIdAsync(id);
+            if (user == null)
+            {
+                throw new ArgumentException("User is not exist");
+            }
+            if (user.IsDeleted == true)
+            {
+                throw new UnauthorizedAccessException("User was inactived");
+            }
+            List<int> childIds = user.Children.Select(user => user.Id).ToList() ?? new List<int>();
+            List<GetChildResponse> children = new List<GetChildResponse>();
+            foreach (var childId in childIds)
+            {
+                var child = await _childRepository.GetChildById(childId);
+                if (child != null)
+                {
+                    var rs = new GetChildResponse()
+                    {
+                        Id = child.Id,
+                        ParentId = child.ParentId,
+                        Name = child.Name,
+                        DateOfBirth = child.DateOfBirth,
+                        Gender = child.Gender,
+                        Status = child.Status,
+                        CreatedAt = child.CreatedAt,
+                    };
+                    children.Add(rs);
+                }
+
+            }
+            var response = new GetUserChildResponse()
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Name = user.Name,
+                DateOfBirth = user.DateOfBirth,
+                gender = user.Gender,
+                Gmail = user.Gmail,
+                PhoneNumber = user.PhoneNumber,
+                Role = user.Role,
+                Avatar = user.Avatar,
+                Status = user.Status,
+                CreatedAt = user.CreatedAt,
+                Children = children
+            };
+
+            return response;
+        }
+
+        public async Task<List<GetUserChildResponse>> getAllUserChildAdmin()
+        {
+            var users = await _userRepository.getAll();
+            if(users.Count == 0)
+            {
+                throw new ArgumentException("Do not exist any user");
+            }
+
+            List<GetUserChildResponse> res = new List<GetUserChildResponse>();
+            foreach (var user in users)
+            {
+                List<int> childIds = user.Children.Select(user => user.Id).ToList() ?? new List<int>();
+                List<GetChildResponse> children = new List<GetChildResponse>();
+                foreach (var childId in childIds)
+                {
+                    var child = await _childRepository.GetChildById(childId);
+                    if (child != null)
+                    {
+                        var rs = new GetChildResponse()
+                        {
+                            Id = child.Id,
+                            ParentId = child.ParentId,
+                            Name = child.Name,
+                            DateOfBirth = child.DateOfBirth,
+                            Gender = child.Gender,
+                            Status = child.Status,
+                            CreatedAt = child.CreatedAt,
+                        };
+                        children.Add(rs);
+                    }
+
+                }
+                var response = new GetUserChildResponse()
+                {
+                    Id = user.Id,
+                    Username = user.Username,
+                    Name = user.Name,
+                    DateOfBirth = user.DateOfBirth,
+                    gender = user.Gender,
+                    Gmail = user.Gmail,
+                    PhoneNumber = user.PhoneNumber,
+                    Role = user.Role,
+                    Avatar = user.Avatar,
+                    Status = user.Status,
+                    CreatedAt = user.CreatedAt,
+                    Children = children
+                };
+                res.Add(response);
+            }
+            return res;
         }
 
         public async Task<bool> deleteUserAsync(int userId)
