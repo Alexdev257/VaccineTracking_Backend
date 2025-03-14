@@ -182,6 +182,14 @@ namespace ClassLib.Service.VaccineCombo
             //    vaccines.Add(vaccine);
             //}
             //combo.Vaccines = vaccines;
+            if(request.Status.ToLower() == "Unavailable")
+            {
+                combo.IsDeleted = true;
+            }else if(request.Status.ToLower() == "Available")
+            {
+                combo.IsDeleted = false;
+            }
+
             // Xác định vaccine cần thêm
             var vaccinesToAdd = vaccineIds.Except(existVaccineIds).ToList();
             foreach (var vaccineId in vaccinesToAdd)
@@ -204,6 +212,10 @@ namespace ClassLib.Service.VaccineCombo
         //xóa
         public async Task<bool> DeleteVaccineCombo(int id)
         {
+            if (string.IsNullOrWhiteSpace(id.ToString()))
+            {
+                throw new ArgumentNullException("Id can not be blank");
+            }
             var currentVaccine = await _vaccineComboRepository.GetById(id);
             if (currentVaccine == null)
             {
@@ -212,7 +224,6 @@ namespace ClassLib.Service.VaccineCombo
             return await _vaccineComboRepository.DeleteVaccineCombo(currentVaccine);
         }
 
-        //Alex5
         public async Task<bool> SoftDeleteVaccineCombo(int id)
         {
             if (string.IsNullOrWhiteSpace(id.ToString()))
@@ -225,6 +236,7 @@ namespace ClassLib.Service.VaccineCombo
                 throw new ArgumentException("Combo does not exist");
             }
             combo.IsDeleted = true;
+            combo.Status = "Unvailable";
             return await _vaccineComboRepository.UpdateCombo(combo);
         }
 
