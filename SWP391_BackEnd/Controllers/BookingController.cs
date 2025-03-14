@@ -34,7 +34,7 @@ namespace SWP391_BackEnd.Controllers
         {
             OrderInfoModel orderInfo = (await _bookingService.AddBooking(addBooking))!;
             // Chose payment method
-            if (addBooking.paymentId != 1)
+            if (Enum.IsDefined(typeof(PaymentMethod), addBooking.paymentId))
             {
                 var client = _httpClientFactory.CreateClient();
 
@@ -59,61 +59,43 @@ namespace SWP391_BackEnd.Controllers
 
                 return BadRequest(new { message = "Failed to initiate payment" });
             }
+            else return BadRequest();
 
             // If payment method is by cash
-            else
-            {
-                string bookingID = orderInfo.BookingID;
-                decimal amount = orderInfo.Amount;
-                string paymentID = TimeProvider.GetVietnamNow().Ticks.ToString();
-                string trancasionID = paymentID;
-                string userID = orderInfo.GuestName.Split(" ")[0];
-                int paymentMethod = (int)PaymentEnum.Cash;
-                string currency = "VND";
-                DateTime paymentDate = TimeProvider.GetVietnamNow();
-                string status = "Pending";
-
-                Payment payment = new Payment()
-                {
-                    PaymentId = paymentID,
-                    BookingId = int.Parse(bookingID),
-                    TransactionId = trancasionID,
-                    TotalPrice = amount,
-                    PayerId = userID,
-                    PaymentMethod = paymentMethod,
-                    Currency = currency,
-                    PaymentDate = paymentDate,
-                    Status = status
-                };
-
-                RespondModel response = new RespondModel()
-                {
-                    BookingID = bookingID,
-                    Amount = amount.ToString(),
-                    TrancasionID = trancasionID,
-                    Message = status,
-                    OrderId = paymentID,
-                    OrderDescription = "",
-                };
-
-                UriBuilder uriBuilder = new UriBuilder($"http://localhost:5173/confirm/pending");
-
-                var queryParams = HttpUtility.ParseQueryString(string.Empty);
-
-                foreach (var prop in response.GetType().GetProperties())
-                {
-                    var value = prop.GetValue(response)?.ToString();
-                    if (value != null)
-                    {
-                        queryParams[prop.Name] = value;
-                    }
-                }
-
-                uriBuilder.Query = queryParams.ToString();
-
-                return Redirect(uriBuilder.ToString());
-            }
         }
+
+        [HttpPost("add-booking-by-staff")]
+        public async Task<string> AddBookingStaff([FromBody] AddBooking addBooking)
+        {
+            OrderInfoModel orderInfo = (await _bookingService.AddBooking(addBooking))!;
+            string bookingID = orderInfo.BookingID;
+            decimal amount = orderInfo.Amount;
+            string paymentID = TimeProvider.GetVietnamNow().Ticks.ToString();
+            string trancasionID = paymentID;
+            string userID = orderInfo.GuestName.Split(" ")[0];
+            int paymentMethod = (int)PaymentEnum.Cash;
+            string currency = "VND";
+            DateTime paymentDate = TimeProvider.GetVietnamNow();
+
+            Payment payment = new Payment()
+            {
+                PaymentId = paymentID,
+                BookingId = int.Parse(bookingID),
+                TransactionId = trancasionID,
+                TotalPrice = amount,
+                PayerId = userID,
+                PaymentMethod = paymentMethod,
+                Currency = currency,
+                PaymentDate = paymentDate,
+                Status = PaymentStatusEnum.Success.ToString()
+            };
+
+            await _paymentRepository.AddPayment(payment);
+            await _bookingService.UpdateBookingStatus(bookingID, BookingEnum.Success.ToString());
+            return BookingEnum.Success.ToString();
+        }
+
+
         [HttpGet("booking-history/{userID}")]
         public async Task<IActionResult> GetAllBookingByUser([FromRoute] int userID)
         {

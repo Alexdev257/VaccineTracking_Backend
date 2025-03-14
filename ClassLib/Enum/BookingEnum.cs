@@ -4,7 +4,6 @@ namespace ClassLib.Enum
     {
         Pending,
         Success,
-        Refund,
-        Deposited
+        Refund
     }
 }
