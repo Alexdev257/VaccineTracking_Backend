@@ -225,16 +225,19 @@ namespace ClassLib.Helpers
             }
             return list;
         }
-        public static List<BookingResponesStaff> ConvertBookingResponseStaff(List<Booking> bookings){
+        public static List<BookingResponesStaff> ConvertBookingResponseStaff(List<Booking> bookings)
+        {
             List<BookingResponesStaff> list = new List<BookingResponesStaff>();
 
-            foreach(var item in bookings){
-                BookingResponesStaff brs = new BookingResponesStaff(){
+            foreach (var item in bookings)
+            {
+                BookingResponesStaff brs = new BookingResponesStaff()
+                {
                     Id = item.Id.ToString(),
                     parentName = item.Parent.Name,
                     phoneNumber = item.Parent.PhoneNumber,
                     status = item.Status,
-                    paymentMethod = item.Payments.LastOrDefault()!.PaymentMethodNavigation.Name,
+                    paymentMethod = item.Payments?.LastOrDefault()?.PaymentMethodNavigation?.Name ?? "Have not payment yet",
                     ChildrenList = ConvertListChildren((List<Child>)item.Children),
                     VaccineList = ConvertListVaccines((List<Vaccine>)item.Vaccines),
                     ComboList = ConvertListCombos((List<VaccinesCombo>)item.Combos)
