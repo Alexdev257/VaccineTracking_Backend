@@ -36,6 +36,7 @@ namespace ClassLib.Repositories
         {
             return await _context.VaccinesTrackings.Where(vt => vt.Id == id)
                                     .Include(vt => vt.Vaccine)
+                                    .Include(vt => vt.Child)
                                     .Include(vt => vt.User)
                                     .FirstOrDefaultAsync();
         }

@@ -128,7 +128,7 @@ namespace SWP391_BackEnd.Controllers
             if (bookingList.IsNullOrEmpty()) return BadRequest("Dont have");
             return Ok(bookingList);
         }
-        [HttpGet]
+        [HttpGet("get-all-booking")]
         public async Task<IActionResult> GetAllForStaff()
         {
             var bookingList = await _bookingService.GetAllBookingForStaff();

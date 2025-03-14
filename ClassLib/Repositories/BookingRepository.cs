@@ -35,6 +35,7 @@ namespace ClassLib.Repositories
                             .ThenInclude(x => x.Vaccines)
                         .Include(x => x.Vaccines)
                         .Include(x => x.Payments)
+                            .ThenInclude(x => x.PaymentMethodNavigation)
                         .ToListAsync();
         }
 
@@ -52,7 +53,7 @@ namespace ClassLib.Repositories
         public async Task<List<Booking>?> GetAllBookingByUserId(int userId)
         {
             var bookings = await GetAllBookingByUserIdStaff(userId);
-            return bookings?.Where(b => b.Status == "Success" || b.Status == "Pending").ToList();
+            return bookings?.ToList();
         }
 
         // For staff
@@ -110,15 +111,15 @@ namespace ClassLib.Repositories
             {
                 return null;
             }
-            if (msg.ToLower() == "refund")
+            if (msg.ToLower() == BookingEnum.Refund.ToString().ToLower())
             {
                 booking.Status = BookingEnum.Refund.ToString();
             }
-            else if (msg.ToLower() == "success")
+            else if (msg.ToLower() == BookingEnum.Success.ToString().ToLower())
             {
                 booking.Status = BookingEnum.Success.ToString();
             }
-            else if (msg.ToLower() == "pending")
+            else if (msg.ToLower() == BookingEnum.Pending.ToString().ToLower())
             {
                 booking.Status = BookingEnum.Pending.ToString();
             }
