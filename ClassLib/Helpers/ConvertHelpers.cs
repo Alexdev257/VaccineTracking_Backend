@@ -55,9 +55,9 @@ namespace ClassLib.Helpers
                 VaccineName = vt.Vaccine.Name,
                 UserName = vt.User.Name,
                 ChildId = vt.ChildId,
-                MinimumIntervalDate = vt.MinimumIntervalDate.HasValue ? vt.MinimumIntervalDate.ToString() : "",
-                VaccinationDate = vt.VaccinationDate.HasValue ? vt.VaccinationDate.ToString() : "",
-                MaximumIntervalDate = vt.MaximumIntervalDate.HasValue ? vt.MaximumIntervalDate.ToString() : "",//toan tu ba ngoi
+                MinimumIntervalDate = vt.MinimumIntervalDate,
+                VaccinationDate = vt.VaccinationDate,
+                MaximumIntervalDate = vt.MaximumIntervalDate,
                 PreviousVaccination = vt.PreviousVaccination.HasValue ? (int)vt.PreviousVaccination.Value : 0,
                 Status = vt.Status,
                 AdministeredByDoctorName = "Not Vaccination Yet",
