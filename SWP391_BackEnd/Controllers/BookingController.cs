@@ -34,7 +34,7 @@ namespace SWP391_BackEnd.Controllers
         {
             OrderInfoModel orderInfo = (await _bookingService.AddBooking(addBooking))!;
             // Chose payment method
-            if (Enum.IsDefined(typeof(PaymentMethod), addBooking.paymentId))
+            if (addBooking.paymentId > 1 && addBooking.paymentId < 5)
             {
                 var client = _httpClientFactory.CreateClient();
 
