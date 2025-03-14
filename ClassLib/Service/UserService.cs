@@ -1032,41 +1032,53 @@ namespace ClassLib.Service
             {
                 user.IsDeleted = true;
             }
-            List<int> requestChildIds = request.childIds.ToList();
+            
             List<Child> currentChildren = user.Children.Where(c => !c.IsDeleted).ToList();
-            List<int> existChildIds = currentChildren.Select(c => c.Id).ToList();
-
-            // Tìm những Child cần thêm
-            var childIdsToAdd = requestChildIds.Except(existChildIds).ToList();
-            List<Child> childrenToAdd = new List<Child>();
-            foreach (var childId in childIdsToAdd)
+            if (request.childIds == null || request.childIds.Count == 0)
             {
-                var child = await _childRepository.GetChildById(childId);
-                if (child != null)
+                foreach(var child in currentChildren)
                 {
-                    if (child.ParentId != userId)
-                    {
-                        throw new UnauthorizedAccessException($"Child with ID {childId} does not belong to this user.");
-                    }
-                    child.IsDeleted = false;
-                    child.Status = "Active";
+                    child.IsDeleted = true;
+                    child.Status = "Inactive";
                     await _childRepository.UpdateChild(child);
-                    childrenToAdd.Add(child);
                 }
             }
-
-            foreach (var child in childrenToAdd)
+            else
             {
-                user.Children.Add(child);
-            }
+                List<int> requestChildIds = request.childIds.ToList();
+                List<int> existChildIds = currentChildren.Select(c => c.Id).ToList();
+                // Tìm những Child cần thêm
+                var childIdsToAdd = requestChildIds.Except(existChildIds).ToList();
+                List<Child> childrenToAdd = new List<Child>();
+                foreach (var childId in childIdsToAdd)
+                {
+                    var child = await _childRepository.GetChildById(childId);
+                    if (child != null)
+                    {
+                        if (child.ParentId != userId)
+                        {
+                            throw new UnauthorizedAccessException($"Child with ID {childId} does not belong to this user.");
+                        }
+                        child.IsDeleted = false;
+                        child.Status = "Active";
+                        await _childRepository.UpdateChild(child);
+                        childrenToAdd.Add(child);
+                    }
+                }
 
-            // Tìm những Child cần xóa (Soft Delete)
-            var childrenToRemove = currentChildren.Where(c => !requestChildIds.Contains(c.Id)).ToList();
-            foreach (var child in childrenToRemove)
-            {
-                child.IsDeleted = true;
-                child.Status = "Inactive";
-                await _childRepository.UpdateChild(child);
+                foreach (var child in childrenToAdd)
+                {
+                    user.Children.Add(child);
+                }
+
+                // Tìm những Child cần xóa (Soft Delete)
+                var childrenToRemove = currentChildren.Where(c => !requestChildIds.Contains(c.Id)).ToList();
+                foreach (var child in childrenToRemove)
+                {
+                    child.IsDeleted = true;
+                    child.Status = "Inactive";
+                    await _childRepository.UpdateChild(child);
+                }
             }
 
             return await _userRepository.updateUser(user);

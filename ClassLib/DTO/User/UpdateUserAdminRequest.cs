@@ -26,7 +26,7 @@ namespace ClassLib.DTO.User
 
         public string Status { get; set; } = null!;
 
-        public List<int> childIds { get; set; } = null!;
+        public List<int>? childIds { get; set; } = null!;
         
 
         
