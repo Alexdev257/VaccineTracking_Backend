@@ -181,6 +181,14 @@ namespace ClassLib.Service.VaccineCombo
             //    vaccines.Add(vaccine);
             //}
             //combo.Vaccines = vaccines;
+            if(request.Status.ToLower() == "Unavailable")
+            {
+                combo.IsDeleted = true;
+            }else if(request.Status.ToLower() == "Available")
+            {
+                combo.IsDeleted = false;
+            }
+
             // Xác định vaccine cần thêm
             var vaccinesToAdd = vaccineIds.Except(existVaccineIds).ToList();
             foreach (var vaccineId in vaccinesToAdd)
