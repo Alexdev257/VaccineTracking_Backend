@@ -238,6 +238,8 @@ namespace ClassLib.Helpers
                     phoneNumber = item.Parent.PhoneNumber,
                     status = item.Status,
                     paymentMethod = item.Payments?.LastOrDefault()?.PaymentMethodNavigation?.Name ?? "Have not payment yet",
+                    createdAt = item.CreatedAt,
+                    arrivedAt = item.ArrivedAt,
                     ChildrenList = ConvertListChildren((List<Child>)item.Children),
                     VaccineList = ConvertListVaccines((List<Vaccine>)item.Vaccines),
                     ComboList = ConvertListCombos((List<VaccinesCombo>)item.Combos)

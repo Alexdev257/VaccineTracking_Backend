@@ -19,6 +19,8 @@ namespace ClassLib.DTO.Booking
         public string amount { get; set; } = string.Empty;
         public string status { get; set; } = string.Empty;
         public string paymentMethod { get; set; } = string.Empty;
+        public DateTime createdAt { get; set; } = TimeProvider.GetVietnamNow();
+        public DateTime arrivedAt { get; set; } = TimeProvider.GetVietnamNow();
         public List<ChildrenResponeBooking>? ChildrenList { get; set; }
         public List<VaccineResponeBooking>? VaccineList { get; set; }
         public List<ComboResponeBooking>? ComboList { get; set; }
