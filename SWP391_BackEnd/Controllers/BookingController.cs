@@ -64,7 +64,7 @@ namespace SWP391_BackEnd.Controllers
             // If payment method is by cash
         }
 
-        [HttpGet("add-booking-by-staff")]
+        [HttpPost("add-booking-by-staff")]
         public async Task<string> AddBookingStaff([FromBody] AddBooking addBooking)
         {
             OrderInfoModel orderInfo = (await _bookingService.AddBooking(addBooking))!;
