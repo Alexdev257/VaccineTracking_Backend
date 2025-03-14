@@ -1,4 +1,5 @@
 using ClassLib.DTO.Payment;
+using ClassLib.Enum;
 using ClassLib.Models;
 using ClassLib.Repositories;
 using Microsoft.AspNetCore.Http;
@@ -82,7 +83,7 @@ namespace ClassLib.Service.PaymentService
             var payerID = orderInfo.ToString().Split(" ")[0];
             var currency = "VND";
 
-            if (message == "success")
+            if (message == PaymentStatusEnum.Success.ToString())
             {
                 Payment payment = new Payment()
                 {

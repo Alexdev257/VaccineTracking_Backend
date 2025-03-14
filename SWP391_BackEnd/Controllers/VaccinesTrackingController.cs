@@ -34,6 +34,14 @@ namespace SWP391_BackEnd.Controllers
             return Ok(result);
         }
 
+        //get by bookingId
+        [HttpGet("get-by-booking-id/{id}")]
+        public async Task<IActionResult> GetByBookingId(int id)
+        {
+            var result = await _vaccinesTrackingService.GetByBookingId(id);
+            if (result.IsNullOrEmpty()) return BadRequest();
+            return Ok(result);
+        }
 
         // 
         [HttpGet("get-by-id/{id}")]
