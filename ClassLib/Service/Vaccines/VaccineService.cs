@@ -139,13 +139,23 @@ namespace ClassLib.Service.Vaccines
                 //vaccine.MaximumIntervalDate = request.MaximumIntervalDate;
                 //vaccine.FromCountry = request.FromCountry;
                 var rs = _mapper.Map(request, vaccine); // Chỉ cập nhật các field có trong UpdateVaccine
+                if (rs.Status.ToLower() == "Unavailable")
+                {
+                    vaccine.IsDeleted = true;
+                }else if(rs.Status.ToLower() == "Available")
+                {
+                    vaccine.IsDeleted = false;
+                }
                 return await _vaccineRepository.UpdateVaccine(rs);
             } 
         }
 
-        //Xoá
         public async Task<bool> DeleteVaccine(int id)
         {
+            if (string.IsNullOrWhiteSpace(id.ToString()))
+            {
+                throw new ArgumentNullException("ID can not be blank");
+            }
             var currentVaccine = await _vaccineRepository.GetById(id);
             if (currentVaccine == null)
             {
@@ -154,7 +164,6 @@ namespace ClassLib.Service.Vaccines
             return await _vaccineRepository.DeleteVaccine(currentVaccine);
         }
 
-        //Alex5
         public async Task<bool> SoftDeleteVaccine(int id)
         {
             if (string.IsNullOrWhiteSpace(id.ToString()))
@@ -165,9 +174,10 @@ namespace ClassLib.Service.Vaccines
             var vaccine = await _vaccineRepository.GetById(id);
             if(vaccine == null)
             {
-                throw new ArgumentException("Do not exist child");
+                throw new ArgumentException("Do not exist vaccine");
             }
             vaccine.IsDeleted = true;
+            vaccine.Status = "Unavailable";
             return await _vaccineRepository.UpdateVaccine(vaccine);
         }
         //lay theo tuoi

@@ -1,4 +1,5 @@
 using ClassLib.DTO.Payment;
+using ClassLib.Enum;
 using ClassLib.Models;
 using ClassLib.Repositories;
 using Microsoft.AspNetCore.Http;
