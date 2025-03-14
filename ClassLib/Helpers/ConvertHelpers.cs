@@ -215,7 +215,7 @@ namespace ClassLib.Helpers
                 {
                     ID = item.Id,
                     AdvisoryDetail = item.AdvisoryDetails,
-                    ArrivedAt = item.ArrivedAt.ToString("HH:mm:ss dd-MM-yyyy"),
+                    ArrivedAt = item.ArrivedAt,
                     ChildrenList = ConvertListChildren((List<Child>)item.Children),
                     VaccineList = ConvertListVaccines((List<Vaccine>)item.Vaccines),
                     ComboList = ConvertListCombos((List<VaccinesCombo>)item.Combos),
