@@ -156,5 +156,28 @@ namespace ClassLib.Service
 
             return true;
         }
+
+        //Alex5
+        public async Task<List<VaccinesTracking>> GetUpcomingVaccinationsReminderAsync()
+        {
+            var today = Helpers.TimeProvider.GetVietnamNow();
+            var list = await _vaccinesTrackingRepository.GetUpComingVaccinations(today);
+            if(list.Count == 0)
+            {
+                throw new ArgumentException("No more reminder for upcoming");
+            }
+            return list;
+        }
+
+        public async Task<List<VaccinesTracking>> GetDeadlineVaccinationsReminderAsync()
+        {
+            var today = Helpers.TimeProvider.GetVietnamNow();
+            var list = await _vaccinesTrackingRepository.GetDeadlineVaccinations(today);
+            if (list.Count == 0)
+            {
+                throw new ArgumentException("No more reminder for upcoming");
+            }
+            return list;
+        }
     }
 }

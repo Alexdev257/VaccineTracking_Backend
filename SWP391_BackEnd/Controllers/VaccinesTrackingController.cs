@@ -72,5 +72,43 @@ namespace SWP391_BackEnd.Controllers
             else return Ok("Update Success");
         }
 
+
+        //Alex5
+        [HttpGet("get-up-coming-reminder")]
+        public async Task<IActionResult> GetUpcomingReminder()
+        {
+            try
+            {
+                var rs = await _vaccinesTrackingService.GetUpcomingVaccinationsReminderAsync();
+                return Ok(rs);
+            }
+            catch (ArgumentException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch(Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpGet("get-deadline-reminder")]
+        public async Task<IActionResult> GetDeadlineReminder()
+        {
+            try
+            {
+                var rs = await _vaccinesTrackingService.GetDeadlineVaccinationsReminderAsync();
+                return Ok(rs);
+            }
+            catch (ArgumentException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
     }
 }
