@@ -8,13 +8,13 @@
 
         public string Name { get; set; } = null!;
 
-        public string DateOfBirth { get; set; }
+        public DateTime DateOfBirth { get; set; }
 
         public int Gender { get; set; }
 
         public string Status { get; set; } = null!;
 
-        public string CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         //public bool IsDeleted { get; set; }
     }

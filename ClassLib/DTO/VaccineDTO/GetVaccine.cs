@@ -19,9 +19,9 @@
 
         public int SuggestAgeMax { get; set; }
 
-        public string EntryDate { get; set; }
+        public DateTime EntryDate { get; set; }
 
-        public string TimeExpired { get; set; }
+        public DateTime TimeExpired { get; set; }
         public int? MinimumIntervalDate { get; set; }
 
         public int? MaximumIntervalDate { get; set; }

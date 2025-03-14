@@ -9,7 +9,7 @@ namespace ClassLib.DTO.Booking
         public int ID { get; set; } = 0;
         public string AdvisoryDetail { get; set; } = null!;
 
-        public string ArrivedAt { get; set; }
+        public DateTime ArrivedAt { get; set; }
 
         public string paymentName { get; set; } = string.Empty;
 

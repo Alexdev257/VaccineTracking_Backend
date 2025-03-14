@@ -11,13 +11,13 @@ namespace ClassLib.DTO.User
         public int Id { get; set; }
         public string Username { get; set; } = null!;
         public string Name { get; set; } = null!;
-        public string DateOfBirth{ get; set; }
+        public DateTime DateOfBirth { get; set; }
         public int gender { get; set; }
         public string Gmail { get; set; } = null!;
         public string PhoneNumber { get; set; } = null!;
         public string Role { get; set; } = null!;
         public string Avatar { get; set; } = null!;
         public string Status { get; set; } = null!;
-        public string CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

@@ -54,9 +54,9 @@ namespace ClassLib.Helpers
                 VaccineName = vt.Vaccine.Name,
                 UserName = vt.User.Name,
                 ChildId = vt.ChildId,
-                MinimumIntervalDate = vt.MinimumIntervalDate.HasValue?vt.MinimumIntervalDate.Value.ToString("HH:mm:ss dd-MM-yyyy"):"",
-                VaccinationDate = vt.VaccinationDate.HasValue ? vt.VaccinationDate.Value.ToString("HH:mm:ss dd-MM-yyyy") : "",
-                MaximumIntervalDate = vt.MaximumIntervalDate.HasValue ? vt.MaximumIntervalDate.Value.ToString("HH:mm:ss dd-MM-yyyy") : "",//toan tu ba ngoi
+                MinimumIntervalDate = vt.MinimumIntervalDate.Value ,
+                VaccinationDate = vt.VaccinationDate.Value,
+                MaximumIntervalDate = vt.MaximumIntervalDate.Value,//toan tu ba ngoi
                 PreviousVaccination = vt.PreviousVaccination.HasValue ? (int)vt.PreviousVaccination.Value : 0,
                 Status = vt.Status,
                 AdministeredByDoctorName = vt.User.Name ?? "Not Vaccination Yet",
@@ -195,7 +195,7 @@ namespace ClassLib.Helpers
                 {
                     ID = item.Id,
                     AdvisoryDetail = item.AdvisoryDetails,
-                    ArrivedAt = item.ArrivedAt.ToString("HH:mm:ss dd-MM-yyyy"),
+                    ArrivedAt = item.ArrivedAt,
                     ChildrenList = ConvertListChildren((List<Child>)item.Children),
                     VaccineList = ConvertListVaccines((List<Vaccine>)item.Vaccines),
                     ComboList = ConvertListCombos((List<VaccinesCombo>)item.Combos),
