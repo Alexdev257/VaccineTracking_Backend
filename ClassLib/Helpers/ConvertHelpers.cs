@@ -6,6 +6,7 @@ using ClassLib.DTO.VaccineCombo;
 using ClassLib.DTO.VaccineTracking;
 using ClassLib.Enum;
 using ClassLib.Models;
+using PayPal.v1.Orders;
 
 namespace ClassLib.Helpers
 {
@@ -54,15 +55,15 @@ namespace ClassLib.Helpers
                 VaccineName = vt.Vaccine.Name,
                 UserName = vt.User.Name,
                 ChildId = vt.ChildId,
-                MinimumIntervalDate = vt.MinimumIntervalDate.Value ,
-                VaccinationDate = vt.VaccinationDate.Value,
-                MaximumIntervalDate = vt.MaximumIntervalDate.Value,//toan tu ba ngoi
+                MinimumIntervalDate = vt.MinimumIntervalDate.HasValue ? vt.MinimumIntervalDate.ToString() : "",
+                VaccinationDate = vt.VaccinationDate.HasValue ? vt.VaccinationDate.ToString() : "",
+                MaximumIntervalDate = vt.MaximumIntervalDate.HasValue ? vt.MaximumIntervalDate.ToString() : "",//toan tu ba ngoi
                 PreviousVaccination = vt.PreviousVaccination.HasValue ? (int)vt.PreviousVaccination.Value : 0,
                 Status = vt.Status,
-                AdministeredByDoctorName = vt.User.Name ?? "Not Vaccination Yet",
+                AdministeredByDoctorName = "Not Vaccination Yet",
                 Reaction = vt.Reaction,
                 VaccineID = vt.VaccineId,
-                BookingId = vt.Booking.Id
+                BookingId = vt.BookingId
             };
         }
 
@@ -151,6 +152,25 @@ namespace ClassLib.Helpers
             return list;
         }
 
+        public static List<PaymentResponseStaff> ConvertPaymentResponseStaff(List<Payment> listPayments)
+        {
+            List<PaymentResponseStaff> list = new List<PaymentResponseStaff>();
+
+            foreach (var item in listPayments)
+            {
+                PaymentResponseStaff prs = new PaymentResponseStaff()
+                {
+                    paymentId = item.PaymentId,
+                    paymentName = item.PaymentMethodNavigation.Name,
+                    amount = item.TotalPrice
+                };
+
+                list.Add(prs);
+            }
+
+            return list;
+        }
+
         public static List<ComboResponeBooking> ConvertListCombos(List<VaccinesCombo> listCombos)
         {
             List<ComboResponeBooking> list = new List<ComboResponeBooking>();
@@ -202,6 +222,25 @@ namespace ClassLib.Helpers
                     Status = item.Status,
                 };
                 list.Add(br);
+            }
+            return list;
+        }
+        public static List<BookingResponesStaff> ConvertBookingResponseStaff(List<Booking> bookings){
+            List<BookingResponesStaff> list = new List<BookingResponesStaff>();
+
+            foreach(var item in bookings){
+                BookingResponesStaff brs = new BookingResponesStaff(){
+                    Id = item.Id.ToString(),
+                    parentName = item.Parent.Name,
+                    phoneNumber = item.Parent.PhoneNumber,
+                    status = item.Status,
+                    paymentMethod = item.Payments.LastOrDefault()!.PaymentMethodNavigation.Name,
+                    ChildrenList = ConvertListChildren((List<Child>)item.Children),
+                    VaccineList = ConvertListVaccines((List<Vaccine>)item.Vaccines),
+                    ComboList = ConvertListCombos((List<VaccinesCombo>)item.Combos)
+                };
+
+                list.Add(brs);
             }
             return list;
         }

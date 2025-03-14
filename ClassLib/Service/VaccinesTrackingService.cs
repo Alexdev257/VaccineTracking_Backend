@@ -137,6 +137,11 @@ namespace ClassLib.Service
             return true;
         }
 
+        public async Task<List<VaccinesTrackingResponse>> GetByBookingId(int id)
+        {
+            var vaccinesTrackings = await _vaccinesTrackingRepository.GetVaccinesTrackingByBookingID(id);
+            return vaccinesTrackings.Select(vt => ConvertHelpers.convertToVaccinesTrackingResponse(vt)).ToList();
+        }
 
         public async Task<bool> VaccinesTrackingRefund(int bookingID, VaccinesTrackingEnum vaccinesTrackingEnum = VaccinesTrackingEnum.Cancel)
         {
