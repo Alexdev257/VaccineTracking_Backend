@@ -110,7 +110,7 @@ namespace ClassLib.Service
                 {
                     paymentMethod = (await _paymentMethodRepository.getPaymentMethodById(payment.PaymentMethod))!.Name;
                 }
-                item.Amount = amount * item.ChildrenList!.Count();
+                item.Amount = (int)amount * item.ChildrenList!.Count();
                 item.paymentName = paymentMethod;
             }
 
@@ -130,7 +130,7 @@ namespace ClassLib.Service
                 {
                     amount += combo.finalPrice;
                 }
-                item.amount = (amount * item.ChildrenList!.Count()).ToString();
+                item.amount = (int)(amount * item.ChildrenList!.Count());
             }
 
             return bookingResponses;
@@ -149,7 +149,7 @@ namespace ClassLib.Service
                 {
                     amount += combo.finalPrice;
                 }
-                item.amount= (amount * item.ChildrenList!.Count()).ToString();
+                item.amount= (int)(amount * item.ChildrenList!.Count());
             }
 
             return bookingResponses;
