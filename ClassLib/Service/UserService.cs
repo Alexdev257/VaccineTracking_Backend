@@ -136,7 +136,189 @@ namespace ClassLib.Service
             return userRes;
         }
 
-        
+
+        //public async Task<bool> registerAsync(DTO.User.RegisterRequest registerRequest)
+        //{
+        //    if (string.IsNullOrWhiteSpace(registerRequest.Name) ||
+        //        string.IsNullOrWhiteSpace(registerRequest.PhoneNumber) ||
+        //        string.IsNullOrWhiteSpace(registerRequest.Username) ||
+        //        string.IsNullOrWhiteSpace(registerRequest.Password))
+        //    {
+        //        throw new Exception("Please fill all information.");
+        //    }
+        //    var existUsername = await _userRepository.getUserByUsernameAsync(registerRequest.Username);
+        //    if (existUsername != null)
+        //    {
+        //        throw new Exception("Exist username. Please choose another.");
+        //    }
+
+        //    var existPhone = await _userRepository.getUserByPhoneAsync(registerRequest.PhoneNumber);
+        //    if (existPhone != null)
+        //    {
+        //        throw new Exception("Exist phone number. Please choose another.");
+        //    }
+
+        //    var existGmail = await _userRepository.getUserByGmailAsync(registerRequest.Gmail);
+        //    if (existGmail != null)
+        //    {
+        //        throw new Exception("Exist gmail. Please choose another.");
+        //    }
+        //    string otp = VerifyCodeHelper.GenerateSixRandomCode();
+
+        //    //_cache.Set($"VerifyCode_{otp}", otp, TimeSpan.FromMinutes(5));
+        //    //_cache.Set($"RegisterName_{otp}", registerRequest.Name, TimeSpan.FromMinutes(5));
+        //    //_cache.Set($"RegisterUserName_{otp}", registerRequest.Username, TimeSpan.FromMinutes(5));
+        //    //_cache.Set($"RegisterGmail_{otp}", registerRequest.Gmail, TimeSpan.FromMinutes(5));
+        //    //_cache.Set($"RegisterPassword_{otp}", registerRequest.Password, TimeSpan.FromMinutes(5));
+        //    //_cache.Set($"RegisterPhoneNumber_{otp}", registerRequest.PhoneNumber, TimeSpan.FromMinutes(5));
+        //    //_cache.Set($"RegisterDateOfBirth_{otp}", registerRequest.DateOfBirth, TimeSpan.FromMinutes(5));
+        //    //_cache.Set($"RegisterAvatar_{otp}", registerRequest.Avatar, TimeSpan.FromMinutes(5));
+        //    //_cache.Set($"RegisterGender_{otp}", registerRequest.Gender, TimeSpan.FromMinutes(5));
+        //    var data = new DTO.User.RegisterRequest()
+        //    {
+        //        Name = registerRequest.Name,
+        //        Username = registerRequest.Username,
+        //        Gmail = registerRequest.Gmail,
+        //        Password = registerRequest.Password,
+        //        PhoneNumber = registerRequest.PhoneNumber,
+        //        DateOfBirth = registerRequest.DateOfBirth,
+        //        Avatar = registerRequest.Avatar,
+        //        Gender = registerRequest.Gender,
+        //    };
+
+        //    string jsonData = System.Text.Json.JsonSerializer.Serialize(data);
+        //    await _redisCache.SetStringAsync($"RegisterRequest_{otp}", jsonData, new DistributedCacheEntryOptions
+        //    {
+        //        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+        //    });
+        //    /*try
+        //    {
+        //        string encryptPassword = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);
+        //        var user = _mapper.Map<User>(registerRequest);
+        //        user.Password = encryptPassword;
+        //        user.Role = "User";
+        //        //user.CreatedAt = DateTime.UtcNow;
+        //        user.CreatedAt = Helpers.TimeProvider.GetVietnamNow();
+        //        user.Status = "Active";
+
+        //        await _userRepository.addUserAsync(user);
+        //        var result = _mapper.Map<RegisterResponse>(user);
+        //        return result;
+        //    }
+        //    catch (DbUpdateException ex)
+        //    {
+        //        throw new Exception($"Error saving data: {ex.InnerException?.Message ?? ex.Message}");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception($"Undefined Error: {ex.Message}");
+        //    }*/
+        //    string templatePath = Path.Combine(_env.WebRootPath, "templates", "VerifyOtpRegisterTemplate.html");
+        //    var placeholders = new Dictionary<string, string>
+        //    {
+        //        { "UserName", registerRequest.Name},
+        //        { "VerifyCode", otp}
+        //    };
+        //     return await _emailService.sendEmailService(registerRequest.Gmail, "Verify Register", templatePath, placeholders);
+        //}
+
+        //public async Task<RegisterResponse?> verifyCodeRegisterAsync(VerifyRegisterRequest request)
+        //{
+        //    if (string.IsNullOrWhiteSpace(request.Otp))
+        //    {
+        //        throw new ArgumentNullException("Otp can not be blank");
+        //    }
+        //    //RegisterResponse result = new RegisterResponse();
+        //    //_cache.TryGetValue("GmailKey", out string? storedGmail)
+        //    //if (_cache.TryGetValue($"VerifyCode_{request.Otp}", out string? storedOtp) &&
+        //    //    _cache.TryGetValue($"RegisterName_{request.Otp}", out string? storedName) &&
+        //    //    _cache.TryGetValue($"RegisterUserName_{request.Otp}", out string? storedUserName) &&
+        //    //    _cache.TryGetValue($"RegisterGmail_{request.Otp}", out string? storedGmail) &&
+        //    //    _cache.TryGetValue($"RegisterPassword_{request.Otp}", out string? storedPassword) &&
+        //    //    _cache.TryGetValue($"RegisterPhoneNumber_{request.Otp}", out string? storedPhoneNumber) &&
+        //    //    (_cache.TryGetValue($"RegisterDateOfBirth_{request.Otp}", out string? storedDateOfBirth) && DateTime.TryParse(storedDateOfBirth, out DateTime castedDateOfBirth)) &&
+        //    //    _cache.TryGetValue($"RegisterAvatar_{request.Otp}", out string? storedAvatar) &&
+        //    //    _cache.TryGetValue($"RegisterGender_{request.Otp}", out string? storedGender))
+        //    //{
+
+        //    string? jsonData = await _redisCache.GetStringAsync($"RegisterRequest_{request.Otp}");
+        //    if (string.IsNullOrEmpty(jsonData))
+        //    {
+        //        throw new UnauthorizedAccessException("Expired");
+        //    }
+
+        //    var registerRequest = System.Text.Json.JsonSerializer.Deserialize<DTO.User.RegisterRequest>(jsonData);
+        //    if (registerRequest == null)
+        //    {
+        //        throw new Exception("Invalid registration data");
+        //    }
+        //    try
+        //    {
+        //            //    public string Name { get; set; } = null!;
+        //            //public string Username { get; set; } = null!;
+        //            //public string Gmail { get; set; } = null!;
+        //            //public string Password { get; set; } = null!;
+        //            //public string PhoneNumber { get; set; } = null!;
+        //            //public DateTime DateOfBirth { get; set; }
+        //            //public string Avatar { get; set; } = null!;
+        //            //public int Gender { get; set; }
+        //            //if(request.Otp == storedOtp)
+        //            //{
+        //            //    _cache.Remove($"VerifyCode_{request.Otp}");
+        //            //    DTO.User.RegisterRequest registerRequest = new DTO.User.RegisterRequest()
+        //            //    {
+        //            //        Name = storedName,
+        //            //        Username = storedUserName,
+        //            //        Gmail = storedGmail,
+        //            //        Password = storedPassword,
+        //            //        PhoneNumber = storedPhoneNumber,
+        //            //        DateOfBirth = castedDateOfBirth,
+        //            //        Avatar = storedAvatar,
+        //            //        Gender = int.Parse(storedGender),
+        //            //    };
+
+        //                //_cache.Remove($"RegisterName_{request.Otp}");
+        //                //_cache.Remove($"RegisterUserName_{request.Otp}");
+        //                //_cache.Remove($"RegisterGmail_{request.Otp}");
+        //                //_cache.Remove($"RegisterPassword_{request.Otp}");
+        //                //_cache.Remove($"RegisterPhoneNumber_{request.Otp}");
+        //                //_cache.Remove($"RegisterDateOfBirth_{request.Otp}");
+        //                //_cache.Remove($"RegisterAvatar_{request.Otp}");
+        //                //_cache.Remove($"RegisterGender_{request.Otp}");
+
+        //                var user = _mapper.Map<User>(registerRequest);
+        //                string encryptPassword = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);
+        //                user.Password = encryptPassword;
+        //                user.Role = "User";
+
+        //                user.CreatedAt = Helpers.TimeProvider.GetVietnamNow();
+        //                user.Status = "Active";
+
+        //                await _userRepository.addUserAsync(user);
+        //                var result = _mapper.Map<RegisterResponse>(user);
+
+        //        await _redisCache.RemoveAsync($"RegisterRequest_{request.Otp}");
+        //        return result;
+
+        //        //}
+        //    }
+        //    catch (DbUpdateException ex)
+        //    {
+        //        throw new DbUpdateException($"Error saving data: {ex.InnerException?.Message ?? ex.Message}");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception($"Undefined Error: {ex.Message}");
+        //    }
+        //    //}
+        //    //else
+        //    //{
+        //    //    throw new UnauthorizedAccessException("Expired");
+        //    //}
+        //    //return result;
+
+        //}
+
         public async Task<bool> registerAsync(DTO.User.RegisterRequest registerRequest)
         {
             if (string.IsNullOrWhiteSpace(registerRequest.Name) ||
@@ -146,6 +328,7 @@ namespace ClassLib.Service
             {
                 throw new Exception("Please fill all information.");
             }
+
             var existUsername = await _userRepository.getUserByUsernameAsync(registerRequest.Username);
             if (existUsername != null)
             {
@@ -163,17 +346,9 @@ namespace ClassLib.Service
             {
                 throw new Exception("Exist gmail. Please choose another.");
             }
+
             string otp = VerifyCodeHelper.GenerateSixRandomCode();
 
-            //_cache.Set($"VerifyCode_{otp}", otp, TimeSpan.FromMinutes(5));
-            //_cache.Set($"RegisterName_{otp}", registerRequest.Name, TimeSpan.FromMinutes(5));
-            //_cache.Set($"RegisterUserName_{otp}", registerRequest.Username, TimeSpan.FromMinutes(5));
-            //_cache.Set($"RegisterGmail_{otp}", registerRequest.Gmail, TimeSpan.FromMinutes(5));
-            //_cache.Set($"RegisterPassword_{otp}", registerRequest.Password, TimeSpan.FromMinutes(5));
-            //_cache.Set($"RegisterPhoneNumber_{otp}", registerRequest.PhoneNumber, TimeSpan.FromMinutes(5));
-            //_cache.Set($"RegisterDateOfBirth_{otp}", registerRequest.DateOfBirth, TimeSpan.FromMinutes(5));
-            //_cache.Set($"RegisterAvatar_{otp}", registerRequest.Avatar, TimeSpan.FromMinutes(5));
-            //_cache.Set($"RegisterGender_{otp}", registerRequest.Gender, TimeSpan.FromMinutes(5));
             var data = new DTO.User.RegisterRequest()
             {
                 Name = registerRequest.Name,
@@ -186,40 +361,18 @@ namespace ClassLib.Service
                 Gender = registerRequest.Gender,
             };
 
-            string jsonData = System.Text.Json.JsonSerializer.Serialize(data);
-            await _redisCache.SetStringAsync($"RegisterRequest_{otp}", jsonData, new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
-            });
-            /*try
-            {
-                string encryptPassword = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);
-                var user = _mapper.Map<User>(registerRequest);
-                user.Password = encryptPassword;
-                user.Role = "User";
-                //user.CreatedAt = DateTime.UtcNow;
-                user.CreatedAt = Helpers.TimeProvider.GetVietnamNow();
-                user.Status = "Active";
+            // Lưu vào MemoryCache với thời gian hết hạn là 5 phút
+            _cache.Set($"RegisterRequest_{otp}", data, TimeSpan.FromMinutes(5));
 
-                await _userRepository.addUserAsync(user);
-                var result = _mapper.Map<RegisterResponse>(user);
-                return result;
-            }
-            catch (DbUpdateException ex)
-            {
-                throw new Exception($"Error saving data: {ex.InnerException?.Message ?? ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Undefined Error: {ex.Message}");
-            }*/
+            // Gửi email xác thực OTP
             string templatePath = Path.Combine(_env.WebRootPath, "templates", "VerifyOtpRegisterTemplate.html");
             var placeholders = new Dictionary<string, string>
             {
-                { "UserName", registerRequest.Name},
-                { "VerifyCode", otp}
+                { "UserName", registerRequest.Name },
+                { "VerifyCode", otp }
             };
-             return await _emailService.sendEmailService(registerRequest.Gmail, "Verify Register", templatePath, placeholders);
+
+            return await _emailService.sendEmailService(registerRequest.Gmail, "Verify Register", templatePath, placeholders);
         }
 
         public async Task<RegisterResponse?> verifyCodeRegisterAsync(VerifyRegisterRequest request)
@@ -228,79 +381,29 @@ namespace ClassLib.Service
             {
                 throw new ArgumentNullException("Otp can not be blank");
             }
-            //RegisterResponse result = new RegisterResponse();
-            //_cache.TryGetValue("GmailKey", out string? storedGmail)
-            //if (_cache.TryGetValue($"VerifyCode_{request.Otp}", out string? storedOtp) &&
-            //    _cache.TryGetValue($"RegisterName_{request.Otp}", out string? storedName) &&
-            //    _cache.TryGetValue($"RegisterUserName_{request.Otp}", out string? storedUserName) &&
-            //    _cache.TryGetValue($"RegisterGmail_{request.Otp}", out string? storedGmail) &&
-            //    _cache.TryGetValue($"RegisterPassword_{request.Otp}", out string? storedPassword) &&
-            //    _cache.TryGetValue($"RegisterPhoneNumber_{request.Otp}", out string? storedPhoneNumber) &&
-            //    (_cache.TryGetValue($"RegisterDateOfBirth_{request.Otp}", out string? storedDateOfBirth) && DateTime.TryParse(storedDateOfBirth, out DateTime castedDateOfBirth)) &&
-            //    _cache.TryGetValue($"RegisterAvatar_{request.Otp}", out string? storedAvatar) &&
-            //    _cache.TryGetValue($"RegisterGender_{request.Otp}", out string? storedGender))
-            //{
 
-            string? jsonData = await _redisCache.GetStringAsync($"RegisterRequest_{request.Otp}");
-            if (string.IsNullOrEmpty(jsonData))
+            // Lấy dữ liệu từ MemoryCache
+            if (!_cache.TryGetValue($"RegisterRequest_{request.Otp}", out DTO.User.RegisterRequest? registerRequest) || registerRequest == null)
             {
-                throw new UnauthorizedAccessException("Expired");
+                throw new UnauthorizedAccessException("Expired OTP");
             }
 
-            var registerRequest = System.Text.Json.JsonSerializer.Deserialize<DTO.User.RegisterRequest>(jsonData);
-            if (registerRequest == null)
-            {
-                throw new Exception("Invalid registration data");
-            }
             try
             {
-                    //    public string Name { get; set; } = null!;
-                    //public string Username { get; set; } = null!;
-                    //public string Gmail { get; set; } = null!;
-                    //public string Password { get; set; } = null!;
-                    //public string PhoneNumber { get; set; } = null!;
-                    //public DateTime DateOfBirth { get; set; }
-                    //public string Avatar { get; set; } = null!;
-                    //public int Gender { get; set; }
-                    //if(request.Otp == storedOtp)
-                    //{
-                    //    _cache.Remove($"VerifyCode_{request.Otp}");
-                    //    DTO.User.RegisterRequest registerRequest = new DTO.User.RegisterRequest()
-                    //    {
-                    //        Name = storedName,
-                    //        Username = storedUserName,
-                    //        Gmail = storedGmail,
-                    //        Password = storedPassword,
-                    //        PhoneNumber = storedPhoneNumber,
-                    //        DateOfBirth = castedDateOfBirth,
-                    //        Avatar = storedAvatar,
-                    //        Gender = int.Parse(storedGender),
-                    //    };
-                        
-                        //_cache.Remove($"RegisterName_{request.Otp}");
-                        //_cache.Remove($"RegisterUserName_{request.Otp}");
-                        //_cache.Remove($"RegisterGmail_{request.Otp}");
-                        //_cache.Remove($"RegisterPassword_{request.Otp}");
-                        //_cache.Remove($"RegisterPhoneNumber_{request.Otp}");
-                        //_cache.Remove($"RegisterDateOfBirth_{request.Otp}");
-                        //_cache.Remove($"RegisterAvatar_{request.Otp}");
-                        //_cache.Remove($"RegisterGender_{request.Otp}");
-                        
-                        var user = _mapper.Map<User>(registerRequest);
-                        string encryptPassword = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);
-                        user.Password = encryptPassword;
-                        user.Role = "User";
-                        
-                        user.CreatedAt = Helpers.TimeProvider.GetVietnamNow();
-                        user.Status = "Active";
+                var user = _mapper.Map<User>(registerRequest);
+                string encryptPassword = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password);
+                user.Password = encryptPassword;
+                user.Role = "User";
+                user.CreatedAt = Helpers.TimeProvider.GetVietnamNow();
+                user.Status = "Active";
 
-                        await _userRepository.addUserAsync(user);
-                        var result = _mapper.Map<RegisterResponse>(user);
+                await _userRepository.addUserAsync(user);
+                var result = _mapper.Map<RegisterResponse>(user);
 
-                await _redisCache.RemoveAsync($"RegisterRequest_{request.Otp}");
+                // Xóa khỏi MemoryCache sau khi đăng ký thành công
+                _cache.Remove($"RegisterRequest_{request.Otp}");
+
                 return result;
-
-                //}
             }
             catch (DbUpdateException ex)
             {
@@ -310,13 +413,6 @@ namespace ClassLib.Service
             {
                 throw new Exception($"Undefined Error: {ex.Message}");
             }
-            //}
-            //else
-            //{
-            //    throw new UnauthorizedAccessException("Expired");
-            //}
-            //return result;
-
         }
 
 
