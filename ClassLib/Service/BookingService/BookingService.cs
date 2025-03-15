@@ -40,14 +40,15 @@ namespace ClassLib.Service
         {
             var result = await _vaccineTrackingService.SoftDeleteByBookingId(updateBooking.BookingId);
             var booking = await _bookingRepository.GetByBookingID(updateBooking.BookingId);
-            if(booking == null) return "Don't exist booking";
-            if(booking.Status == BookingEnum.Success.ToString()) return "Booking is already success";
+            if (booking == null) return "Don't exist booking";
+            if (booking.Status == BookingEnum.Success.ToString()) return "Booking is already success";
+            var listChild = ConvertHelpers.ConvertChildrenToListInt(booking.Children.ToList());
+            booking = (await _bookingRepository.AddBooking(booking, listChild, updateBooking.VaccinesList!, updateBooking.VaccinesCombo!))!;
             AddVaccinesTrackingRequest addVaccinesTrackingRequest = new AddVaccinesTrackingRequest()
             {
                 UserId = booking!.ParentId,
                 VaccinationDate = booking.ArrivedAt
             };
-            var listChild = ConvertHelpers.ConvertChildrenToListInt(booking.Children.ToList());
             // Add vaccine to vaccine tracking
             if (!updateBooking.VaccinesList.IsNullOrEmpty())
                 await _vaccineTrackingService.AddVaccinesToVaccinesTrackingAsync(addVaccinesTrackingRequest, updateBooking.VaccinesList!, listChild, booking!.Id);
