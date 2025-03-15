@@ -67,17 +67,17 @@ namespace ClassLib.Service
             return result;
         }
 
-        public async Task<List<GetFeedbackResponse>> GetAllFeedbackAdmin()
+        public async Task<List<GetFeedbackAdminResponse>> GetAllFeedbackAdmin()
         {
             var feedback = await _feedbackRepository.getAllFeedBackRepoAdmin();
             if (feedback.Count == 0)
             {
                 throw new ArgumentException("Do not exist any feedbacks");
             }
-            List<GetFeedbackResponse> result = new List<GetFeedbackResponse>();
+            List<GetFeedbackAdminResponse> result = new List<GetFeedbackAdminResponse>();
             foreach (var feedbackItem in feedback)
             {
-                var rs = _mapper.Map<GetFeedbackResponse>(feedbackItem);
+                var rs = _mapper.Map<GetFeedbackAdminResponse>(feedbackItem);
                 result.Add(rs);
             }
             return result;
