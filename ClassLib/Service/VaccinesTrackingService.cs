@@ -29,6 +29,11 @@ namespace ClassLib.Service
             var vaccinesTrackings = await _vaccinesTrackingRepository.GetVaccinesTrackingAsync();
             return vaccinesTrackings.Select(vt => ConvertHelpers.convertToVaccinesTrackingResponse(vt)).ToList();
         }
+        public async Task<List<VaccinesTrackingResponse>> GetVaccinesTrackingAsyncStaff()
+        {
+            var vaccinesTrackings = await _vaccinesTrackingRepository.GetVaccinesTrackingStaffAsync();
+            return vaccinesTrackings.Select(vt => ConvertHelpers.convertToVaccinesTrackingResponse(vt)).ToList();
+        }
 
         public async Task<List<VaccinesTrackingResponse>> GetVaccinesTrackingByParentIdAsync(int id)
         {
@@ -162,7 +167,7 @@ namespace ClassLib.Service
         {
             var today = Helpers.TimeProvider.GetVietnamNow();
             var list = await _vaccinesTrackingRepository.GetUpComingVaccinations(today);
-            if(list.Count == 0)
+            if (list.Count == 0)
             {
                 throw new ArgumentException("No more reminder for upcoming");
             }

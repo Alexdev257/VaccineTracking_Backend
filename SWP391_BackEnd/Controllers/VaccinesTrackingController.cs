@@ -16,15 +16,23 @@ namespace SWP391_BackEnd.Controllers
             _vaccinesTrackingService = vaccinesTrackingService;
         }
 
+        // staff
+        [HttpGet("get-all-staff")]
+        public async Task<IActionResult> GetAllStaff()
+        {
+            var result = await _vaccinesTrackingService.GetVaccinesTrackingAsyncStaff();
+            if (result.IsNullOrEmpty()) return BadRequest();
+            return Ok(result);
+        }
+
         // admin
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+        [HttpGet("get-all-admin")]
+        public async Task<IActionResult> GetAllAdmin()
         {
             var result = await _vaccinesTrackingService.GetVaccinesTrackingAsync();
             if (result.IsNullOrEmpty()) return BadRequest();
             return Ok(result);
         }
-
         //user
         [HttpGet("get-by-parent-id/{id}")]
         public async Task<IActionResult> GetByParentId(int id)
@@ -53,7 +61,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         // admin reaction or success + cancel
-        [HttpPut("update-vaccine-admin/{id}")]
+        [HttpPut("update-vaccine-staff/{id}")]
         public async Task<IActionResult> UpdateVaccinesTracking([FromRoute] int id, [FromBody] UpdateVaccineTracking updateVaccineTracking)
         {
             var respone = await _vaccinesTrackingService.UpdateVaccinesTrackingAsync(id, updateVaccineTracking);
@@ -86,7 +94,7 @@ namespace SWP391_BackEnd.Controllers
             {
                 return NotFound(e.Message);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return StatusCode(500, e.Message);
             }
