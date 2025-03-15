@@ -223,5 +223,27 @@ namespace SWP391_BackEnd.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPatch("restore-feedback/{id}")]
+        public async Task<IActionResult> RestoreFeedbackController(int id)
+        {
+            try
+            {
+                var rs = await _feedbackService.RestoreFeedback(id);
+                return Ok("Restore feedback successfully");
+            }
+            catch(ArgumentNullException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch(ArgumentException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

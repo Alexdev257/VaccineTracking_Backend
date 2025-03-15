@@ -191,5 +191,25 @@ namespace ClassLib.Service
             var result = await _feedbackRepository.updateFeedBack(feedback);
             return result;
         }
+
+        public async Task<bool> RestoreFeedback(int id)
+        {
+            if (string.IsNullOrWhiteSpace(id.ToString()))
+            {
+                throw new ArgumentNullException("Id can not be blank");
+            }
+            var feedback = await _feedbackRepository.getFeedBackByIdAdmin(id);
+            if(feedback == null)
+            {
+                throw new ArgumentException("Feedback does not exist");
+            }
+            if (feedback.IsDeleted == false)
+            {
+                throw new ArgumentException("Feedback was not deleted");
+            }
+            feedback.IsDeleted = false;
+            var result = await _feedbackRepository.updateFeedBack(feedback);
+            return result;
+        }
     }
 }
