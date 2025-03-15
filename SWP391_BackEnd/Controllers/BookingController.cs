@@ -94,8 +94,6 @@ namespace SWP391_BackEnd.Controllers
             await _bookingService.UpdateBookingStatus(bookingID, BookingEnum.Success.ToString());
             return BookingEnum.Success.ToString();
         }
-
-
         [HttpGet("booking-history/{userID}")]
         public async Task<IActionResult> GetAllBookingByUser([FromRoute] int userID)
         {
@@ -116,6 +114,12 @@ namespace SWP391_BackEnd.Controllers
             var bookingList = await _bookingService.GetAllBookingForStaff();
             return Ok(bookingList);
         }
-        // [HttpPatch("mark-as-complete")]
+        
+        
+        
+        [HttpPatch("update-booking-details")]
+        public async Task<IActionResult> UpdateBookingDetails(UpdateBooking updateBooking){
+            return Ok(await _bookingService.UpdateBookingDetails(updateBooking));
+        }
     }
 }

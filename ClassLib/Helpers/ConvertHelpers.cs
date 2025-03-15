@@ -250,5 +250,15 @@ namespace ClassLib.Helpers
                 Reschedule = updateVaccineTrackingUser?.Reschedule
             };
         }
+        public static List<int> ConvertChildrenToListInt(List<Child> list){
+            List<int> result = new();
+
+            foreach(var item in list){
+                var id = item.Id;
+                result.Add(id);
+            }
+
+            return result;
+        }
     }
 }
