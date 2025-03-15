@@ -116,5 +116,6 @@ namespace SWP391_BackEnd.Controllers
             var bookingList = await _bookingService.GetAllBookingForStaff();
             return Ok(bookingList);
         }
+        // [HttpPatch("mark-as-complete")]
     }
 }
