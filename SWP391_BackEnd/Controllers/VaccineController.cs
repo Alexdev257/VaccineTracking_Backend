@@ -174,6 +174,28 @@ namespace SWP391_BackEnd.Controllers
             }
         }
 
+        [HttpPatch("restore-vaccine/{id}")]
+        public async Task<IActionResult> RestoreVaccine(int id)
+        {
+            try
+            {
+                var rs = await _vaccineService.RestoreVaccine(id);
+                return Ok("Restore successfully");
+            }
+            catch (ArgumentNullException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (ArgumentException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("get-vaccine-by-age/{age}")]
         public async Task<IActionResult> GetVaccinesByAge(int age)
         {

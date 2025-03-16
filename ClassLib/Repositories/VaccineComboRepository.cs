@@ -149,5 +149,20 @@ namespace ClassLib.Repositories
 
             return Task.FromResult(total);
         }
+
+        //Alex5
+        public async Task<List<VaccinesCombo>> GetAllComboHasNearlyExpiredVaccines()
+        {
+            return await GetAll()
+                .Where(vc => vc.Vaccines.Any(v => v.Status.ToLower() == "Nearlyoutstock".ToLower() || v.IsDeleted == true))
+                .ToListAsync();
+        }
+
+        public async Task<List<VaccinesCombo>> GetAllComboHasExpiredVaccines()
+        {
+            return await GetAll()
+                .Where(vc => vc.Vaccines.Any(v => v.Status.ToLower() == "Outstock".ToLower() || v.IsDeleted == true))
+                .ToListAsync();
+        }
     }
 }

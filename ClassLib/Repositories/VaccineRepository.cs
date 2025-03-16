@@ -119,11 +119,24 @@ namespace ClassLib.Repositories
         }
 
         //Alex5
+
+        public async Task<List<Vaccine>> GetNearlyExpiredVaccine()
+        {
+            var today = Helpers.TimeProvider.GetVietnamNow();
+            return await _context.Vaccines
+                .Include(v => v.VacineCombos)
+                // == instock de handle truong hop vaccine bi unstock boi admin hoac da cap nhat nearlyoutstock vao ngay hom truoc roi
+                .Where(v => (v.TimeExpired.Date <= today.AddDays(3).Date || v.Quantity < v.DoesTimes) && v.Status.ToLower() == "instock".ToLower())
+                .ToListAsync();
+        }
+
+        //Alex5
         public async Task<List<Vaccine>> GetExpiredVaccine()
         {
             var today = Helpers.TimeProvider.GetVietnamNow();
             return await _context.Vaccines
-                .Where(v => v.TimeExpired <= today)
+                .Include(v => v.VacineCombos)
+                .Where(v => v.TimeExpired.Date <= today.Date || v.Quantity < v.DoesTimes)
                 .ToListAsync();
         }
 

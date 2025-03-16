@@ -1,0 +1,179 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Vaccine Stock Alert</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .alert-icon {
+            font-size: 28px;
+            color: #e74c3c;
+        }
+
+        h2 {
+            color: #e74c3c;
+            margin: 10px 0;
+            font-size: 22px;
+        }
+
+        .highlight {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .alert-message {
+            background-color: #fdf2f2;
+            border-left: 4px solid #e74c3c;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .vaccine-list {
+            margin: 20px 0;
+            padding: 0;
+            list-style: none;
+        }
+
+            .vaccine-list li {
+                background: #fff;
+                margin: 10px 0;
+                padding: 15px;
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+                border-left: 5px solid #e74c3c;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+                .vaccine-list li strong {
+                    color: #e74c3c;
+                    font-size: 16px;
+                }
+
+        .vaccine-id {
+            color: #7f8c8d;
+            font-size: 14px;
+            background: #f5f5f5;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .action-button {
+            display: inline-block;
+            background-color: #e74c3c;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin: 10px 0;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+
+            .action-button:hover {
+                background-color: #c0392b;
+            }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .contact-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+            .contact-info a {
+                color: #3498db;
+                text-decoration: none;
+            }
+
+                .contact-info a:hover {
+                    text-decoration: underline;
+                }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <span>🩺</span>
+                <span>Vaccine Management System</span>
+            </div>
+        </div>
+
+        <h2><span class="alert-icon">🚨</span> Urgent: Vaccine Stock Alert</h2>
+
+        <p>Dear <span class="highlight">{{UserName}}</span>,</p>
+
+        <div class="alert-message">
+            <p>Our system has detected that the following vaccines are nearly out of stock and require immediate attention.</p>
+        </div>
+
+        <ul class="vaccine-list">
+            {{VaccineList}}
+        </ul>
+
+        <p>This requires your immediate attention to ensure continuous patient care.</p>
+
+        <a href="#" class="action-button">Order Refill Now</a>
+
+        <p>Thank you for your prompt action.</p>
+
+        <p>
+            Best regards,<br>
+            <strong>Vaccine Management System</strong>
+        </p>
+
+        <div class="footer">
+            <div class="contact-info">
+                <p>If you have any questions, please contact us at: <a href="mailto:{{SupportEmail}}">{{SupportEmail}}</a></p>
+                <p>This is an automated message. Please do not reply to this email.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

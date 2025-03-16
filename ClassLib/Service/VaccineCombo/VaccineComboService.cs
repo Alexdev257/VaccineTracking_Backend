@@ -182,13 +182,13 @@ namespace ClassLib.Service.VaccineCombo
             //    vaccines.Add(vaccine);
             //}
             //combo.Vaccines = vaccines;
-            if(request.Status.ToLower() == "Unavailable")
-            {
-                combo.IsDeleted = true;
-            }else if(request.Status.ToLower() == "Available")
-            {
-                combo.IsDeleted = false;
-            }
+            //if(request.Status.ToLower() == "Unavailable")
+            //{
+            //    combo.IsDeleted = true;
+            //}else if(request.Status.ToLower() == "Available")
+            //{
+            //    combo.IsDeleted = false;
+            //}
 
             // Xác định vaccine cần thêm
             var vaccinesToAdd = vaccineIds.Except(existVaccineIds).ToList();
@@ -224,19 +224,45 @@ namespace ClassLib.Service.VaccineCombo
             return await _vaccineComboRepository.DeleteVaccineCombo(currentVaccine);
         }
 
+        //Alex5
         public async Task<bool> SoftDeleteVaccineCombo(int id)
         {
             if (string.IsNullOrWhiteSpace(id.ToString()))
             {
                 throw new ArgumentNullException("Id can not be blank");
             }
-            var combo = await _vaccineComboRepository.GetById(id);
+            var combo = await _vaccineComboRepository.GetByIdAdmin(id);
             if(combo == null)
             {
                 throw new ArgumentException("Combo does not exist");
             }
+            if(combo.IsDeleted == true)
+            {
+                throw new ArgumentException("Combo has been deleted");
+            }
             combo.IsDeleted = true;
-            combo.Status = "Unvailable";
+            //combo.Status = "Unvailable";
+            return await _vaccineComboRepository.UpdateCombo(combo);
+        }
+
+        //Alex5
+        public async Task<bool> RestoreVaccineCombo(int id)
+        {
+            if (string.IsNullOrWhiteSpace(id.ToString()))
+            {
+                throw new ArgumentNullException("Id can not be blank");
+            }
+            var combo = await _vaccineComboRepository.GetByIdAdmin(id);
+            if (combo == null)
+            {
+                throw new ArgumentException("Combo does not exist");
+            }
+            if (combo.IsDeleted == false)
+            {
+                throw new ArgumentException("Combo has not been deleted");
+            }
+            combo.IsDeleted = false;
+            //combo.Status = "Unvailable";
             return await _vaccineComboRepository.UpdateCombo(combo);
         }
 

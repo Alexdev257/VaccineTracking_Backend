@@ -1,4 +1,6 @@
 ﻿using System.Net.Mail;
+using System.Text;
+using ClassLib.Models;
 using ClassLib.Repositories;
 using ClassLib.Service;
 using Microsoft.AspNetCore.Hosting;
@@ -33,10 +35,14 @@ namespace ClassLib.BackGroundServices
                         var emailService = scope.ServiceProvider.GetRequiredService<EmailService>();
                         var env = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
                         var vaccineRepository = scope.ServiceProvider.GetRequiredService<VaccineRepository>();
+                        var vaccineComboRepository = scope.ServiceProvider.GetRequiredService<VaccineComboRepository>();
 
                         await SendUpcomingVaccineReminder(userRepository, vaccineTrackingRepository, emailService, env);
                         await SendDeadlineVaccineReminder(userRepository, vaccineTrackingRepository, emailService, env);
-                        await UpdateStatusExpiredVaccine(vaccineRepository);
+                        await UpdateStatusNearlyExpiredVaccineAndCombo(vaccineRepository,vaccineComboRepository, userRepository, emailService, env);
+                        await UpdateStatusExpiredVaccineAndCombo(vaccineRepository, vaccineComboRepository);
+
+
                     }
                 }
                 catch(Exception e)
@@ -182,9 +188,76 @@ namespace ClassLib.BackGroundServices
             return allMailSent;
         }
 
-        private async Task<bool> UpdateStatusExpiredVaccine(VaccineRepository vaccineRepository)
+        private async Task<bool> UpdateStatusNearlyExpiredVaccineAndCombo(VaccineRepository vaccineRepository, VaccineComboRepository vaccineComboRepository, UserRepository userRepository, EmailService emailService, IWebHostEnvironment env)
+        {
+            var expiredVaccinations = await vaccineRepository.GetNearlyExpiredVaccine();
+            var affectedComboIds = new HashSet<int>(); // O(1)
+            var allUpdated = true;
+
+            var vaccineListHtml = new StringBuilder();
+            foreach (var expired in expiredVaccinations)
+            {
+                expired.Status = "Nearlyoutstock";
+                var isUpdated = await vaccineRepository.UpdateVaccine(expired);
+                if (!isUpdated)
+                {
+                    allUpdated = false;
+                }
+                else
+                {
+                    vaccineListHtml.Append($"<li><strong>{expired.Name}</strong> (ID: {expired.Id})</li>");
+                    if (expired.VacineCombos != null)
+                    {
+                        foreach (var combo in expired.VacineCombos)
+                        {
+                            affectedComboIds.Add(combo.Id);
+                        }
+                    }
+                }
+            }
+
+            if (affectedComboIds.Any())
+            {
+                var allCombos = await vaccineComboRepository.GetAllVaccineComboAdmin();
+                var affectedCombos = allCombos.Where(c => affectedComboIds.Contains(c.Id)).ToList();
+
+                foreach (var affectedCombo in affectedCombos)
+                {
+                    affectedCombo.Status = "Nearlyoutstock";
+                    var isUpdated = await vaccineComboRepository.UpdateCombo(affectedCombo);
+                    if (!isUpdated)
+                    {
+                        allUpdated = false;
+                    }
+                }
+            }
+            var allUsers = await userRepository.getAll();
+            var allAdmin = allUsers.Where(u => u.Role.ToLower() == "admin".ToLower()).ToList();
+            foreach (var admin in allAdmin)
+            {
+                var toEmail = admin.Gmail;
+                string subject = $"Vaccines is Out of Stock Reminder For {admin.Name}";
+                string templatePath = Path.Combine(env.WebRootPath, "templates", "vaccinesOutStockReminder.html");
+                var placeholders = new Dictionary<string, string>()
+                {
+                    { "UserName", admin.Name },
+                    { "VaccineList", vaccineListHtml.ToString() }, // Thêm danh sách vaccine vào email
+                    { "SupportEmail", "healthbluecaresystem@example.com" }
+                };
+                var rs = await emailService.sendEmailService(toEmail, subject, templatePath, placeholders);
+                if (!rs)
+                {
+                    allUpdated = false;
+                }
+            }
+            
+            return allUpdated;
+        }
+
+        private async Task<bool> UpdateStatusExpiredVaccineAndCombo(VaccineRepository vaccineRepository, VaccineComboRepository vaccineComboRepository)
         {
             var expiredVaccinations = await vaccineRepository.GetExpiredVaccine();
+            var affectedComboIds = new HashSet<int>(); // O(1)
             var allUpdated = true;
             foreach (var expired in expiredVaccinations)
             {
@@ -194,9 +267,34 @@ namespace ClassLib.BackGroundServices
                 {
                     allUpdated = false;
                 }
+                else
+                {
+                    if (expired.VacineCombos != null)
+                    {
+                        foreach (var combo in expired.VacineCombos)
+                        {
+                            affectedComboIds.Add(combo.Id);
+                        }
+                    }
+                }
+            }
+
+            if (affectedComboIds.Any())
+            {
+                var allCombos = await vaccineComboRepository.GetAllVaccineComboAdmin();
+                var affectedCombos = allCombos.Where(c => affectedComboIds.Contains(c.Id)).ToList();
+
+                foreach (var affectedCombo in affectedCombos)
+                {
+                    affectedCombo.Status = "Outstock";
+                    var isUpdated = await vaccineComboRepository.UpdateCombo(affectedCombo);
+                    if (!isUpdated)
+                    {
+                        allUpdated = false;
+                    }
+                }
             }
             return allUpdated;
         }
-
     }
 }
