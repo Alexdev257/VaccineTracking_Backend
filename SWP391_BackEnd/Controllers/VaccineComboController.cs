@@ -35,13 +35,13 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-all-vaccine-combo-admin")]
-        [Authorize( Roles = "admin")]
+
         public async Task<IActionResult> GetVaccineCombosAdmin()
         {
            
             //try
             //{
-            var combos = await _vaccineComboService.GetAllVaccineCombo();
+            var combos = await _vaccineComboService.GetAllVaccineComboAdmin();
             if (combos == null || combos.Count == 0)
             {
                 return NotFound("No combos found.");
@@ -73,12 +73,12 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-vaccine-combo-detail-admin/{id}")]
-        [Authorize ( Roles = "admin")]
+        
         public async Task<IActionResult> GetVaccineComBoDetailByIdAdmin(int id)
         {
             try
             {
-                var combo = await _vaccineComboService.GetDetailVaccineComboByIdAsync(id);
+                var combo = await _vaccineComboService.GetDetailVaccineComboByIdAsyncAdmin(id);
                 return Ok(combo);
             }
             catch (ArgumentNullException e)
