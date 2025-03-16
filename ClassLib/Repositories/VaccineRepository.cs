@@ -32,7 +32,7 @@ namespace ClassLib.Repositories
         }
         public async Task<Vaccine?> GetByIdAdmin(int id)
         {
-            return await GetByIDHelper(id).FirstOrDefaultAsync();
+            return await GetByIDHelper(id).Include(v => v.VacineCombos).FirstOrDefaultAsync();
         }
 
         private IQueryable<Vaccine> GetByIDHelper(int id)
@@ -116,6 +116,14 @@ namespace ClassLib.Repositories
             }
 
             return Task.FromResult(total);
+        }
+
+        //Alex5
+        public async Task<List<Vaccine>> GetVaccinesByComboId(int comboId)
+        {
+            return await _context.Vaccines
+                .Where(v => v.VacineCombos.Any(vc => vc.Id == comboId))
+                .ToListAsync();
         }
 
         //Alex5
