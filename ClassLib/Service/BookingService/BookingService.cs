@@ -36,6 +36,31 @@ namespace ClassLib.Service
             _env = env;
         }
 
+        public async Task<string> UpdateBookingDetails(UpdateBooking updateBooking)
+        {
+            var result = await _vaccineTrackingService.SoftDeleteByBookingId(updateBooking.BookingId);
+            var booking = await _bookingRepository.GetByBookingID(updateBooking.BookingId);
+            if (booking == null) return "Don't exist booking";
+            if (booking.Status == BookingEnum.Success.ToString()) return "Booking is already success";
+            var listChild = ConvertHelpers.ConvertChildrenToListInt(booking.Children.ToList());
+            booking = (await _bookingRepository.AddBooking(booking, listChild, updateBooking.VaccinesList!, updateBooking.VaccinesCombo!))!;
+            AddVaccinesTrackingRequest addVaccinesTrackingRequest = new AddVaccinesTrackingRequest()
+            {
+                UserId = booking!.ParentId,
+                VaccinationDate = booking.ArrivedAt
+            };
+            // Add vaccine to vaccine tracking
+            if (!updateBooking.VaccinesList.IsNullOrEmpty())
+                await _vaccineTrackingService.AddVaccinesToVaccinesTrackingAsync(addVaccinesTrackingRequest, updateBooking.VaccinesList!, listChild, booking!.Id);
+
+            // Add combos to vaccine tracking
+            if (!updateBooking.VaccinesCombo.IsNullOrEmpty())
+                await _vaccineTrackingService.AddVaccinesComboToVaccinesTrackingAsync(addVaccinesTrackingRequest, updateBooking.VaccinesCombo!, listChild, booking!.Id);
+
+            return "Success";
+
+        }
+
         public async Task<OrderInfoModel?> AddBooking(AddBooking addBooking)
         {
             Booking booking = ConvertHelpers.convertToBooking(addBooking);
@@ -110,7 +135,7 @@ namespace ClassLib.Service
                 {
                     paymentMethod = (await _paymentMethodRepository.getPaymentMethodById(payment.PaymentMethod))!.Name;
                 }
-                item.Amount = amount * item.ChildrenList!.Count();
+                item.Amount = (int)amount * item.ChildrenList!.Count();
                 item.paymentName = paymentMethod;
             }
 
@@ -130,7 +155,7 @@ namespace ClassLib.Service
                 {
                     amount += combo.finalPrice;
                 }
-                item.amount = (amount * item.ChildrenList!.Count()).ToString();
+                item.amount = (int)(amount * item.ChildrenList!.Count());
             }
 
             return bookingResponses;
@@ -149,7 +174,7 @@ namespace ClassLib.Service
                 {
                     amount += combo.finalPrice;
                 }
-                item.amount= (amount * item.ChildrenList!.Count()).ToString();
+                item.amount = (int)(amount * item.ChildrenList!.Count());
             }
 
             return bookingResponses;

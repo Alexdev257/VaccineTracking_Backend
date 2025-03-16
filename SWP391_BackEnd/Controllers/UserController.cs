@@ -335,6 +335,77 @@ namespace SWP391_BackEnd.Controllers
             
         }
 
+        [HttpPut("update-user-admin/{id}")]
+        public async Task<IActionResult> updateUserAdminController(int id, [FromBody] UpdateUserAdminRequest request)
+        {
+            try
+            {
+                var rs = await _userService.UpdateUserAdmin(id, request);
+                if (!rs)
+                {
+                    return BadRequest(new { message = "Update user failed" });
+                }
+                return Ok(new { message = "Update user successfully" });
+            }
+            catch (ArgumentNullException e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+            catch (ArgumentException e)
+            {
+                return NotFound(new { message = e.Message });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+
+        }
+
+        [HttpGet("get-user-child/{id}")]
+        public async Task<IActionResult> getThem(int id)
+        {
+            try
+            {
+                var rs = await _userService.getUserChildByIdAdmin(id);
+                return Ok(rs);
+            }
+            catch(ArgumentNullException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch(ArgumentException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch(UnauthorizedAccessException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("get-all-user-child")]
+        public async Task<IActionResult> getAllThem()
+        {
+            try
+            {
+                var rs = await _userService.getAllUserChildAdmin();
+                return Ok(rs);
+            }
+            catch(ArgumentException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpDelete("delete-user/{id}")]
         public async Task<IActionResult> deleteUserController(int id)
         {
@@ -429,6 +500,30 @@ namespace SWP391_BackEnd.Controllers
                 return BadRequest(new { message = e.Message });
             }
         }
+
+        [HttpPost("create-user")]
+        // admin only
+        public async Task<IActionResult> CreateUser([FromBody] CreateStaffRequest request)
+        {
+            try
+            {
+                var rs = await _userService.CreateUser(request);
+                return Ok("Create staff successful");
+            }
+            catch (ArgumentNullException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (ArgumentException e)
+            {
+                return Conflict(e.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
 
         [HttpPost("create-staff")]
         // admin only

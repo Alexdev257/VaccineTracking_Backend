@@ -35,12 +35,12 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-all-child-admin")]
-        [Authorize (Roles = "admin")]
+        //[Authorize (Roles = "admin")]
         public async Task<IActionResult> getAllChildAdmin()
         {
             try
             {
-                var child = await _childService.GetAllChildAsync();
+                var child = await _childService.GetAllChildForAdminAsync();
                 return Ok(child);
             }
             catch (ArgumentException ex)

@@ -3,6 +3,7 @@ using ClassLib.Helpers;
 using ClassLib.Models;
 using ClassLib.Repositories.BookingDetails;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using TimeProvider = ClassLib.Helpers.TimeProvider;
 
@@ -167,6 +168,8 @@ namespace ClassLib.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
+        
+        
         // Hard delete
         public async Task<int> HardDelete()
         {

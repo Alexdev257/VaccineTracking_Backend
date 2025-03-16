@@ -16,15 +16,23 @@ namespace SWP391_BackEnd.Controllers
             _vaccinesTrackingService = vaccinesTrackingService;
         }
 
+        // staff
+        [HttpGet("get-all-staff")]
+        public async Task<IActionResult> GetAllStaff()
+        {
+            var result = await _vaccinesTrackingService.GetVaccinesTrackingAsyncStaff();
+            if (result.IsNullOrEmpty()) return BadRequest();
+            return Ok(result);
+        }
+
         // admin
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+        [HttpGet("get-all-admin")]
+        public async Task<IActionResult> GetAllAdmin()
         {
             var result = await _vaccinesTrackingService.GetVaccinesTrackingAsync();
             if (result.IsNullOrEmpty()) return BadRequest();
             return Ok(result);
         }
-
         //user
         [HttpGet("get-by-parent-id/{id}")]
         public async Task<IActionResult> GetByParentId(int id)
@@ -53,7 +61,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         // admin reaction or success + cancel
-        [HttpPut("update-vaccine-admin/{id}")]
+        [HttpPut("update-vaccine-staff/{id}")]
         public async Task<IActionResult> UpdateVaccinesTracking([FromRoute] int id, [FromBody] UpdateVaccineTracking updateVaccineTracking)
         {
             var respone = await _vaccinesTrackingService.UpdateVaccinesTrackingAsync(id, updateVaccineTracking);
@@ -70,6 +78,44 @@ namespace SWP391_BackEnd.Controllers
             var respone = await _vaccinesTrackingService.UpdateVaccinesTrackingAsync(id, ConvertHelpers.ConvertToUpdateVaccineTracking(updateVaccineTrackingUser));
             if (respone == false) return BadRequest();
             else return Ok("Update Success");
+        }
+
+
+        //Alex5
+        [HttpGet("get-up-coming-reminder")]
+        public async Task<IActionResult> GetUpcomingReminder()
+        {
+            try
+            {
+                var rs = await _vaccinesTrackingService.GetUpcomingVaccinationsReminderAsync();
+                return Ok(rs);
+            }
+            catch (ArgumentException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpGet("get-deadline-reminder")]
+        public async Task<IActionResult> GetDeadlineReminder()
+        {
+            try
+            {
+                var rs = await _vaccinesTrackingService.GetDeadlineVaccinationsReminderAsync();
+                return Ok(rs);
+            }
+            catch (ArgumentException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
         }
 
     }

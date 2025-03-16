@@ -46,6 +46,7 @@ namespace ClassLib.Helpers
             CreateMap<Vaccine, GetVaccineInVaccineComboDetail>();
 
             CreateMap<Feedback, GetFeedbackResponse>();
+            CreateMap<Feedback, GetFeedbackAdminResponse>();
 
             CreateMap<CreateFeedbackRequest, Feedback>();
             CreateMap<UpdateFeedbackRequest, Feedback>()

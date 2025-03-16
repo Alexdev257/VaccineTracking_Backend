@@ -67,17 +67,17 @@ namespace ClassLib.Service
             return result;
         }
 
-        public async Task<List<GetFeedbackResponse>> GetAllFeedbackAdmin()
+        public async Task<List<GetFeedbackAdminResponse>> GetAllFeedbackAdmin()
         {
             var feedback = await _feedbackRepository.getAllFeedBackRepoAdmin();
             if (feedback.Count == 0)
             {
                 throw new ArgumentException("Do not exist any feedbacks");
             }
-            List<GetFeedbackResponse> result = new List<GetFeedbackResponse>();
+            List<GetFeedbackAdminResponse> result = new List<GetFeedbackAdminResponse>();
             foreach (var feedbackItem in feedback)
             {
-                var rs = _mapper.Map<GetFeedbackResponse>(feedbackItem);
+                var rs = _mapper.Map<GetFeedbackAdminResponse>(feedbackItem);
                 result.Add(rs);
             }
             return result;
@@ -188,6 +188,26 @@ namespace ClassLib.Service
                 throw new ArgumentException("Feedback is not exist");
             }
             feedback.IsDeleted = true;
+            var result = await _feedbackRepository.updateFeedBack(feedback);
+            return result;
+        }
+
+        public async Task<bool> RestoreFeedback(int id)
+        {
+            if (string.IsNullOrWhiteSpace(id.ToString()))
+            {
+                throw new ArgumentNullException("Id can not be blank");
+            }
+            var feedback = await _feedbackRepository.getFeedBackByIdAdmin(id);
+            if(feedback == null)
+            {
+                throw new ArgumentException("Feedback does not exist");
+            }
+            if (feedback.IsDeleted == false)
+            {
+                throw new ArgumentException("Feedback was not deleted");
+            }
+            feedback.IsDeleted = false;
             var result = await _feedbackRepository.updateFeedBack(feedback);
             return result;
         }

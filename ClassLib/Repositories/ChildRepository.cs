@@ -13,24 +13,10 @@ namespace ClassLib.Repositories
 
         public async Task<List<Child>> GetAll()
         {
-            return await _context.Children.Where(c => c.IsDeleted == false).ToListAsync();
-        }
-
-        public async Task<List<Child>> GetAllForAdmin()
-        {
             return await _context.Children.ToListAsync();
         }
 
         public async Task<Child?> GetChildById(int id)
-        {
-            return await _context.Children.FirstOrDefaultAsync(c => c.Id == id && c.IsDeleted == false);
-        }
-        public async Task<Child?> GetChildByIdAdmin(int id)
-        {
-            return await _context.Children.FirstOrDefaultAsync(c => c.Id == id);
-        }
-
-        public async Task<Child?> GetChildByIdHardDelete(int id)
         {
             return await _context.Children.FirstOrDefaultAsync(c => c.Id == id);
         }
@@ -55,11 +41,6 @@ namespace ClassLib.Repositories
 
         public async Task<bool> HardDeleteChild(Child child)
         {
-            //var child = await GetChildById(id);
-            //if (child == null)
-            //{
-            //    return false;
-            //}
             _context.Children.Remove(child);
             return await _context.SaveChangesAsync() > 0;
         }

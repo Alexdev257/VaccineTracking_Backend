@@ -33,7 +33,6 @@ namespace ClassLib.Helpers
                 BookingId = bookingID
             };
         }
-
         public static VaccinesTrackingResponse convertToVaccinesTrackingResponse(VaccinesTracking vt)
         {
             if (vt == null)
@@ -66,8 +65,6 @@ namespace ClassLib.Helpers
                 BookingId = vt.BookingId
             };
         }
-
-
         public static AddVaccinesTrackingRequest convertToVaccinesTrackingRequest(AddBooking addBooking)
         {
             return new AddVaccinesTrackingRequest
@@ -77,7 +74,6 @@ namespace ClassLib.Helpers
                 AdministeredBy = 0
             };
         }
-
         public static Booking convertToBooking(AddBooking addBooking)
         {
             return new Booking
@@ -91,7 +87,6 @@ namespace ClassLib.Helpers
                 Id = addBooking.BookingID
             };
         }
-
         public static RefundModel convertToRefundModel(Payment payment, double amount, int refundType)
         {
             return new RefundModel
@@ -105,7 +100,6 @@ namespace ClassLib.Helpers
                 RefundType = refundType
             };
         }
-
         public static OrderInfoModel convertToOrderInfoModel(Booking booking, User user, AddBooking addBooking)
         {
             return new OrderInfoModel
@@ -120,7 +114,6 @@ namespace ClassLib.Helpers
                 Amount = addBooking.TotalPrice
             };
         }
-
         public static OrderInfoModel RepurchaseBookingtoOrderInfoModel(Booking booking, User user, int amount)
         {
             return new OrderInfoModel
@@ -134,7 +127,6 @@ namespace ClassLib.Helpers
                 Amount = amount
             };
         }
-
         public static List<VaccineResponeBooking> ConvertListVaccines(List<Vaccine> listVaccines)
         {
             List<VaccineResponeBooking> list = new List<VaccineResponeBooking>();
@@ -151,7 +143,6 @@ namespace ClassLib.Helpers
             }
             return list;
         }
-
         public static List<PaymentResponseStaff> ConvertPaymentResponseStaff(List<Payment> listPayments)
         {
             List<PaymentResponseStaff> list = new List<PaymentResponseStaff>();
@@ -170,7 +161,6 @@ namespace ClassLib.Helpers
 
             return list;
         }
-
         public static List<ComboResponeBooking> ConvertListCombos(List<VaccinesCombo> listCombos)
         {
             List<ComboResponeBooking> list = new List<ComboResponeBooking>();
@@ -189,7 +179,6 @@ namespace ClassLib.Helpers
             }
             return list;
         }
-
         public static List<ChildrenResponeBooking> ConvertListChildren(List<Child> listChildrens)
         {
             List<ChildrenResponeBooking> list = new List<ChildrenResponeBooking>();
@@ -199,13 +188,13 @@ namespace ClassLib.Helpers
                 {
                     ChildId = item.Id,
                     Name = item.Name,
-                    Gender = item.Gender
+                    Gender = item.Gender,
+                    Age = TimeProvider.GetVietnamNow().Year - item.DateOfBirth.Year
                 };
                 list.Add(crb);
             }
             return list;
         }
-
         public static List<BookingResponse> ConvertBookingResponse(List<Booking> listBookings)
         {
             List<BookingResponse> list = new List<BookingResponse>();
@@ -216,6 +205,7 @@ namespace ClassLib.Helpers
                     ID = item.Id,
                     AdvisoryDetail = item.AdvisoryDetails,
                     ArrivedAt = item.ArrivedAt,
+                    CreatedAt = item.CreatedAt,
                     ChildrenList = ConvertListChildren((List<Child>)item.Children),
                     VaccineList = ConvertListVaccines((List<Vaccine>)item.Vaccines),
                     ComboList = ConvertListCombos((List<VaccinesCombo>)item.Combos),
@@ -234,10 +224,14 @@ namespace ClassLib.Helpers
                 BookingResponesStaff brs = new BookingResponesStaff()
                 {
                     Id = item.Id.ToString(),
+                    ParentId = item.ParentId.ToString(),
                     parentName = item.Parent.Name,
                     phoneNumber = item.Parent.PhoneNumber,
                     status = item.Status,
                     paymentMethod = item.Payments?.LastOrDefault()?.PaymentMethodNavigation?.Name ?? "Have not payment yet",
+                    createdAt = item.CreatedAt,
+                    arrivedAt = item.ArrivedAt,
+                    AdvisoryDetail = item.AdvisoryDetails,
                     ChildrenList = ConvertListChildren((List<Child>)item.Children),
                     VaccineList = ConvertListVaccines((List<Vaccine>)item.Vaccines),
                     ComboList = ConvertListCombos((List<VaccinesCombo>)item.Combos)
@@ -247,7 +241,6 @@ namespace ClassLib.Helpers
             }
             return list;
         }
-
         public static UpdateVaccineTracking ConvertToUpdateVaccineTracking(UpdateVaccineTrackingUser updateVaccineTrackingUser)
         {
             return new UpdateVaccineTracking()
@@ -256,6 +249,16 @@ namespace ClassLib.Helpers
                 Status = ((updateVaccineTrackingUser.isCancel == true) ? "cancel" : null)!,
                 Reschedule = updateVaccineTrackingUser?.Reschedule
             };
+        }
+        public static List<int> ConvertChildrenToListInt(List<Child> list){
+            List<int> result = new();
+
+            foreach(var item in list){
+                var id = item.Id;
+                result.Add(id);
+            }
+
+            return result;
         }
     }
 }

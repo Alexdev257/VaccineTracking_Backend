@@ -22,6 +22,11 @@ namespace ClassLib.Repositories
                                     .ToListAsync()!;
         }
 
+        public async Task<List<VaccinesTracking>> GetVaccinesTrackingStaffAsync()
+        {
+            return (await GetVaccinesTrackingAsync()).Where( x => x.IsDeleted == false).ToList();
+        }
+
 
         // For user
         public async Task<List<VaccinesTracking>> GetVaccinesTrackingByParentIdAsync(int id) => (await GetVaccinesTrackingAsync())
