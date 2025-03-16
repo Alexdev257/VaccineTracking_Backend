@@ -32,9 +32,11 @@ namespace ClassLib.BackGroundServices
                         var vaccineTrackingRepository = scope.ServiceProvider.GetRequiredService<VaccinesTrackingRepository>();
                         var emailService = scope.ServiceProvider.GetRequiredService<EmailService>();
                         var env = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+                        var vaccineRepository = scope.ServiceProvider.GetRequiredService<VaccineRepository>();
 
                         await SendUpcomingVaccineReminder(userRepository, vaccineTrackingRepository, emailService, env);
                         await SendDeadlineVaccineReminder(userRepository, vaccineTrackingRepository, emailService, env);
+                        await UpdateStatusExpiredVaccine(vaccineRepository);
                     }
                 }
                 catch(Exception e)
@@ -179,5 +181,22 @@ namespace ClassLib.BackGroundServices
             }
             return allMailSent;
         }
+
+        private async Task<bool> UpdateStatusExpiredVaccine(VaccineRepository vaccineRepository)
+        {
+            var expiredVaccinations = await vaccineRepository.GetExpiredVaccine();
+            var allUpdated = true;
+            foreach (var expired in expiredVaccinations)
+            {
+                expired.Status = "Outstock";
+                var isUpdated = await vaccineRepository.UpdateVaccine(expired);
+                if (!isUpdated)
+                {
+                    allUpdated = false;
+                }
+            }
+            return allUpdated;
+        }
+
     }
 }

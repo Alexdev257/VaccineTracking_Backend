@@ -1402,6 +1402,79 @@ namespace ClassLib.Service
             return await _userRepository.updateUser(user);
         }
 
+        public async Task<bool> CreateUser(CreateStaffRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Name))
+            {
+                throw new ArgumentNullException("Name can not be blank");
+            }
+            if (string.IsNullOrWhiteSpace(request.Username))
+            {
+                throw new ArgumentNullException("Userame can not be blank");
+            }
+            if (string.IsNullOrWhiteSpace(request.Password))
+            {
+                throw new ArgumentNullException("Password can not be blank");
+            }
+            if (string.IsNullOrWhiteSpace(request.Gmail))
+            {
+                throw new ArgumentNullException("Gmail can not be blank");
+            }
+            if (string.IsNullOrWhiteSpace(request.PhoneNumber))
+            {
+                throw new ArgumentNullException("Phone number can not be blank");
+            }
+            if (string.IsNullOrWhiteSpace(request.DateOfBirth.ToString()))
+            {
+                throw new ArgumentNullException("Date of birth can not be blank");
+            }
+            if (string.IsNullOrWhiteSpace(request.Avatar))
+            {
+                throw new ArgumentNullException("Avatar can not be blank");
+            }
+            if (string.IsNullOrWhiteSpace(request.Gender.ToString()))
+            {
+                throw new ArgumentNullException("Gender can not be blank");
+            }
+            var existUserName = await _userRepository.getUserByUsernameAsync(request.Username);
+            if (existUserName != null)
+            {
+                throw new ArgumentException("Username is already exist");
+            }
+            var existPhone = await _userRepository.getUserByPhoneAsync(request.PhoneNumber);
+            if (existPhone != null)
+            {
+                throw new ArgumentException("Phone Number is already exist");
+            }
+            var existGmail = await _userRepository.getUserByGmailAsync(request.Gmail);
+            if (existGmail != null)
+            {
+                throw new ArgumentException("Gmail is already exist");
+            }
+            try
+            {
+                string encryptPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
+                var user = _mapper.Map<User>(request);
+                user.Password = encryptPassword;
+                user.Role = "User";
+                user.CreatedAt = Helpers.TimeProvider.GetVietnamNow();
+                user.Status = "Active";
+
+                var result = await _userRepository.addUserAsync(user);
+                return result;
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new Exception($"Error saving data: {ex.InnerException?.Message ?? ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Undefined Error: {ex.Message}");
+            }
+
+        }
+
+
         public async Task<bool> CreateStaff(CreateStaffRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Name))

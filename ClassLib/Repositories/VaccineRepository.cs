@@ -117,5 +117,15 @@ namespace ClassLib.Repositories
 
             return Task.FromResult(total);
         }
+
+        //Alex5
+        public async Task<List<Vaccine>> GetExpiredVaccine()
+        {
+            var today = Helpers.TimeProvider.GetVietnamNow();
+            return await _context.Vaccines
+                .Where(v => v.TimeExpired <= today)
+                .ToListAsync();
+        }
+
     }
 }
