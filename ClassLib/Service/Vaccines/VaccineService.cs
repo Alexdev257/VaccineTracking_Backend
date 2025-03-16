@@ -9,11 +9,13 @@ namespace ClassLib.Service.Vaccines
     {
         private readonly VaccineRepository _vaccineRepository;
         private readonly IMapper _mapper;
+        private readonly VaccineComboRepository _vaccineComboRepository;
 
-        public VaccineService(VaccineRepository vaccineRepository, IMapper mapper)
+        public VaccineService(VaccineRepository vaccineRepository, IMapper mapper, VaccineComboRepository vaccineComboRepository)
         {
             _vaccineRepository = vaccineRepository ?? throw new ArgumentNullException(nameof(vaccineRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _vaccineComboRepository = vaccineComboRepository;
         }
 
         //Lấy tất cả
@@ -181,7 +183,17 @@ namespace ClassLib.Service.Vaccines
             {
                 throw new ArgumentException("This vaccine has been deleted");
             }
+
             vaccine.IsDeleted = true;
+            if (vaccine.VacineCombos != null && vaccine.VacineCombos.Any())
+            {
+                foreach (var combo in vaccine.VacineCombos)
+                {
+                    combo.IsDeleted = true;
+                    await _vaccineComboRepository.UpdateCombo(combo); 
+                }
+            }
+
             //vaccine.Status = "Unavailable";
             return await _vaccineRepository.UpdateVaccine(vaccine);
         }
@@ -203,7 +215,22 @@ namespace ClassLib.Service.Vaccines
             {
                 throw new ArgumentException("This vaccine has not been deleted");
             }
+            
             vaccine.IsDeleted = false;
+            if (vaccine.VacineCombos != null && vaccine.VacineCombos.Any())
+            {
+                foreach (var combo in vaccine.VacineCombos)
+                {
+                    var comboVaccines = await _vaccineRepository.GetVaccinesByComboId(combo.Id);
+
+                    bool allVaccinesActive = comboVaccines.All(v => v.IsDeleted == false);
+                    if(allVaccinesActive)
+                    {
+                        combo.IsDeleted = false;
+                        await _vaccineComboRepository.UpdateCombo(combo);
+                    }
+                }
+            }
             //vaccine.Status = "Unavailable";
             return await _vaccineRepository.UpdateVaccine(vaccine);
         }
