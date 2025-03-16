@@ -209,6 +209,28 @@ namespace SWP391_BackEnd.Controllers
             //}
         }
 
+        [HttpPatch("reatore-combo/{id}")]
+        public async Task<IActionResult> RestoreCombo(int id)
+        {
+            try
+            {
+                var rs = await _vaccineComboService.RestoreVaccineCombo(id);
+                return Ok("Restore successfully");
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            //catch(Exception e)
+            //{
+            //    return StatusCode(500, "Something went wrong");
+            //}
+        }
+
         [HttpPut("remove-vaccine-from-combo/{id}")]
         public async Task<IActionResult> RemoveVaccine([FromBody] AddVaccineIntoCombo rq, int id)// dung chung dto voi addvacineintocombo
         {

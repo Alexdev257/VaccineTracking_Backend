@@ -139,13 +139,13 @@ namespace ClassLib.Service.Vaccines
                 //vaccine.MaximumIntervalDate = request.MaximumIntervalDate;
                 //vaccine.FromCountry = request.FromCountry;
                 var rs = _mapper.Map(request, vaccine); // Chỉ cập nhật các field có trong UpdateVaccine
-                if (rs.Status.ToLower() == "Unavailable")
-                {
-                    vaccine.IsDeleted = true;
-                }else if(rs.Status.ToLower() == "Available")
-                {
-                    vaccine.IsDeleted = false;
-                }
+                //if (rs.Status.ToLower() == "Unavailable")
+                //{
+                //    vaccine.IsDeleted = true;
+                //}else if(rs.Status.ToLower() == "Available")
+                //{
+                //    vaccine.IsDeleted = false;
+                //}
                 return await _vaccineRepository.UpdateVaccine(rs);
             } 
         }
@@ -164,6 +164,7 @@ namespace ClassLib.Service.Vaccines
             return await _vaccineRepository.DeleteVaccine(currentVaccine);
         }
 
+        //Alex5
         public async Task<bool> SoftDeleteVaccine(int id)
         {
             if (string.IsNullOrWhiteSpace(id.ToString()))
@@ -171,15 +172,42 @@ namespace ClassLib.Service.Vaccines
                 throw new ArgumentNullException("ID can not be blank");
             }
 
-            var vaccine = await _vaccineRepository.GetById(id);
+            var vaccine = await _vaccineRepository.GetByIdAdmin(id);
             if(vaccine == null)
             {
                 throw new ArgumentException("Do not exist vaccine");
             }
+            if(vaccine.IsDeleted == true)
+            {
+                throw new ArgumentException("This vaccine has been deleted");
+            }
             vaccine.IsDeleted = true;
-            vaccine.Status = "Unavailable";
+            //vaccine.Status = "Unavailable";
             return await _vaccineRepository.UpdateVaccine(vaccine);
         }
+
+        //Alex5
+        public async Task<bool> RestoreVaccine(int id)
+        {
+            if (string.IsNullOrWhiteSpace(id.ToString()))
+            {
+                throw new ArgumentNullException("ID can not be blank");
+            }
+
+            var vaccine = await _vaccineRepository.GetByIdAdmin(id);
+            if (vaccine == null)
+            {
+                throw new ArgumentException("Do not exist vaccine");
+            }
+            if (vaccine.IsDeleted == false)
+            {
+                throw new ArgumentException("This vaccine has not been deleted");
+            }
+            vaccine.IsDeleted = false;
+            //vaccine.Status = "Unavailable";
+            return await _vaccineRepository.UpdateVaccine(vaccine);
+        }
+
         //lay theo tuoi
         public async Task<List<Models.Vaccine>> GetVaccinesByAge(int age)
         {
