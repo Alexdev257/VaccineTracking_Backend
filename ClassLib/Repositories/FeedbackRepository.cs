@@ -11,7 +11,7 @@ namespace ClassLib.Repositories
         {
             _context = context;
         }
-
+        
         public async Task<List<Feedback>> getAllFeedBackRepo()
         {
             return await _context.Feedbacks.Where(f => f.IsDeleted == false).ToListAsync();
