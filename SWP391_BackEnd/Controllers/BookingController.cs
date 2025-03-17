@@ -59,6 +59,44 @@ namespace SWP391_BackEnd.Controllers
 
                 return BadRequest(new { message = "Failed to initiate payment" });
             }
+            else if ((int)PaymentEnum.Cash == addBooking.paymentId)
+            {
+                string bookingID = orderInfo.BookingID;
+                decimal amount = orderInfo.Amount;
+                string paymentID = TimeProvider.GetVietnamNow().Ticks.ToString();
+                string trancasionID = paymentID;
+                string status = "Pending";
+
+                RespondModel response = new RespondModel()
+                {
+                    BookingID = bookingID,
+                    Amount = amount.ToString(),
+                    TrancasionID = trancasionID,
+                    Message = status,
+                    OrderId = paymentID,
+                    OrderDescription = "",
+                };
+
+                UriBuilder uriBuilder = new UriBuilder($"http://localhost:5173/confirm/pending");
+
+                var queryParams = HttpUtility.ParseQueryString(string.Empty);
+
+                foreach (var prop in response.GetType().GetProperties())
+                {
+                    var value = prop.GetValue(response)?.ToString();
+                    if (value != null)
+                    {
+                        queryParams[prop.Name] = value;
+                    }
+                }
+
+                uriBuilder.Query = queryParams.ToString();
+
+                return Redirect(uriBuilder.ToString());
+            }
+
+
+
             else return BadRequest();
 
             // If payment method is by cash
@@ -76,7 +114,6 @@ namespace SWP391_BackEnd.Controllers
             int paymentMethod = (int)PaymentEnum.Cash;
             string currency = "VND";
             DateTime paymentDate = TimeProvider.GetVietnamNow();
-
             Payment payment = new Payment()
             {
                 PaymentId = paymentID,
@@ -89,7 +126,6 @@ namespace SWP391_BackEnd.Controllers
                 PaymentDate = paymentDate,
                 Status = PaymentStatusEnum.Success.ToString()
             };
-
             await _paymentRepository.AddPayment(payment);
             await _bookingService.UpdateBookingStatus(bookingID, BookingEnum.Success.ToString());
             return BookingEnum.Success.ToString();
@@ -114,11 +150,12 @@ namespace SWP391_BackEnd.Controllers
             var bookingList = await _bookingService.GetAllBookingForStaff();
             return Ok(bookingList);
         }
-        
-        
-        
+
+
+
         [HttpPatch("update-booking-details")]
-        public async Task<IActionResult> UpdateBookingDetails(UpdateBooking updateBooking){
+        public async Task<IActionResult> UpdateBookingDetails(UpdateBooking updateBooking)
+        {
             return Ok(await _bookingService.UpdateBookingDetails(updateBooking));
         }
     }
