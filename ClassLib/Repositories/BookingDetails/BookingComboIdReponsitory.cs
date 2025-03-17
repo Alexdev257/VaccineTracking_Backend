@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using ClassLib.DTO.VaccineCombo;
 using ClassLib.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ClassLib.Repositories
 {
@@ -56,16 +57,19 @@ namespace ClassLib.Repositories
                 await _context.SaveChangesAsync();
 
                 // Add
-                foreach (var id in comboId)
+                if (!comboId.IsNullOrEmpty())
                 {
-                    var combo = await _context.VaccinesCombos.FindAsync(id);
-                    if (combo == null)
+                    foreach (var id in comboId)
                     {
-                        return false;
+                        var combo = await _context.VaccinesCombos.FindAsync(id);
+                        if (combo == null)
+                        {
+                            return false;
+                        }
+                        booking.Combos.Add(combo);
                     }
-                    booking.Combos.Add(combo);
+                    await _context.SaveChangesAsync();
                 }
-                await _context.SaveChangesAsync();
                 return true;
             }
             catch (Exception e)

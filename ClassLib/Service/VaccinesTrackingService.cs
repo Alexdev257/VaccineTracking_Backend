@@ -120,9 +120,14 @@ namespace ClassLib.Service
                 }
                 if (updateVaccineTracking?.Status?.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Success).ToString().ToLower() && checkpointForThisVaccine == 2)
                 {
-                    vt.VaccinationDate = null;
-                    vt.MinimumIntervalDate = TimeProvider.GetVietnamNow().AddDays(vaccine!.MinimumIntervalDate.HasValue ? vaccine.MinimumIntervalDate.Value : 30);
-                    vt.MaximumIntervalDate = TimeProvider.GetVietnamNow().AddDays(vaccine!.MaximumIntervalDate.HasValue ? vaccine.MaximumIntervalDate.Value : 60);
+                    vt.MinimumIntervalDate = TimeProvider.GetVietnamNow().AddDays(vaccine!.MinimumIntervalDate ?? 30);
+                    vt.MaximumIntervalDate = TimeProvider.GetVietnamNow().AddDays(vaccine!.MaximumIntervalDate ?? 60);
+
+                    DateTime minDate = vt.MinimumIntervalDate ?? TimeProvider.GetVietnamNow();
+                    DateTime maxDate = vt.MaximumIntervalDate ?? TimeProvider.GetVietnamNow();
+
+                    vt.VaccinationDate = minDate.AddDays((maxDate - minDate).TotalDays / 2);
+
 
                     vt.Status = ((VaccinesTrackingEnum)VaccinesTrackingEnum.Schedule).ToString();
                 }

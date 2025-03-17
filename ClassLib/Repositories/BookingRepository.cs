@@ -86,9 +86,9 @@ namespace ClassLib.Repositories
                 // This is existed booking but the Staff change vaccine for User
                 else
                 {
-                    if (!ChildrenIDs.IsNullOrEmpty()) await _bookingChildIdRepository.ClearAndAdd(booking, ChildrenIDs);
-                    if (!VaccineIDs.IsNullOrEmpty()) await _bookingIdVaccineIdReponsitory.ClearAndAdd(booking, VaccineIDs);
-                    if (!VaccineComboIDs.IsNullOrEmpty()) await _bookingComboIdReponsitory.ClearAndAdd(booking, VaccineComboIDs);
+                    await _bookingChildIdRepository.ClearAndAdd(booking, ChildrenIDs);
+                    await _bookingIdVaccineIdReponsitory.ClearAndAdd(booking, VaccineIDs);
+                    await _bookingComboIdReponsitory.ClearAndAdd(booking, VaccineComboIDs);
 
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();

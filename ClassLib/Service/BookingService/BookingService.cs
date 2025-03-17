@@ -38,48 +38,19 @@ namespace ClassLib.Service
 
         public async Task<string> UpdateBookingDetails(UpdateBooking updateBooking)
         {
-            var result = await _vaccineTrackingService.SoftDeleteByBookingId(updateBooking.BookingId);
             var booking = await _bookingRepository.GetByBookingID(updateBooking.BookingId);
             if (booking == null) return "Don't exist booking";
             if (booking.Status == BookingEnum.Success.ToString()) return "Booking is already success";
             var listChild = ConvertHelpers.ConvertChildrenToListInt(booking.Children.ToList());
             booking = (await _bookingRepository.AddBooking(booking, listChild, updateBooking.VaccinesList!, updateBooking.VaccinesCombo!))!;
-            AddVaccinesTrackingRequest addVaccinesTrackingRequest = new AddVaccinesTrackingRequest()
-            {
-                UserId = booking!.ParentId,
-                VaccinationDate = booking.ArrivedAt
-            };
-            // Add vaccine to vaccine tracking
-            if (!updateBooking.VaccinesList.IsNullOrEmpty())
-                await _vaccineTrackingService.AddVaccinesToVaccinesTrackingAsync(addVaccinesTrackingRequest, updateBooking.VaccinesList!, listChild, booking!.Id);
-
-            // Add combos to vaccine tracking
-            if (!updateBooking.VaccinesCombo.IsNullOrEmpty())
-                await _vaccineTrackingService.AddVaccinesComboToVaccinesTrackingAsync(addVaccinesTrackingRequest, updateBooking.VaccinesCombo!, listChild, booking!.Id);
-
             return "Success";
-
         }
 
         public async Task<OrderInfoModel?> AddBooking(AddBooking addBooking)
         {
             Booking booking = ConvertHelpers.convertToBooking(addBooking);
-
             var checkExistedBookingRepo = await _bookingRepository.GetByBookingID(addBooking.BookingID);
             booking = (await _bookingRepository.AddBooking(checkExistedBookingRepo ?? booking, addBooking.ChildrenIds!, addBooking.vaccineIds!, addBooking.vaccineComboIds!))!;
-            AddVaccinesTrackingRequest addVaccinesTrackingRequest = ConvertHelpers.convertToVaccinesTrackingRequest(addBooking);
-
-            // Soft delete the existed vaccines tracking if staff want to change vaccine and vaccineCombo for user
-            await _vaccineTrackingService.SoftDeleteByBookingId(booking.Id);
-
-            // Add vaccine to vaccine tracking
-            if (!addBooking.vaccineIds.IsNullOrEmpty())
-                await _vaccineTrackingService.AddVaccinesToVaccinesTrackingAsync(addVaccinesTrackingRequest, addBooking.vaccineIds!, addBooking.ChildrenIds!, booking!.Id);
-
-            // Add combos to vaccine tracking
-            if (!addBooking.vaccineComboIds.IsNullOrEmpty())
-                await _vaccineTrackingService.AddVaccinesComboToVaccinesTrackingAsync(addVaccinesTrackingRequest, addBooking.vaccineComboIds!, addBooking.ChildrenIds!, booking!.Id);
-
             var user = await _userRepository.getUserByIdAsync(addBooking.ParentId);
 
             return ConvertHelpers.convertToOrderInfoModel(booking!, user!, addBooking);
@@ -87,8 +58,24 @@ namespace ClassLib.Service
         public async Task<Booking?> UpdateBookingStatus(string bookingId, string msg)
         {
             var booking = await _bookingRepository.UpdateBooking(bookingId, msg);
-            if (msg == BookingEnum.Success.ToString())
+            if (msg.ToLower() == BookingEnum.Success.ToString().ToLower())
             {
+                booking = await _bookingRepository.GetByBookingID(int.Parse(bookingId));
+                List<int> ChildList = ConvertHelpers.ConvertChildrenToListInt((List<Child>)booking!.Children);
+                List<int> VaccinesList = booking.Vaccines.Select(x => x.Id).ToList();
+                List<int> ComboList = booking.Combos.Select(x => x.Id).ToList();
+                AddVaccinesTrackingRequest addVaccinesTrackingRequest = new()
+                {
+                    UserId = booking.ParentId,
+                    VaccinationDate = booking.ArrivedAt,
+                    AdministeredBy = 0
+                };
+                if (!VaccinesList.IsNullOrEmpty())
+                    await _vaccineTrackingService.AddVaccinesToVaccinesTrackingAsync(addVaccinesTrackingRequest, VaccinesList, ChildList, booking!.Id);
+
+                if (!ComboList.IsNullOrEmpty())
+                    await _vaccineTrackingService.AddVaccinesComboToVaccinesTrackingAsync(addVaccinesTrackingRequest, ComboList, ChildList, booking!.Id);
+
                 string templatePath = Path.Combine(_env.WebRootPath, "templates", "bookingSuccessTemplate.html");
                 var parent = await _bookingRepository.GetByBookingID(int.Parse(bookingId));
 
@@ -111,8 +98,6 @@ namespace ClassLib.Service
                 };
                 await _emailService.sendEmailService(parent.Parent.Gmail, "Refund Successful", templatePath, newDictonary);
             }
-
-
             return booking;
         }
         public async Task<List<BookingResponse>?> GetBookingByUserAsync(int id)

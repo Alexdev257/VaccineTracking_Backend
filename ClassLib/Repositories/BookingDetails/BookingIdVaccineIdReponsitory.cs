@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ClassLib.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ClassLib.Repositories
 {
@@ -55,16 +56,20 @@ namespace ClassLib.Repositories
                 await _context.SaveChangesAsync();
 
                 // Add
-                foreach (var id in vaccineId)
+
+                if (!vaccineId.IsNullOrEmpty())
                 {
-                    var vaccine = await _context.Vaccines.FindAsync(id);
-                    if (vaccine == null)
+                    foreach (var id in vaccineId)
                     {
-                        return false;
+                        var vaccine = await _context.Vaccines.FindAsync(id);
+                        if (vaccine == null)
+                        {
+                            return false;
+                        }
+                        booking.Vaccines.Add(vaccine);
                     }
-                    booking.Vaccines.Add(vaccine);
+                    await _context.SaveChangesAsync();
                 }
-                await _context.SaveChangesAsync();
                 return true;
             }
             catch (Exception e)
