@@ -35,7 +35,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
 
     public virtual DbSet<VaccinesTracking> VaccinesTrackings { get; set; }
 
-    public virtual DbSet<Office> Offices { get; set; }
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -52,6 +52,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
             entity.ToTable("Address");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Source).HasColumnName("source");
             entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
             entity.Property(e => e.Name)
                 .HasMaxLength(255)
@@ -460,16 +461,7 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
                 .HasConstraintName("vaccines_tracking_vaccine_id_foreign");
         });
 
-        modelBuilder.Entity<Office>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Office__3213E83F7BA7AC3C");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Name).HasColumnName("name");
-            entity.Property(e => e.Source).HasColumnName("source");
-
-            entity.ToTable("Office");
-        });
+        
 
             OnModelCreatingPartial(modelBuilder);
     }

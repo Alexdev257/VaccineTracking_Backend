@@ -6,6 +6,8 @@ public partial class Address
 
     public string Name { get; set; } = null!;
 
+    public string Source { get; set; }
+
     public bool IsDeleted { get; set; }
 
     public virtual ICollection<Vaccine> Vaccines { get; set; } = new List<Vaccine>();

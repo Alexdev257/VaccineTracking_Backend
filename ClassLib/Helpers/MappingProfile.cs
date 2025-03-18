@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ClassLib.DTO.Address;
 using ClassLib.DTO.Booking;
 using ClassLib.DTO.Child;
 using ClassLib.DTO.Feedback;
@@ -51,6 +52,8 @@ namespace ClassLib.Helpers
             CreateMap<CreateFeedbackRequest, Feedback>();
             CreateMap<UpdateFeedbackRequest, Feedback>()
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<Address, GetSourceMap>().ReverseMap();
 
         }
     }

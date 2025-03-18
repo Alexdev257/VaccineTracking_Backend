@@ -29,7 +29,6 @@ using Hangfire;
 using Hangfire.SqlServer;
 using ClassLib.Repositories;
 using ClassLib.BackGroundServices;
-using ClassLib.Service.OfficeService;
 namespace SWP391_BackEnd
 {
     public class Program
@@ -109,9 +108,6 @@ namespace SWP391_BackEnd
             builder.Services.AddScoped<IPaymentServices, MomoServices>();
             builder.Services.AddScoped<IPaymentServices, PaypalServices>();
             builder.Services.AddScoped<IPaymentServices, CashServices>();
-
-            builder.Services.AddScoped<OfficeService>();
-            builder.Services.AddScoped<OfficeRepository>();
 
 
             builder.Services.Configure<VnPayConfigFromJson>(builder.Configuration.GetSection("VnpayAPI"));

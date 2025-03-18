@@ -61,5 +61,10 @@ namespace ClassLib.Repositories
             await _context.SaveChangesAsync();
             return address;
         }
+
+        public async Task<List<Address>> GetAll()
+        {
+            return await _context.Addresses.ToListAsync();
+        }
     }
 }

@@ -56,5 +56,23 @@ namespace SWP391_BackEnd.Controllers
             if (!result) return NotFound();
             return NoContent();
         }
+
+        [HttpGet("/Map")]
+        public async Task<IActionResult> GetAllMap()
+        {
+            try
+            {
+                var map = await _addressService.GetAllMap();
+                return Ok(map);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
