@@ -166,7 +166,31 @@ namespace ClassLib.Service.VaccineCombo
             combo.Discount = request.Discount;
             combo.TotalPrice = request.TotalPrice;
             combo.FinalPrice = request.FinalPrice;
-            combo.Status = request.Status;
+            //if(combo.Status.ToLower() == "Outstock".ToLower() || combo.Status.ToLower() == "Nearlyoutstock".ToLower())
+            //{
+            //var chekVaccine = combo.Vaccines.ToList();
+            if (request.Status.ToLower() == "Instock".ToLower())
+            {
+                var check = combo.Vaccines.All(v => v.Status.ToLower() == "Instock".ToLower());
+                if (check)
+                {
+                    combo.Status = request.Status;
+                }
+                //else
+                //{
+                //    combo.Status = combo.Status;
+                //}
+            }
+            else if (request.Status.ToLower() == "Outstock".ToLower())
+            {
+                combo.Status = request.Status;
+            }
+            else if(request.Status.ToLower() == "Nearlyoutstock".ToLower())
+            {
+                combo.Status = request.Status;
+            }
+            //}
+
             List<int> vaccineIds = request.vaccineIds;
             //List<int> existVaccines = combo.Vaccines.Id.ToList();
             List<Vaccine> vaccines = combo.Vaccines.ToList();
