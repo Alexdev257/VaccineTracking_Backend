@@ -132,7 +132,7 @@ namespace ClassLib.DTO.Payment
             return myChecksum.Equals(inputHash, StringComparison.InvariantCultureIgnoreCase);
         }
 
-        private string HmacSha512(string key, string inputData)
+        public string HmacSha512(string key, string inputData)
         {
             var keyBytes = Encoding.UTF8.GetBytes(key);
             var inputBytes = Encoding.UTF8.GetBytes(inputData);

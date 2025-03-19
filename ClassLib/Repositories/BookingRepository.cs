@@ -2,6 +2,7 @@ using ClassLib.Enum;
 using ClassLib.Helpers;
 using ClassLib.Models;
 using ClassLib.Repositories.BookingDetails;
+using ClassLib.Service;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
@@ -15,15 +16,18 @@ namespace ClassLib.Repositories
         private readonly BookingChildIdRepository _bookingChildIdRepository;
         private readonly BookingIdVaccineIdReponsitory _bookingIdVaccineIdReponsitory;
         private readonly BookingComboIdReponsitory _bookingComboIdReponsitory;
+        private readonly ChildService _childService;
         public BookingRepository(DbSwpVaccineTrackingFinalContext context,
                                  BookingChildIdRepository bookingChildIdRepository,
                                  BookingIdVaccineIdReponsitory bookingIdVaccineIdReponsitory,
-                                 BookingComboIdReponsitory bookingComboIdReponsitory)
+                                 BookingComboIdReponsitory bookingComboIdReponsitory,
+                                 ChildService childService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _bookingChildIdRepository = bookingChildIdRepository ?? throw new ArgumentNullException(nameof(bookingChildIdRepository));
             _bookingIdVaccineIdReponsitory = bookingIdVaccineIdReponsitory ?? throw new ArgumentNullException(nameof(bookingIdVaccineIdReponsitory));
             _bookingComboIdReponsitory = bookingComboIdReponsitory ?? throw new ArgumentNullException(nameof(bookingComboIdReponsitory));
+            _childService = childService;
         }
 
         // Staff
@@ -77,6 +81,7 @@ namespace ClassLib.Repositories
                     if (!ChildrenIDs.IsNullOrEmpty()) await _bookingChildIdRepository.Add(booking, ChildrenIDs);
                     if (!VaccineIDs.IsNullOrEmpty()) await _bookingIdVaccineIdReponsitory.Add(booking, VaccineIDs);
                     if (!VaccineComboIDs.IsNullOrEmpty()) await _bookingComboIdReponsitory.Add(booking, VaccineComboIDs);
+                    await _childService.UpdateListChild(ChildrenIDs, "Tracking");
 
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
@@ -89,7 +94,7 @@ namespace ClassLib.Repositories
                     await _bookingChildIdRepository.ClearAndAdd(booking, ChildrenIDs);
                     await _bookingIdVaccineIdReponsitory.ClearAndAdd(booking, VaccineIDs);
                     await _bookingComboIdReponsitory.ClearAndAdd(booking, VaccineComboIDs);
-
+                    await _childService.UpdateListChild(ChildrenIDs, "Tracking");
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
                     return booking;
@@ -168,8 +173,8 @@ namespace ClassLib.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
-        
-        
+
+
         // Hard delete
         public async Task<int> HardDelete()
         {

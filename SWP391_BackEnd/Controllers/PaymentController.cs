@@ -2,11 +2,13 @@ using System.Web;
 using ClassLib.DTO.Payment;
 using ClassLib.Enum;
 using ClassLib.Helpers;
+using ClassLib.Models;
 using ClassLib.Repositories;
 using ClassLib.Service;
 using ClassLib.Service.PaymentService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using TimeProvider = ClassLib.Helpers.TimeProvider;
 
 namespace SWP391_BackEnd.Controllers
 {
@@ -18,15 +20,19 @@ namespace SWP391_BackEnd.Controllers
         private readonly BookingService _bookingService;
         private readonly PaymentRepository _paymentRepository;
         private readonly VaccinesTrackingService _vaccinesTrackingService;
+
+        private readonly PaymentMethodService _paymentMethodServices;
         public PaymentController(IEnumerable<IPaymentServices> payment
                                 , BookingService bookingService
                                 , PaymentRepository paymentRepository
-                                , VaccinesTrackingService vaccinesTrackingService)
+                                , VaccinesTrackingService vaccinesTrackingService
+                                , PaymentMethodService paymentMethodService)
         {
             _bookingService = bookingService;
             _payment = payment.ToDictionary(s => s.PaymentName().ToLower());
             _paymentRepository = paymentRepository;
             _vaccinesTrackingService = vaccinesTrackingService;
+            _paymentMethodServices = paymentMethodService;
         }
 
         // Create payment URL
@@ -101,7 +107,7 @@ namespace SWP391_BackEnd.Controllers
 
             var refundDetail = await paymentService.CreateRefund(refundModel, HttpContext);
 
-            if (!refundDetail.IsNullOrEmpty())
+            if (!refundDetail.IsNullOrEmpty() && refundDetail.ToString().ToLower() == "success")
             {
                 var result = await _paymentRepository.UpdateStatusPayment(payment.PaymentId, PaymentStatusEnum.Refunded.ToString());
                 await _bookingService.UpdateBookingStatus(result.BookingId.ToString(), BookingEnum.Refund.ToString());
@@ -109,6 +115,37 @@ namespace SWP391_BackEnd.Controllers
             }
 
             return Ok(refundDetail);
+        }
+
+
+        [HttpPost("refund-by-staff")]
+        public async Task<IActionResult> RefundVnPay([FromBody] RefundModelRequest refundModelRequest)
+        {
+            var payment = await _paymentRepository.GetByBookingIDAsync(int.Parse(refundModelRequest.BookingID));
+
+            if (payment!.Status.Contains("refund", StringComparison.OrdinalIgnoreCase)) return BadRequest("The Booking is already refund");
+
+            var refundModel = ConvertHelpers.convertToRefundModel(payment!, (double)((refundModelRequest.paymentStatusEnum == (int)PaymentStatusEnum.FullyRefunded) ? payment.TotalPrice * 1m : payment.TotalPrice * 0.5m), refundModelRequest.paymentStatusEnum);
+
+            Payment paymentRefundModel = new Payment()
+            {
+                PayerId = refundModel.payerID,
+                TotalPrice = (decimal)refundModel.amount * -1,
+                PaymentId = TimeProvider.GetVietnamNow().Ticks.ToString(),
+                PaymentDate = TimeProvider.GetVietnamNow(),
+                TransactionId = TimeProvider.GetVietnamNow().Ticks.ToString(),
+                Currency = refundModel.currency,
+                PaymentMethod = (await _paymentMethodServices.getPaymentMethodByName(PaymentEnum.Cash.ToString()))!.Id,
+                Status = ((PaymentStatusEnum)refundModel.RefundType).ToString(),
+                BookingId = (await _paymentRepository.GetByIDAsync(refundModel.paymentID))!.BookingId,
+            };
+            await _paymentRepository.AddPayment(paymentRefundModel);
+
+            var result = await _paymentRepository.UpdateStatusPayment(payment.PaymentId, PaymentStatusEnum.Refunded.ToString());
+            await _bookingService.UpdateBookingStatus(result.BookingId.ToString(), BookingEnum.Refund.ToString());
+            await _vaccinesTrackingService.VaccinesTrackingRefund(result.BookingId, VaccinesTrackingEnum.Cancel);
+
+            return Ok("Success");
         }
     }
 }

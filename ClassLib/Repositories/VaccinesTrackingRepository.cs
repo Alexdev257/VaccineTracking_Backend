@@ -1,3 +1,4 @@
+using ClassLib.Enum;
 using ClassLib.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -136,6 +137,14 @@ namespace ClassLib.Repositories
                                     .Include(vt => vt.Vaccine)
                                     .Include(vt => vt.Child)
                                     .ToListAsync();
+        }
+
+        public async Task<bool> CheckIsChildrenTracking( int id)
+        {
+            var children =await _context.VaccinesTrackings.Include( vt => vt.Child).FirstOrDefaultAsync( x => x.ChildId == id && (x.Status.ToLower() == VaccinesTrackingEnum.Schedule.ToString().ToLower() || x.Status.ToLower() == VaccinesTrackingEnum.Waiting.ToString().ToLower()));
+            System.Console.WriteLine(children);
+            System.Console.WriteLine("hhihihiihhi");
+            return children != null;
         }
     }
 }

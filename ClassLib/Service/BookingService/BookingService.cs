@@ -36,6 +36,11 @@ namespace ClassLib.Service
             _env = env;
         }
 
+        /// <summary>
+        /// Update existed Booking
+        /// </summary>
+        /// <param name="updateBooking"></param>
+        /// <returns>Status</returns>
         public async Task<string> UpdateBookingDetails(UpdateBooking updateBooking)
         {
             var booking = await _bookingRepository.GetByBookingID(updateBooking.BookingId);
@@ -45,7 +50,11 @@ namespace ClassLib.Service
             booking = (await _bookingRepository.AddBooking(booking, listChild, updateBooking.VaccinesList!, updateBooking.VaccinesCombo!))!;
             return "Success";
         }
-
+        /// <summary>
+        /// Add booking to DB include BookingChild, BookingVaccine, BookingCombo
+        /// </summary>
+        /// <param name="addBooking"></param>
+        /// <returns>Order Payment Object</returns>
         public async Task<OrderInfoModel?> AddBooking(AddBooking addBooking)
         {
             Booking booking = ConvertHelpers.convertToBooking(addBooking);
@@ -55,6 +64,12 @@ namespace ClassLib.Service
 
             return ConvertHelpers.convertToOrderInfoModel(booking!, user!, addBooking);
         }
+        /// <summary>
+        /// Update booking status
+        /// </summary>
+        /// <param name="bookingId"></param>
+        /// <param name="msg"></param>
+        /// <returns></returns>
         public async Task<Booking?> UpdateBookingStatus(string bookingId, string msg)
         {
             var booking = await _bookingRepository.UpdateBooking(bookingId, msg);
