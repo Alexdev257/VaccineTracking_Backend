@@ -1,9 +1,14 @@
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 using ClassLib.DTO.Payment;
 using ClassLib.Enum;
+using ClassLib.Helpers;
 using ClassLib.Models;
 using ClassLib.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using TimeProvider = ClassLib.Helpers.TimeProvider;
 
 namespace ClassLib.Service.PaymentService
 {
@@ -46,28 +51,104 @@ namespace ClassLib.Service.PaymentService
             return Task.FromResult(pay.CreateRequestUrl(_vnpayConfig.Value.BaseUrl, _vnpayConfig.Value.HashSecret));
         }
 
+        public string HmacSha512ForRefund(string key, string inputData)
+        {
+            byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+            byte[] inputBytes = Encoding.UTF8.GetBytes(inputData);
+
+            using HMACSHA512 hmac = new HMACSHA512(keyBytes);
+            byte[] hashBytes = hmac.ComputeHash(inputBytes);
+
+            return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+        }
+
         public async Task<string> CreateRefund(RefundModel refundModel, HttpContext context)
         {
+            return await Task.FromResult("Go to appointment to have better services");
             // var timeZoneID = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneID);
             // var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneID);
             // var tick = DateTime.Now.Ticks.ToString();
             // var pay = new VnPayLibrary();
-            // pay.AddRequestData("vnp_RequestId", tick);
-            // pay.AddRequestData("vnp_Version", _vnpayConfig.Value.Version);
-            // pay.AddRequestData("vnp_Command", "refund");
-            // pay.AddRequestData("vnp_TmnCode", _vnpayConfig.Value.TmnCode);
-            // pay.AddRequestData("vnp_TransactionType", "02");
-            // pay.AddRequestData("vnp_TxnRef", refundModel.trancasionID);
-            // pay.AddRequestData("vnp_Amount", ((int)refundModel.amount * 100).ToString());
-            // pay.AddRequestData("vnp_OrderInfo", $"hi");
-            // pay.AddRequestData("vnp_TransactionDate", refundModel.paymentDate.ToString("yyyyMMddHHmmss"));
-            // pay.AddRequestData("vnp_CreateBy", "NGUYEN VAN A");
-            // pay.AddRequestData("vnp_CreateDate", timeNow.ToString("yyyyMMddHHmmss"));
-            // pay.AddRequestData("vnp_IpAddr", pay.GetIpAddress(context));
+            // // pay.AddRequestData("vnp_RequestId", tick);
+            // // pay.AddRequestData("vnp_Version", _vnpayConfig.Value.Version);
+            // // pay.AddRequestData("vnp_Command", "refund");
+            // // pay.AddRequestData("vnp_TmnCode", _vnpayConfig.Value.TmnCode);
+            // // pay.AddRequestData("vnp_TransactionType", "02");
+            // // pay.AddRequestData("vnp_TxnRef", refundModel.trancasionID);
+            // // pay.AddRequestData("vnp_Amount", ((int)refundModel.amount * 100).ToString());
+            // // pay.AddRequestData("vnp_OrderInfo", $"hi");
+            // // pay.AddRequestData("vnp_TransactionDate", refundModel.paymentDate.ToString("yyyyMMddHHmmss"));
+            // // pay.AddRequestData("vnp_CreateBy", "NGUYEN VAN A");
+            // // pay.AddRequestData("vnp_CreateDate", timeNow.ToString("yyyyMMddHHmmss"));
+            // // pay.AddRequestData("vnp_IpAddr", pay.GetIpAddress(context));
 
-            // return Task.FromResult(pay.CreateRequestUrl(_vnpayConfig.Value.BaseUrl, _vnpayConfig.Value.HashSecret));
+            // using HttpClient client = new HttpClient();
+            // string url = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
+            // // Step 1: Prepare the data string in the exact format
+            // string data = string.Join("|", new string[]
+            // {
+            //     TimeProvider.GetVietnamNow().Ticks.ToString(),  // vnp_RequestId
+            //     _vnpayConfig.Value.Version,                    // vnp_Version
+            //     "refund",                                      // vnp_Command
+            //     _vnpayConfig.Value.TmnCode,                    // vnp_TmnCode
+            //     "3",                                          // vnp_TransactionType
+            //     refundModel.trancasionID,                      // vnp_TxnRef
+            //     refundModel.amount.ToString(),                 // vnp_Amount
+            //     refundModel.trancasionID,                     // vnp_TransactionNo
+            //     refundModel.paymentDate.ToString("yyyyMMddHHmmss"), // vnp_TransactionDate
+            //     "NGUYEN VAN A",                                // vnp_CreateBy
+            //     TimeProvider.GetVietnamNow().ToString("yyyyMMddHHmmss"), // vnp_CreateDate
+            //     pay.GetIpAddress(context),                     // vnp_IpAddr
+            //     "hi"                                           // vnp_OrderInfo
+            // });
 
-            return "This booking cannot return please go to apointment to have better services";
+            // // Step 2: Generate the Secure Hash (checksum)
+            // string secretKey = _vnpayConfig.Value.HashSecret;
+            // string checksum = HmacSha512ForRefund(secretKey, data);
+
+            // // Step 3: Add checksum to the request
+            // var requestData = new
+            // {
+            //     vnp_RequestId = TimeProvider.GetVietnamNow().Ticks.ToString(),
+            //     vnp_Version = _vnpayConfig.Value.Version,
+            //     vnp_Command = "refund",
+            //     vnp_TmnCode = _vnpayConfig.Value.TmnCode,
+            //     vnp_TransactionType = "3",
+            //     vnp_TxnRef = refundModel.trancasionID,
+            //     vnp_Amount = refundModel.amount,
+            //     vnp_TransactionNo = refundModel.trancasionID,
+            //     vnp_TransactionDate = refundModel.paymentDate.ToString("yyyyMMddHHmmss"),
+            //     vnp_CreateBy = "NGUYEN VAN A",
+            //     vnp_CreateDate = TimeProvider.GetVietnamNow().ToString("yyyyMMddHHmmss"),
+            //     vnp_IpAddr = pay.GetIpAddress(context),
+            //     vnp_OrderInfo = "hi",
+            //     vnp_SecureHash = checksum  // Add the secure hash here
+            // };
+
+
+
+            // string json = JsonSerializer.Serialize(requestData);
+            // var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            // HttpResponseMessage response = await client.PostAsync(url, content);
+            // string responseBody = await response.Content.ReadAsStringAsync();
+            // Console.WriteLine($"Status Code: {response.StatusCode}");
+            // Console.WriteLine($"Response Body: {responseBody}");
+            // Console.WriteLine("Raw Data for Hashing: " + data);
+            // System.Console.WriteLine("After Hashing" + checksum);
+            // if (response.IsSuccessStatusCode)
+            // {
+            //     string result = await response.Content.ReadAsStringAsync();
+            //     Console.WriteLine("Response: " + result);
+            // }
+            // else
+            // {
+            //     Console.WriteLine("Error: " + response.StatusCode);
+            // }
+
+            // return await response.Content.ReadAsStringAsync();
+            //return await Task.FromResult(pay.CreateRequestUrl("https://sandbox.vnpayment.vn/merchant_webapi/api/transaction", _vnpayConfig.Value.HashSecret));
+
         }
 
         public async Task<RespondModel> GetPaymentStatus(IQueryCollection collection)

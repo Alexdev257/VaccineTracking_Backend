@@ -21,7 +21,7 @@ namespace ClassLib.Service
             List<Child> children = new List<Child>();
             foreach (var c in child)
             {
-                if(c.IsDeleted == false)
+                if (c.IsDeleted == false)
                 {
                     children.Add(c);
                 }
@@ -32,7 +32,7 @@ namespace ClassLib.Service
                 var res = _mapper.Map<GetChildResponse>(childItem);
                 result.Add(res);
             }
-            if(result.Count == 0)
+            if (result.Count == 0)
             {
                 throw new ArgumentException("No child in the system");
             }
@@ -62,12 +62,12 @@ namespace ClassLib.Service
                 throw new ArgumentNullException("ID can not be blank");
             }
             var child = await _childRepository.GetChildById(id);
-            
-            if(child == null)
+
+            if (child == null)
             {
                 throw new ArgumentException("No child in the system");
             }
-            if(child.IsDeleted == true)
+            if (child.IsDeleted == true)
             {
                 throw new ArgumentException("Child was deleted");
             }
@@ -82,7 +82,7 @@ namespace ClassLib.Service
                 throw new ArgumentNullException("Parent ID can not be blank");
             }
             var child = await _childRepository.getAllChildByParentsId(parentId);
-            if(child.Count == 0)
+            if (child.Count == 0)
             {
                 throw new ArgumentException("No child was added by this parent");
             }
@@ -94,8 +94,8 @@ namespace ClassLib.Service
             }
             return result;
 
-                
-            
+
+
         }
 
         public async Task<bool> CreateChildAsync(CreateChildRequest request)
@@ -116,10 +116,27 @@ namespace ClassLib.Service
             {
                 throw new ArgumentNullException("Gendere can not be blank");
             }
-                var child = _mapper.Map<Child>(request);
-                child.Status = "Active";
-                child.CreatedAt = Helpers.TimeProvider.GetVietnamNow();
-                return await _childRepository.CreateChild(child);
+            var child = _mapper.Map<Child>(request);
+            child.Status = "Active";
+            child.CreatedAt = Helpers.TimeProvider.GetVietnamNow();
+            return await _childRepository.CreateChild(child);
+        }
+
+        //TieHung23 UpdateListChild for booking
+        public async Task UpdateListChild(List<int> id, string msg)
+        {
+            foreach (var item in id)
+            {
+                await UpdateOnlyChild(item, msg);
+            }
+        }
+
+        public async Task UpdateOnlyChild(int id, string msg)
+        {
+            var child = await _childRepository.GetChildById(id);
+            child.Status = msg;
+            child.IsDeleted = false;
+            await _childRepository.UpdateChild(child);
         }
 
         public async Task<bool> UpdateChildAsync(int id, UpdateChildRequest request)
@@ -219,7 +236,7 @@ namespace ClassLib.Service
             {
                 throw new ArgumentException("Child was deleted");
             }
-            if(child.Status.ToLower() == "Tracking".ToLower())
+            if (child.Status.ToLower() == "Tracking".ToLower())
             {
                 throw new ArgumentException("Child is in vaccination schedule. Can not delete");
             }
@@ -228,7 +245,7 @@ namespace ClassLib.Service
                 child.IsDeleted = true;
                 child.Status = "Inactive";
             }
-            
+
             return await _childRepository.UpdateChild(child);
         }
     }

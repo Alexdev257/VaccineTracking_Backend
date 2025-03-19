@@ -15,13 +15,17 @@ namespace ClassLib.Service
         private readonly VaccineRepository _vaccineRepository;
 
         private readonly VaccineComboRepository _vaccineComboRepository;
+
+        private readonly ChildService _childServices;
         public VaccinesTrackingService(VaccinesTrackingRepository vaccinesTrackingRepository,
                                     VaccineRepository vaccineRepository,
-                                    VaccineComboRepository vaccineComboRepository)
+                                    VaccineComboRepository vaccineComboRepository,
+                                    ChildService childService)
         {
             _vaccinesTrackingRepository = vaccinesTrackingRepository;
             _vaccineRepository = vaccineRepository;
             _vaccineComboRepository = vaccineComboRepository;
+            _childServices = childService;
         }
 
         public async Task<List<VaccinesTrackingResponse>> GetVaccinesTrackingAsync()
@@ -89,6 +93,9 @@ namespace ClassLib.Service
         public async Task<bool> UpdateVaccinesTrackingAsync(int id, UpdateVaccineTracking updateVaccineTracking)
         {
             var vt = await _vaccinesTrackingRepository.GetVaccinesTrackingByIdAsync(id);
+
+
+            var holdChildID = vt.ChildId;
             if (vt == null) return false;
             var vaccine = _vaccineRepository.GetById(vt!.VaccineId).Result;
             int checkpointForThisVaccine = 1;
@@ -100,7 +107,6 @@ namespace ClassLib.Service
                     vt.Reaction = string.IsNullOrEmpty(updateVaccineTracking?.Reaction) ? vt.Reaction : updateVaccineTracking.Reaction;
                     vt.AdministeredBy = (updateVaccineTracking?.AdministeredBy == 0) ? vt.AdministeredBy : updateVaccineTracking!.AdministeredBy;
                     vt.VaccinationDate = updateVaccineTracking.Reschedule ?? vt.VaccinationDate;
-
                     if (vt.PreviousVaccination == 0 && updateVaccineTracking.Reschedule != null)
                     {
                         vt.MinimumIntervalDate = updateVaccineTracking!.Reschedule.Value.AddDays(2);
@@ -111,7 +117,6 @@ namespace ClassLib.Service
                         vt.MinimumIntervalDate = updateVaccineTracking!.Reschedule.Value.AddDays(vaccine!.MinimumIntervalDate!.Value);
                         vt.MaximumIntervalDate = updateVaccineTracking!.Reschedule.Value.AddDays(vaccine!.MaximumIntervalDate!.Value);
                     }
-
                     if (updateVaccineTracking?.Status?.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Success).ToString().ToLower())
                     {
                         await _vaccineRepository.DecreseQuantityVaccines(vaccine!, 1);
@@ -122,13 +127,9 @@ namespace ClassLib.Service
                 {
                     vt.MinimumIntervalDate = TimeProvider.GetVietnamNow().AddDays(vaccine!.MinimumIntervalDate ?? 30);
                     vt.MaximumIntervalDate = TimeProvider.GetVietnamNow().AddDays(vaccine!.MaximumIntervalDate ?? 60);
-
                     DateTime minDate = vt.MinimumIntervalDate ?? TimeProvider.GetVietnamNow();
                     DateTime maxDate = vt.MaximumIntervalDate ?? TimeProvider.GetVietnamNow();
-
                     vt.VaccinationDate = minDate.AddDays((maxDate - minDate).TotalDays / 2);
-
-
                     vt.Status = ((VaccinesTrackingEnum)VaccinesTrackingEnum.Schedule).ToString();
                 }
                 if (updateVaccineTracking?.Status?.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Cancel).ToString().ToLower())
@@ -143,9 +144,17 @@ namespace ClassLib.Service
                 var vtUpdated = await _vaccinesTrackingRepository.UpdateVaccinesTrackingAsync(vt);
                 vt = await _vaccinesTrackingRepository.GetVaccinesTrackingByPreviousVaccination(vtUpdated.Id);
             }
+            var isTracking = await _vaccinesTrackingRepository.CheckIsChildrenTracking(holdChildID);
+
+            if (!isTracking)
+            {
+                await _childServices.UpdateOnlyChild(holdChildID, "Active");
+            }
+
 
             return true;
         }
+
 
         public async Task<List<VaccinesTrackingResponse>> GetByBookingId(int id)
         {
