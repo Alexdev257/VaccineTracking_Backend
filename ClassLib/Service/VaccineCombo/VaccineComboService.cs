@@ -25,19 +25,22 @@ namespace ClassLib.Service.VaccineCombo
         {
             var combo = await _vaccineComboRepository.GetAllVaccineCombo();
             return GetAllVaccineComboHelper(combo);
+
         }
 
         
-        public async Task<List<GetAllVaccineCombo>> GetAllVaccineComboAdmin()
+        public async Task<List<GetAllVaccineComboByAdmin>> GetAllVaccineComboAdmin()
         {
             var combo = await _vaccineComboRepository.GetAllVaccineComboAdmin();
-            return GetAllVaccineComboHelper(combo);
-        }
+            return GetAllVaccineComboByAdminHelper(combo);
 
-        private List<GetAllVaccineCombo> GetAllVaccineComboHelper(List<VaccinesCombo> combo)
+
+
+        }
+        private List<GetAllVaccineCombo> GetAllVaccineComboHelper(List<VaccinesCombo> combos)
         {
             List<GetAllVaccineCombo> responses = new();
-            foreach (var vaccineCombo in combo)
+            foreach (var vaccineCombo in combos)
             {
                 GetAllVaccineCombo response = new GetAllVaccineCombo()
                 {
@@ -47,9 +50,10 @@ namespace ClassLib.Service.VaccineCombo
                     FinalPrice = vaccineCombo.FinalPrice,
                     Status = vaccineCombo.Status,
                     TotalPrice = vaccineCombo.TotalPrice,
+                    Vaccines = new List<GetVaccineInVaccineCombo>()
                 };
+
                 var listVaccine = vaccineCombo.Vaccines.ToList();
-                response.Vaccines = new List<GetVaccineInVaccineCombo>();
                 foreach (var item in listVaccine)
                 {
                     GetVaccineInVaccineCombo vcs = new()
@@ -66,6 +70,75 @@ namespace ClassLib.Service.VaccineCombo
             }
             return responses;
         }
+
+        // Helper method cho admin view
+        private List<GetAllVaccineComboByAdmin> GetAllVaccineComboByAdminHelper(List<VaccinesCombo> combos)
+        {
+            List<GetAllVaccineComboByAdmin> responses = new();
+            foreach (var vaccineCombo in combos)
+            {
+                GetAllVaccineComboByAdmin response = new GetAllVaccineComboByAdmin()
+                {
+                    Id = vaccineCombo.Id,
+                    ComboName = vaccineCombo.ComboName,
+                    Discount = vaccineCombo.Discount,
+                    FinalPrice = vaccineCombo.FinalPrice,
+                    Status = vaccineCombo.Status,
+                    TotalPrice = vaccineCombo.TotalPrice,
+                    IsDeleted = vaccineCombo.IsDeleted,
+                    Vaccines = new List<GetVaccineInVaccineCombo>()
+                };
+
+                var listVaccine = vaccineCombo.Vaccines.ToList();
+                foreach (var item in listVaccine)
+                {
+                    GetVaccineInVaccineCombo vcs = new()
+                    {
+                        Id = item.Id,
+                        Name = item.Name,
+                        Price = item.Price,
+                        SuggestAgeMin = item.SuggestAgeMin,
+                        SuggestAgeMax = item.SuggestAgeMax,
+                    };
+                    response.Vaccines.Add(vcs);
+                }
+                responses.Add(response);
+            }
+            return responses;
+        }
+
+        //private List<GetAllVaccineCombo> GetAllVaccineComboHelper(List<VaccinesCombo> combo)
+        //{
+        //    List<GetAllVaccineCombo> responses = new();
+        //    foreach (var vaccineCombo in combo)
+        //    {
+        //        GetAllVaccineCombo response = new GetAllVaccineCombo()
+        //        {
+        //            Id = vaccineCombo.Id,
+        //            ComboName = vaccineCombo.ComboName,
+        //            Discount = vaccineCombo.Discount,
+        //            FinalPrice = vaccineCombo.FinalPrice,
+        //            Status = vaccineCombo.Status,
+        //            TotalPrice = vaccineCombo.TotalPrice,
+        //        };
+        //        var listVaccine = vaccineCombo.Vaccines.ToList();
+        //        response.Vaccines = new List<GetVaccineInVaccineCombo>();
+        //        foreach (var item in listVaccine)
+        //        {
+        //            GetVaccineInVaccineCombo vcs = new()
+        //            {
+        //                Id = item.Id,
+        //                Name = item.Name,
+        //                Price = item.Price,
+        //                SuggestAgeMin = item.SuggestAgeMin,
+        //                SuggestAgeMax = item.SuggestAgeMax,
+        //            };
+        //            response.Vaccines.Add(vcs);
+        //        }
+        //        responses.Add(response);
+        //    }
+        //    return responses;
+        //}
 
         //Lấy theo id
         public async Task<VaccinesCombo?> GetVaccineComboById(int id)

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ClassLib.DTO.Vaccine;
+using ClassLib.DTO.VaccineDTO;
 using ClassLib.Models;
 using ClassLib.Repositories;
 
@@ -25,10 +26,10 @@ namespace ClassLib.Service.Vaccines
             return _mapper.Map<List<GetVaccine>>(listVaccine);
         }
 
-        public async Task<List<GetVaccine>> GetAllVaccinesAdmin()
+        public async Task<List<GetAllvaccineByAdmin>> GetAllVaccinesAdmin()
         {
             var listVaccine = await _vaccineRepository.GetAllVaccinesAdmin();
-            return _mapper.Map<List<GetVaccine>>(listVaccine);
+            return _mapper.Map<List<GetAllvaccineByAdmin>>(listVaccine);
         }
 
         //Lấy theo id
@@ -39,10 +40,10 @@ namespace ClassLib.Service.Vaccines
         }
 
         //Alex5
-        public async Task<GetVaccine?> GetVaccineByIdAdmin(int id)
+        public async Task<GetAllvaccineByAdmin?> GetVaccineByIdAdmin(int id)
         {
             var vaccine = await _vaccineRepository.GetByIdAdmin(id);
-            return _mapper.Map<GetVaccine>(vaccine);
+            return _mapper.Map<GetAllvaccineByAdmin>(vaccine);
         }
 
         //Tạo mới
