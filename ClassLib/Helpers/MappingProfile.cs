@@ -5,6 +5,7 @@ using ClassLib.DTO.Feedback;
 using ClassLib.DTO.User;
 using ClassLib.DTO.Vaccine;
 using ClassLib.DTO.VaccineCombo;
+using ClassLib.DTO.VaccineDTO;
 using ClassLib.Models;
 
 namespace ClassLib.Helpers
@@ -36,12 +37,15 @@ namespace ClassLib.Helpers
             CreateMap<UpdateVaccine, Vaccine>()
                     .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<Vaccine, GetVaccine>();
+            CreateMap<Vaccine, GetAllvaccineByAdmin>();
 
 
             CreateMap<CreateVaccineCombo, VaccinesCombo>().ForMember(d => d.Vaccines, o => o.Ignore()).ReverseMap();//hai chieu.
             CreateMap<UpdateVaccineCombo, VaccinesCombo>();
 
             CreateMap<VaccinesCombo, GetAllVaccineCombo>();
+            CreateMap<VaccinesCombo, GetAllVaccineComboByAdmin>();
+
 
             CreateMap<Vaccine, GetVaccineInVaccineComboDetail>();
 

@@ -1,6 +1,12 @@
-﻿namespace ClassLib.DTO.Vaccine
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ClassLib.DTO.VaccineDTO
 {
-    public class GetVaccine
+    public class GetAllvaccineByAdmin
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
@@ -29,7 +35,7 @@
         public string Status { get; set; } = null!;
 
         public int AddressId { get; set; }
-      
+        public bool IsDeleted { get; set; }
 
     }
 }
