@@ -162,13 +162,29 @@ namespace ClassLib.Service
             child.DateOfBirth = request.DateOfBirth;
             child.Gender = request.Gender;
             child.Status = request.Status;
-            if (request.Status.ToLower() == "inactive")
+            //if (request.Status.ToLower() == "inactive")
+            //{
+            //    child.IsDeleted = true;
+            //}
+            //else if (request.Status.ToLower() == "active")
+            //{
+            //    child.IsDeleted = false;
+            //}
+
+            if (child.Status.ToLower() != "Tracking".ToLower())
             {
-                child.IsDeleted = true;
+                if (request.Status.ToLower() == "inactive")
+                {
+                    child.IsDeleted = true;
+                }
+                else if (request.Status.ToLower() == "active")
+                {
+                    child.IsDeleted = false;
+                }
             }
-            else if (request.Status.ToLower() == "active")
+            else
             {
-                child.IsDeleted = false;
+                throw new ArgumentException("Child is in vaccination schedule. Can not update");
             }
 
             return await _childRepository.UpdateChild(child);
@@ -203,8 +219,16 @@ namespace ClassLib.Service
             {
                 throw new ArgumentException("Child was deleted");
             }
-            child.IsDeleted = true;
-            child.Status = "Inactive";
+            if(child.Status.ToLower() == "Tracking".ToLower())
+            {
+                throw new ArgumentException("Child is in vaccination schedule. Can not delete");
+            }
+            else
+            {
+                child.IsDeleted = true;
+                child.Status = "Inactive";
+            }
+            
             return await _childRepository.UpdateChild(child);
         }
     }

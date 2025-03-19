@@ -27,6 +27,7 @@ using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.Extensions.Caching.Distributed;
 using ClassLib.DTO.VaccineCombo;
 using ClassLib.DTO.Child;
+using Azure.Core;
 //using Microsoft.AspNetCore.Identity.Data;
 
 namespace ClassLib.Service
@@ -1119,10 +1120,11 @@ namespace ClassLib.Service
             user.Avatar = request.Avatar;
             user.Gmail = request.Gmail;
             user.PhoneNumber = request.PhoneNumber;
-            user.Status = request.Status;
+            
             List<Child> currentChildren = user.Children.ToList();
             if (request.Status.ToLower() == "active")
             {
+                user.Status = request.Status;
                 user.IsDeleted = false;
                 foreach (var child in currentChildren)
                 {
@@ -1133,12 +1135,20 @@ namespace ClassLib.Service
             }
             else if(request.Status.ToLower() == "inactive")
             {
-                user.IsDeleted = true;
-                foreach (var child in currentChildren)
+                if(currentChildren.Any(c => c.Status.ToLower() == "Tracking".ToLower()))
                 {
-                    child.Status = "Inactive";
-                    child.IsDeleted = true;
-                    await _childRepository.UpdateChild(child);
+                    throw new ArgumentException("Can not inactive user with child is tracking");
+                }
+                else
+                {
+                    user.Status = request.Status;
+                    user.IsDeleted = true;
+                    foreach (var child in currentChildren)
+                    {
+                        child.Status = "Inactive";
+                        child.IsDeleted = true;
+                        await _childRepository.UpdateChild(child);
+                    }
                 }
             }
             
@@ -1575,10 +1585,28 @@ namespace ClassLib.Service
             {
                 throw new ArgumentException("User was deleted");
             }
-            user.IsDeleted = true;
-            user.Status = "Inactive";
+
+            List<Child> children = user.Children.ToList();
+            if (children.Any(c => c.Status.ToLower() == "Tracking".ToLower()))
+            {
+                throw new ArgumentException("Can not delete user with child is tracking");
+            }
+            else
+            {
+                user.IsDeleted = true;
+                user.Status = "Inactive";
+                
+                foreach (var child in children)
+                {
+                    child.IsDeleted = true;
+                    child.Status = "Inactive";
+                    await _childRepository.UpdateChild(child);
+                }
+            }
             return await _userRepository.updateUser(user);
         }
+
+
 
 
 
