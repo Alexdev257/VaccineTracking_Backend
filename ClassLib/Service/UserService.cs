@@ -1120,62 +1120,75 @@ namespace ClassLib.Service
             user.Gmail = request.Gmail;
             user.PhoneNumber = request.PhoneNumber;
             user.Status = request.Status;
-            if(request.Status.ToLower() == "active")
+            List<Child> currentChildren = user.Children.ToList();
+            if (request.Status.ToLower() == "active")
             {
                 user.IsDeleted = false;
+                foreach (var child in currentChildren)
+                {
+                    child.Status = "Active";
+                    child.IsDeleted = false;
+                    await _childRepository.UpdateChild(child);
+                }
             }
             else if(request.Status.ToLower() == "inactive")
             {
                 user.IsDeleted = true;
+                foreach (var child in currentChildren)
+                {
+                    child.Status = "Inactive";
+                    child.IsDeleted = true;
+                    await _childRepository.UpdateChild(child);
+                }
             }
             
-            List<Child> currentChildren = user.Children.Where(c => !c.IsDeleted).ToList();
-            if (request.childIds == null || request.childIds.Count == 0)
-            {
-                foreach(var child in currentChildren)
-                {
-                    child.IsDeleted = true;
-                    child.Status = "Inactive";
-                    await _childRepository.UpdateChild(child);
-                }
-            }
-            else
-            {
-                List<int> requestChildIds = request.childIds.ToList();
-                List<int> existChildIds = currentChildren.Select(c => c.Id).ToList();
-                // Tìm những Child cần thêm
-                var childIdsToAdd = requestChildIds.Except(existChildIds).ToList();
-                List<Child> childrenToAdd = new List<Child>();
-                foreach (var childId in childIdsToAdd)
-                {
-                    var child = await _childRepository.GetChildById(childId);
-                    if (child != null)
-                    {
-                        if (child.ParentId != userId)
-                        {
-                            throw new UnauthorizedAccessException($"Child with ID {childId} does not belong to this user.");
-                        }
-                        child.IsDeleted = false;
-                        child.Status = "Active";
-                        await _childRepository.UpdateChild(child);
-                        childrenToAdd.Add(child);
-                    }
-                }
+            //List<Child> currentChildren = user.Children.Where(c => !c.IsDeleted).ToList();
+            //if (request.childIds == null || request.childIds.Count == 0)
+            //{
+            //    foreach(var child in currentChildren)
+            //    {
+            //        child.IsDeleted = true;
+            //        child.Status = "Inactive";
+            //        await _childRepository.UpdateChild(child);
+            //    }
+            //}
+            //else
+            //{
+            //    List<int> requestChildIds = request.childIds.ToList();
+            //    List<int> existChildIds = currentChildren.Select(c => c.Id).ToList();
+            //    // Tìm những Child cần thêm
+            //    var childIdsToAdd = requestChildIds.Except(existChildIds).ToList();
+            //    List<Child> childrenToAdd = new List<Child>();
+            //    foreach (var childId in childIdsToAdd)
+            //    {
+            //        var child = await _childRepository.GetChildById(childId);
+            //        if (child != null)
+            //        {
+            //            if (child.ParentId != userId)
+            //            {
+            //                throw new UnauthorizedAccessException($"Child with ID {childId} does not belong to this user.");
+            //            }
+            //            child.IsDeleted = false;
+            //            child.Status = "Active";
+            //            await _childRepository.UpdateChild(child);
+            //            childrenToAdd.Add(child);
+            //        }
+            //    }
 
-                foreach (var child in childrenToAdd)
-                {
-                    user.Children.Add(child);
-                }
+            //    foreach (var child in childrenToAdd)
+            //    {
+            //        user.Children.Add(child);
+            //    }
 
-                // Tìm những Child cần xóa (Soft Delete)
-                var childrenToRemove = currentChildren.Where(c => !requestChildIds.Contains(c.Id)).ToList();
-                foreach (var child in childrenToRemove)
-                {
-                    child.IsDeleted = true;
-                    child.Status = "Inactive";
-                    await _childRepository.UpdateChild(child);
-                }
-            }
+            //    // Tìm những Child cần xóa (Soft Delete)
+            //    var childrenToRemove = currentChildren.Where(c => !requestChildIds.Contains(c.Id)).ToList();
+            //    foreach (var child in childrenToRemove)
+            //    {
+            //        child.IsDeleted = true;
+            //        child.Status = "Inactive";
+            //        await _childRepository.UpdateChild(child);
+            //    }
+            //}
 
             return await _userRepository.updateUser(user);
         }

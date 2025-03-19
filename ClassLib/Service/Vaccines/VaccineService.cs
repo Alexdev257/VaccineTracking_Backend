@@ -121,7 +121,7 @@ namespace ClassLib.Service.Vaccines
             {
                 throw new ArgumentNullException("FromCountry can not be blank");
             }
-            var vaccine = await _vaccineRepository.GetById(id);
+            var vaccine = await _vaccineRepository.GetByIdAdmin(id);
             if (vaccine == null)
             {
                 throw new ArgumentException("Do not exist this vaccine");
@@ -149,6 +149,64 @@ namespace ClassLib.Service.Vaccines
                 //{
                 //    vaccine.IsDeleted = false;
                 //}
+                if (request.Status.ToLower() == "Outstock".ToLower())
+                {
+                    if (vaccine.VacineCombos != null && vaccine.VacineCombos.Any())
+                    {
+                        foreach (var combo in vaccine.VacineCombos)
+                        {
+                            combo.Status = "Outstock";
+                            await _vaccineComboRepository.UpdateCombo(combo);    
+                        }
+                    }
+                }
+                else if (request.Status.ToLower() == "Nearlyoutstock".ToLower())
+                {
+                    if (vaccine.VacineCombos != null && vaccine.VacineCombos.Any())
+                    {
+                        foreach (var combo in vaccine.VacineCombos)
+                        {
+                            combo.Status = "Nearlyoutstock";
+                            await _vaccineComboRepository.UpdateCombo(combo);
+                        }
+                    }
+                }
+                else if(request.Status.ToLower() == "Instock".ToLower())
+                {
+                    if (vaccine.VacineCombos != null && vaccine.VacineCombos.Any())
+                    {
+                        foreach (var combo in vaccine.VacineCombos)
+                        {
+                            var comboVaccines = await _vaccineRepository.GetVaccinesByComboId(combo.Id);
+                            bool allVaccinesInstock = comboVaccines.All(v => v.Status.ToLower() == "Instock".ToLower());
+                            if (allVaccinesInstock)
+                            {
+                                combo.Status = "Instock";
+                                await _vaccineComboRepository.UpdateCombo(combo);
+                            }
+                            //else
+                            //{
+                            //    throw new ArgumentException("All vaccines in combo must be instock");
+                            //}
+                        }
+                    }
+                }
+
+                //if (vaccine.VacineCombos != null && vaccine.VacineCombos.Any())
+                //{
+                //    foreach (var combo in vaccine.VacineCombos)
+                //    {
+                //        var comboVaccines = await _vaccineRepository.GetVaccinesByComboId(combo.Id);
+
+                //        bool allVaccinesActive = comboVaccines.All(v => v.IsDeleted == false);
+                //        if (allVaccinesActive)
+                //        {
+                //            combo.IsDeleted = false;
+                //            await _vaccineComboRepository.UpdateCombo(combo);
+                //        }
+                //    }
+                //}
+
                 return await _vaccineRepository.UpdateVaccine(rs);
             } 
         }
