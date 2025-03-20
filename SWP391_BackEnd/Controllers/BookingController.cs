@@ -92,7 +92,9 @@ namespace SWP391_BackEnd.Controllers
 
                 uriBuilder.Query = queryParams.ToString();
 
-                return Redirect(uriBuilder.ToString());
+                // return Redirect(uriBuilder.ToString());
+
+                return Ok(uriBuilder.ToString());
             }
 
 
