@@ -95,7 +95,7 @@ namespace ClassLib.Service
             var vt = await _vaccinesTrackingRepository.GetVaccinesTrackingByIdAsync(id);
 
 
-            var holdChildID = vt.ChildId;
+            var holdChildID = vt!.ChildId;
             if (vt == null) return false;
             var vaccine = _vaccineRepository.GetById(vt!.VaccineId).Result;
             int checkpointForThisVaccine = 1;
