@@ -32,7 +32,7 @@ namespace ClassLib.Repositories
         // For user
         public async Task<List<VaccinesTracking>> GetVaccinesTrackingByParentIdAsync(int id) => (await GetVaccinesTrackingAsync())
                                                                                                     .Where(vt => vt.UserId == id)
-                                                                                                    .Where(x => (x.Status == VaccinesTrackingEnum.Schedule.ToString().ToLower() || x.Status == VaccinesTrackingEnum.Waiting.ToString().ToLower() || x.Status == VaccinesTrackingEnum.Success.ToString().ToLower()) && x.IsDeleted == false)
+                                                                                                    .Where(x => x.IsDeleted == false)
                                                                                                     .ToList();
         // For admin
         public async Task<List<VaccinesTracking>> GetVaccinesTrackingByBookingID(int bookingID) => (await GetVaccinesTrackingAsync())
