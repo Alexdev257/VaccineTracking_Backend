@@ -17,17 +17,21 @@ namespace ClassLib.Repositories
         private readonly BookingIdVaccineIdReponsitory _bookingIdVaccineIdReponsitory;
         private readonly BookingComboIdReponsitory _bookingComboIdReponsitory;
         private readonly ChildService _childService;
+        private readonly VaccinesTrackingRepository _vaccinesTrackingRepository;
+
         public BookingRepository(DbSwpVaccineTrackingFinalContext context,
                                  BookingChildIdRepository bookingChildIdRepository,
                                  BookingIdVaccineIdReponsitory bookingIdVaccineIdReponsitory,
                                  BookingComboIdReponsitory bookingComboIdReponsitory,
-                                 ChildService childService)
+                                 ChildService childService,
+                                 VaccinesTrackingRepository vaccinesTrackingRepository)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _bookingChildIdRepository = bookingChildIdRepository ?? throw new ArgumentNullException(nameof(bookingChildIdRepository));
             _bookingIdVaccineIdReponsitory = bookingIdVaccineIdReponsitory ?? throw new ArgumentNullException(nameof(bookingIdVaccineIdReponsitory));
             _bookingComboIdReponsitory = bookingComboIdReponsitory ?? throw new ArgumentNullException(nameof(bookingComboIdReponsitory));
             _childService = childService;
+            _vaccinesTrackingRepository = vaccinesTrackingRepository;
         }
 
         // Staff
@@ -57,7 +61,16 @@ namespace ClassLib.Repositories
         // For user
         public async Task<List<Booking>?> GetAllBookingByUserId(int userId)
         {
-            var bookings = await GetAllBookingByUserIdStaff(userId);
+            var bookings = await _context.Bookings
+                        .Include(x => x.Parent)
+                        .Include(x => x.Children)
+                        .Include(x => x.Combos)
+                            .ThenInclude(x => x.Vaccines)
+                        .Include(x => x.Vaccines)
+                        .Include(x => x.Payments)
+                            .ThenInclude(x => x.PaymentMethodNavigation)
+                        .Where(x => x.ParentId == userId && x.IsDeleted == false)
+                        .ToListAsync();
             return bookings?.ToList();
         }
 
@@ -65,7 +78,7 @@ namespace ClassLib.Repositories
         public async Task<List<Booking>?> GetAllBookingByUserIdStaff(int userId)
         {
             var bookings = await GetAll();
-            return bookings?.Where(b => b.ParentId == userId).ToList();
+            return bookings?.Where(b => b.ParentId == userId && b.IsDeleted == false).ToList();
         }
 
         public async Task<Booking?> AddBooking(Booking booking, List<int> ChildrenIDs, List<int> VaccineIDs, List<int> VaccineComboIDs)
@@ -151,10 +164,33 @@ namespace ClassLib.Repositories
             foreach (var item in resultList)
             {
                 item.IsDeleted = true;
+                await _vaccinesTrackingRepository.SoftDeleteByBookingID(item.Id);
             }
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> SoftDeleteByBookingID(int id)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var booking =await _context.Bookings.FirstOrDefaultAsync(x => x.Id == id);
+                if (booking == null) return false;
+
+                booking.IsDeleted = true;
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
 
         //Get all element by dayrange
         public async Task<List<Booking>> GetAllByDayRange(int day) => await _context.Bookings.Where(x => x.CreatedAt < (TimeProvider.GetVietnamNow()).AddDays(-day)).ToListAsync();
@@ -169,6 +205,7 @@ namespace ClassLib.Repositories
             foreach (var item in resultList)
             {
                 item.IsDeleted = true;
+                await _vaccinesTrackingRepository.SoftDeleteByBookingID(item.Id);
             }
             await _context.SaveChangesAsync();
             return true;
@@ -196,6 +233,38 @@ namespace ClassLib.Repositories
                 await transaction.RollbackAsync();
                 return 0;
             }
+        }
+
+        // Hard delete by Id
+
+        public async Task<int> HardDeleteById(int id)
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var deletedBookings = await _context.Bookings.FirstOrDefaultAsync( x => x.IsDeleted && x.Id == id);
+                _context.Bookings.Remove(deletedBookings!);
+                await _bookingChildIdRepository.Clear(deletedBookings!);
+                await _bookingIdVaccineIdReponsitory.Clear(deletedBookings!);
+                await _bookingComboIdReponsitory.Clear(deletedBookings!);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return 1;
+            }
+            catch (Exception e)
+            {
+                System.Console.WriteLine(e.Message);
+                await transaction.RollbackAsync();
+                return 0;
+            }
+        //     catch (DbContextOptionsBuilder.Ena e)
+        //     {
+        //         System.Console.WriteLine(e.Message);
+        //         await transaction.RollbackAsync();
+        //         return 0;
+        // }
         }
     }
 }

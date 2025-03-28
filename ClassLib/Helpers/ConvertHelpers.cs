@@ -76,11 +76,17 @@ namespace ClassLib.Helpers
         }
         public static Booking convertToBooking(AddBooking addBooking)
         {
+
             return new Booking
             {
                 ParentId = addBooking.ParentId,
                 AdvisoryDetails = addBooking.AdvisoryDetail,
-                ArrivedAt = addBooking.ArrivedAt,
+                ArrivedAt = new DateTime(
+                                addBooking.ArrivedAt.Year,
+                                addBooking.ArrivedAt.Month,
+                                addBooking.ArrivedAt.Day,
+                                0, 0, 0, DateTimeKind.Utc
+                            ),
                 CreatedAt = TimeProvider.GetVietnamNow(),
                 Status = ((BookingEnum)BookingEnum.Pending).ToString(),
                 IsDeleted = false,

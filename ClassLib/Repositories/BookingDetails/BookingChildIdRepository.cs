@@ -39,6 +39,28 @@ namespace ClassLib.Repositories.BookingDetails
             }
         }
 
+        public async Task<bool> Clear(Booking booking)
+        {
+            try
+            {
+                var result = await _context.Bookings
+                            .Include(b => b.Children) 
+                            .Where(b => b.Id == booking.Id)
+                            .ToListAsync();
+                foreach (var b in result)
+                {
+                    b.Children.Clear();
+                }
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                System.Console.WriteLine(e.Message);
+                return false;
+            }
+        }
+
         public async Task<bool> ClearAndAdd(Booking booking, List<int> childId)
         {
             try

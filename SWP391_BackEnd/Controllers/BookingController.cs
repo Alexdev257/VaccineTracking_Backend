@@ -151,12 +151,28 @@ namespace SWP391_BackEnd.Controllers
             return Ok(bookingList);
         }
 
-
-
         [HttpPatch("update-booking-details")]
         public async Task<IActionResult> UpdateBookingDetails(UpdateBooking updateBooking)
         {
             return Ok(await _bookingService.UpdateBookingDetails(updateBooking));
+        }
+
+        [HttpDelete("soft-delete-booking/{bookingID}")]
+        public async Task<IActionResult> DeleteBooking([FromRoute] string bookingID)
+        {
+            var result =await _bookingService.GetBookingById(int.Parse(bookingID));
+            if (result == null) return BadRequest("Booking not found");
+            if (result.Status.ToString() == BookingEnum.Success.ToString()) return BadRequest("Booking is already success");
+            return Ok(await _bookingService.SoftDeleteBooking(bookingID));
+        }
+    
+        [HttpDelete("hard-booking/{bookingID}")]
+        public async Task<IActionResult> HardDeleteBooking([FromRoute] string bookingID)
+        {
+            var result = await _bookingService.GetBookingById(int.Parse(bookingID));
+            if (result == null) return BadRequest("Booking not found");
+            if ( !result.IsDeleted) return BadRequest("Booking is can not hard delete");
+            return Ok(await _bookingService.HardDeleteBooking(bookingID));
         }
     }
 }

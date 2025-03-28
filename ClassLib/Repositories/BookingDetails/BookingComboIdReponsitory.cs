@@ -41,6 +41,28 @@ namespace ClassLib.Repositories
             }
         }
 
+        public async Task<bool> Clear(Booking booking)
+        {
+            try
+            {
+                var result = await _context.Bookings
+                            .Include(b => b.Combos) // Ensure EF Core loads the related data
+                            .Where(b => b.Id == booking.Id)
+                            .ToListAsync();
+                foreach (var b in result)
+                {
+                    b.Combos.Clear();
+                }
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                System.Console.WriteLine(e.Message);
+                return false;
+            }
+        }
+
         public async Task<bool> ClearAndAdd(Booking booking, List<int> comboId)
         {
             try
