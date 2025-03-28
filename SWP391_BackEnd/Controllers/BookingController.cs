@@ -101,7 +101,6 @@ namespace SWP391_BackEnd.Controllers
 
             // If payment method is by cash
         }
-
         [HttpPost("add-booking-by-staff")]
         public async Task<string> AddBookingStaff([FromBody] AddBooking addBooking)
         {
@@ -173,6 +172,13 @@ namespace SWP391_BackEnd.Controllers
             if (result == null) return BadRequest("Booking not found");
             if ( !result.IsDeleted) return BadRequest("Booking is can not hard delete");
             return Ok(await _bookingService.HardDeleteBooking(bookingID));
+        }
+    
+        [HttpGet("get-all-booking-admin")]
+        public async Task<IActionResult> GetAllForAdmin()
+        {
+            var bookingList = await _bookingService.GetAllBookingForAdmin();
+            return Ok(bookingList);
         }
     }
 }
