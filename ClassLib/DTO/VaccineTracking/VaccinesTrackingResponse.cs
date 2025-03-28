@@ -32,5 +32,7 @@ namespace ClassLib.DTO.VaccineTracking
         public int VaccineID {get; set;} = 0;
 
         public int BookingId {get; set;} = 0;
+
+        public bool IsDeleted { get; set; } = false;
     }
 }

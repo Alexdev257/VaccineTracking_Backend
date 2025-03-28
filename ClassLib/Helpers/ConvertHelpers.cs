@@ -62,7 +62,8 @@ namespace ClassLib.Helpers
                 AdministeredByDoctorName = "Not Vaccination Yet",
                 Reaction = vt.Reaction,
                 VaccineID = vt.VaccineId,
-                BookingId = vt.BookingId
+                BookingId = vt.BookingId,
+                IsDeleted = vt.IsDeleted
             };
         }
         public static AddVaccinesTrackingRequest convertToVaccinesTrackingRequest(AddBooking addBooking)
@@ -247,6 +248,36 @@ namespace ClassLib.Helpers
             }
             return list;
         }
+
+        public static List<BookingResponseAdmin> ConvertBookingResponseAdmin(List<Booking> bookings)
+        {
+            List<BookingResponseAdmin> list = new List<BookingResponseAdmin>();
+
+            foreach (var item in bookings)
+            {
+                BookingResponseAdmin brs = new BookingResponseAdmin()
+                {
+                    Id = item.Id.ToString(),
+                    ParentId = item.ParentId.ToString(),
+                    parentName = item.Parent.Name,
+                    phoneNumber = item.Parent.PhoneNumber,
+                    status = item.Status,
+                    paymentMethod = item.Payments?.LastOrDefault()?.PaymentMethodNavigation?.Name ?? "Have not payment yet",
+                    createdAt = item.CreatedAt,
+                    arrivedAt = item.ArrivedAt,
+                    AdvisoryDetail = item.AdvisoryDetails,
+                    IsDeleted = item.IsDeleted,
+                    ChildrenList = ConvertListChildren((List<Child>)item.Children),
+                    VaccineList = ConvertListVaccines((List<Vaccine>)item.Vaccines),
+                    ComboList = ConvertListCombos((List<VaccinesCombo>)item.Combos)
+                };
+
+                list.Add(brs);
+            }
+            return list;
+        }
+
+
         public static UpdateVaccineTracking ConvertToUpdateVaccineTracking(UpdateVaccineTrackingUser updateVaccineTrackingUser)
         {
             return new UpdateVaccineTracking()

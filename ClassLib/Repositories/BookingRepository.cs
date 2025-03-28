@@ -45,6 +45,21 @@ namespace ClassLib.Repositories
                         .Include(x => x.Vaccines)
                         .Include(x => x.Payments)
                             .ThenInclude(x => x.PaymentMethodNavigation)
+                        .Where(x => x.IsDeleted == false)
+                        .ToListAsync();
+        }
+
+        // Admin
+        public async Task<List<Booking>> GetAllAdmin()
+        {
+            return await _context.Bookings
+                        .Include(x => x.Parent)
+                        .Include(x => x.Children)
+                        .Include(x => x.Combos)
+                            .ThenInclude(x => x.Vaccines)
+                        .Include(x => x.Vaccines)
+                        .Include(x => x.Payments)
+                            .ThenInclude(x => x.PaymentMethodNavigation)
                         .ToListAsync();
         }
 
@@ -175,7 +190,7 @@ namespace ClassLib.Repositories
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var booking =await _context.Bookings.FirstOrDefaultAsync(x => x.Id == id);
+                var booking = await _context.Bookings.FirstOrDefaultAsync(x => x.Id == id);
                 if (booking == null) return false;
 
                 booking.IsDeleted = true;
@@ -243,7 +258,7 @@ namespace ClassLib.Repositories
 
             try
             {
-                var deletedBookings = await _context.Bookings.FirstOrDefaultAsync( x => x.IsDeleted && x.Id == id);
+                var deletedBookings = await _context.Bookings.FirstOrDefaultAsync(x => x.IsDeleted && x.Id == id);
                 _context.Bookings.Remove(deletedBookings!);
                 await _bookingChildIdRepository.Clear(deletedBookings!);
                 await _bookingIdVaccineIdReponsitory.Clear(deletedBookings!);
@@ -259,12 +274,12 @@ namespace ClassLib.Repositories
                 await transaction.RollbackAsync();
                 return 0;
             }
-        //     catch (DbContextOptionsBuilder.Ena e)
-        //     {
-        //         System.Console.WriteLine(e.Message);
-        //         await transaction.RollbackAsync();
-        //         return 0;
-        // }
+            //     catch (DbContextOptionsBuilder.Ena e)
+            //     {
+            //         System.Console.WriteLine(e.Message);
+            //         await transaction.RollbackAsync();
+            //         return 0;
+            // }
         }
     }
 }

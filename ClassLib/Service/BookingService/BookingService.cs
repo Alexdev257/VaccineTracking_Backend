@@ -106,10 +106,10 @@ namespace ClassLib.Service
                 string templatePath = Path.Combine(_env.WebRootPath, "templates", "refundSuccessTemplate.html");
                 var parent = await _bookingRepository.GetByBookingID(int.Parse(bookingId));
                 var refundDetails = await _paymentRepository.GetByBookingIDAsync(int.Parse(bookingId));
-                var result = (refundDetails!.TotalPrice*-1).ToString("N2");
+                var result = (refundDetails!.TotalPrice * -1).ToString("N2");
 
-                if( refundDetails.Currency == "VND") result+= " VND";
-                else result= "$ " + result;
+                if (refundDetails.Currency == "VND") result += " VND";
+                else result = "$ " + result;
 
                 Dictionary<string, string> newDictonary = new Dictionary<string, string>(){
                     { "bookingId" , bookingId},
@@ -200,6 +200,26 @@ namespace ClassLib.Service
             await _vaccineTrackingService.HardDeleteByBookingId(int.Parse(bookingId));
             var result = await _bookingRepository.HardDeleteById(int.Parse(bookingId)) > 0 ? "Success" : "Fail";
             return result;
+        }
+
+        public async Task<List<BookingResponseAdmin>?> GetAllBookingForAdmin()
+        {
+            List<BookingResponseAdmin> bookingResponses = ConvertHelpers.ConvertBookingResponseAdmin(await _bookingRepository.GetAllAdmin());
+            foreach (var item in bookingResponses)
+            {
+                decimal amount = 0;
+                foreach (var vaccine in item.VaccineList!)
+                {
+                    amount += vaccine.Price;
+                }
+                foreach (var combo in item.ComboList!)
+                {
+                    amount += combo.finalPrice;
+                }
+                item.amount = (int)(amount * item.ChildrenList!.Count());
+            }
+
+            return bookingResponses;
         }
     }
 }
