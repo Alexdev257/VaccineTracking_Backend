@@ -56,6 +56,10 @@ namespace ClassLib.Service
             return await _vaccinesTrackingRepository.SoftDeleteByBookingID(id);
         }
 
+        public async Task<int> HardDeleteByBookingId(int id)
+        {
+            return await _vaccinesTrackingRepository.HardDeleteByBookingId(id);
+        }
 
         public async Task<bool> AddVaccinesComboToVaccinesTrackingAsync(AddVaccinesTrackingRequest request, List<int> vaccinesCombo, List<int> child, int bookingId)
         {

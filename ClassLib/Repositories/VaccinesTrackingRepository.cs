@@ -25,7 +25,7 @@ namespace ClassLib.Repositories
 
         public async Task<List<VaccinesTracking>> GetVaccinesTrackingStaffAsync()
         {
-            return (await GetVaccinesTrackingAsync()).Where( x => x.IsDeleted == false).ToList();
+            return (await GetVaccinesTrackingAsync()).Where(x => x.IsDeleted == false).ToList();
         }
 
 
@@ -57,8 +57,27 @@ namespace ClassLib.Repositories
                 return 0;
             }
 
-            searchingResult.ForEach(b => b.IsDeleted = true);
+            foreach (var record in searchingResult)
+            {
+                record.IsDeleted = true;
+            }
 
+            await _context.SaveChangesAsync();
+
+            return searchingResult.Count;
+        }
+
+        // Hard delete by bookingID
+        public async Task<int> HardDeleteByBookingId(int id)
+        {
+            var searchingResult = await GetVaccinesTrackingByBookingID(id);
+
+            if (searchingResult == null || !searchingResult.Any())
+            {
+                return 0;
+            }
+
+            _context.VaccinesTrackings.RemoveRange(searchingResult);
             await _context.SaveChangesAsync();
 
             return searchingResult.Count;
@@ -126,7 +145,7 @@ namespace ClassLib.Repositories
             return await _context.VaccinesTrackings
                                  .Where(vt => vt.MaximumIntervalDate.HasValue && vt.PreviousVaccination != 0 && vt.MaximumIntervalDate.Value.Date == today.AddDays(3).Date)
                                  .Include(vt => vt.Vaccine)
-                                 .Include (vt => vt.Child)
+                                 .Include(vt => vt.Child)
                                  .ToListAsync();
         }
 
@@ -139,11 +158,9 @@ namespace ClassLib.Repositories
                                     .ToListAsync();
         }
 
-        public async Task<bool> CheckIsChildrenTracking( int id)
+        public async Task<bool> CheckIsChildrenTracking(int id)
         {
-            var children =await _context.VaccinesTrackings.Include( vt => vt.Child).FirstOrDefaultAsync( x => x.ChildId == id && (x.Status.ToLower() == VaccinesTrackingEnum.Schedule.ToString().ToLower() || x.Status.ToLower() == VaccinesTrackingEnum.Waiting.ToString().ToLower()));
-            System.Console.WriteLine(children);
-            System.Console.WriteLine("hhihihiihhi");
+            var children = await _context.VaccinesTrackings.Include(vt => vt.Child).FirstOrDefaultAsync(x => x.ChildId == id && (x.Status.ToLower() == VaccinesTrackingEnum.Schedule.ToString().ToLower() || x.Status.ToLower() == VaccinesTrackingEnum.Waiting.ToString().ToLower()));
             return children != null;
         }
     }

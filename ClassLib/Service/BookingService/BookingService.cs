@@ -96,7 +96,7 @@ namespace ClassLib.Service
 
                 Dictionary<string, string> newDictonary = new Dictionary<string, string>(){
                     { "bookingId" , bookingId},
-                    { "dateTimeArrived" , booking!.ArrivedAt.ToString()},
+                    { "dateTimeArrived" , booking!.ArrivedAt.ToString("dd-MM-yyyy")},
                     { "userName" ,parent!.Parent.Name}
                 };
                 await _emailService.sendEmailService(parent.Parent.Gmail, "Booking Successful", templatePath, newDictonary);
@@ -105,10 +105,15 @@ namespace ClassLib.Service
             {
                 string templatePath = Path.Combine(_env.WebRootPath, "templates", "refundSuccessTemplate.html");
                 var parent = await _bookingRepository.GetByBookingID(int.Parse(bookingId));
+                var refundDetails = await _paymentRepository.GetByBookingIDAsync(int.Parse(bookingId));
+                var result = (refundDetails!.TotalPrice*-1).ToString("N2");
+
+                if( refundDetails.Currency == "VND") result+= " VND";
+                else result= "$ " + result;
 
                 Dictionary<string, string> newDictonary = new Dictionary<string, string>(){
                     { "bookingId" , bookingId},
-                    { "amount" , ((await _paymentRepository.GetByBookingIDAsync(int.Parse(bookingId)))!.TotalPrice*-1).ToString()},
+                    { "amount" , result},
                     { "userName" ,parent!.Parent.Name}
                 };
                 await _emailService.sendEmailService(parent.Parent.Gmail, "Refund Successful", templatePath, newDictonary);
@@ -178,6 +183,23 @@ namespace ClassLib.Service
             }
 
             return bookingResponses;
+        }
+        public async Task<string> SoftDeleteBooking(string bookingId)
+        {
+            await _vaccineTrackingService.SoftDeleteByBookingId(int.Parse(bookingId));
+            return await _bookingRepository.SoftDeleteByBookingID(int.Parse(bookingId)) ? "Success" : "Fail";
+
+        }
+        public async Task<Booking?> GetBookingById(int id)
+        {
+            return await _bookingRepository.GetByBookingID(id);
+        }
+
+        public async Task<string> HardDeleteBooking(string bookingId)
+        {
+            await _vaccineTrackingService.HardDeleteByBookingId(int.Parse(bookingId));
+            var result = await _bookingRepository.HardDeleteById(int.Parse(bookingId)) > 0 ? "Success" : "Fail";
+            return result;
         }
     }
 }
