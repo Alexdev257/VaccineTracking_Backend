@@ -53,6 +53,7 @@ namespace ClassLib.Helpers
                 TrackingID = vt.Id,
                 VaccineName = vt.Vaccine.Name,
                 UserName = vt.User.Name,
+                UserId = vt.User.Id,
                 ChildId = vt.ChildId,
                 MinimumIntervalDate = vt.MinimumIntervalDate,
                 VaccinationDate = vt.VaccinationDate,
