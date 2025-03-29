@@ -1,5 +1,6 @@
 ﻿using ClassLib.DTO.User;
 using ClassLib.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -19,13 +20,13 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-all-user")]
-        //[Authorize]
+        [Authorize(Policy = "StaffOnly")]
         public async Task<ActionResult<List<GetUserResponse>>> GetUser()
         {
             return await _userService.getAllService();
         }
         [HttpGet("get-all-user-admin")]
-        //[Authorize]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult<List<GetUserResponse>>> GetUserAdmin()
         {
             return await _userService.getAllServiceAdmin();
@@ -336,6 +337,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpPut("update-user-admin/{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> updateUserAdminController(int id, [FromBody] UpdateUserAdminRequest request)
         {
             try
@@ -363,6 +365,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-user-child/{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> getThem(int id)
         {
             try
@@ -502,13 +505,13 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpPost("create-user")]
-        // admin only
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> CreateUser([FromBody] CreateStaffRequest request)
         {
             try
             {
                 var rs = await _userService.CreateUser(request);
-                return Ok("Create staff successful");
+                return Ok("Create user successful");
             }
             catch (ArgumentNullException e)
             {
@@ -526,7 +529,7 @@ namespace SWP391_BackEnd.Controllers
 
 
         [HttpPost("create-staff")]
-        // admin only
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> CreateStaff([FromBody] CreateStaffRequest request)
         {
             try
@@ -549,6 +552,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpPatch("soft-delete-user/{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> SoftDeleteUser(int id)
         {
             try

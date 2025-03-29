@@ -1,6 +1,7 @@
 using ClassLib.DTO.VaccineTracking;
 using ClassLib.Helpers;
 using ClassLib.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -27,6 +28,7 @@ namespace SWP391_BackEnd.Controllers
 
         // admin
         [HttpGet("get-all-admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> GetAllAdmin()
         {
             var result = await _vaccinesTrackingService.GetVaccinesTrackingAsync();

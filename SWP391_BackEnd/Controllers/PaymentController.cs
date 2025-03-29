@@ -6,6 +6,7 @@ using ClassLib.Models;
 using ClassLib.Repositories;
 using ClassLib.Service;
 using ClassLib.Service.PaymentService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using TimeProvider = ClassLib.Helpers.TimeProvider;
@@ -89,6 +90,7 @@ namespace SWP391_BackEnd.Controllers
         }
         // Refund Money
         [HttpPost("refund")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> RefundPayment([FromBody] RefundModelRequest refundModelRequest)
         {
 
@@ -119,6 +121,7 @@ namespace SWP391_BackEnd.Controllers
 
 
         [HttpPost("refund-by-staff")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> RefundVnPay([FromBody] RefundModelRequest refundModelRequest)
         {
             var payment = await _paymentRepository.GetByBookingIDAsync(int.Parse(refundModelRequest.BookingID));

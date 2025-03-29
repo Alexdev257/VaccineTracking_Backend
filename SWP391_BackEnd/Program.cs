@@ -133,13 +133,13 @@ namespace SWP391_BackEnd
             builder.Services.AddAutoMapper(typeof(MappingProfile)); 
 
             // Test FE
-            builder.Services.AddCors(options =>
-                    {
-                        options.AddPolicy("AllowAll",
-                            policy => policy.AllowAnyOrigin()
-                                            .AllowAnyMethod()
-                                            .AllowAnyHeader());
-                    });
+            //builder.Services.AddCors(options =>
+            //        {
+            //            options.AddPolicy("AllowAll",
+            //                policy => policy.AllowAnyOrigin()
+            //                                .AllowAnyMethod()
+            //                                .AllowAnyHeader());
+            //        });
 
 
 
@@ -209,21 +209,21 @@ namespace SWP391_BackEnd
                 option.AddPolicy("UserOnly", policy =>
                 policy.RequireClaim("Role", "User"));
 
-                option.AddPolicy("NotUser", policy =>
+                option.AddPolicy("AdminOrStaff", policy =>
                 policy.RequireAssertion(context =>
                 {
                     var roleClaim = context.User.FindFirst(c => c.Type == "Role")?.Value;
                     return roleClaim != "User";
                 }));
 
-                option.AddPolicy("NotStaff", policy =>
+                option.AddPolicy("AdminOrUser", policy =>
                 policy.RequireAssertion(context =>
                 {
                     var roleClaim = context.User.FindFirst(c => c.Type == "Role")?.Value;
                     return roleClaim != "Staff";
                 }));
 
-                option.AddPolicy("NotAdmin", policy =>
+                option.AddPolicy("StaffOrUser", policy =>
                 policy.RequireAssertion(context =>
                 {
                     var roleClaim = context.User.FindFirst(c => c.Type == "Role")?.Value;

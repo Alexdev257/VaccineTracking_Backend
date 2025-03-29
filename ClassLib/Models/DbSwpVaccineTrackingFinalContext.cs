@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace ClassLib.Models;
 
@@ -36,11 +37,19 @@ public partial class DbSwpVaccineTrackingFinalContext : DbContext
     public virtual DbSet<VaccinesTracking> VaccinesTrackings { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        //=> optionsBuilder.UseSqlServer("Server=LAPTOP-8UGAAJKM\\SQLEXPRESS01;Database=DB_SWP_Vaccine_Tracking_Final;User Id=sa;Password=12345;TrustServerCertificate=True;");
-    // => optionsBuilder.UseSqlServer("data source=TieHung\\SQLEXPRESS;initial catalog=DB_SWP_Vaccine_Tracking_Final;user id=sa;password=123456;TrustServerCertificate=True;");
-    //=> optionsBuilder.UseSqlServer("data source=DESKTOP-LIE3GLO\\SQLEXPRESS;initial catalog=DB_SWP_Vaccine_Tracking;user id=sa;password=123456;TrustServerCertificate=True;");
- => optionsBuilder.UseSqlServer("data source= LAPTOP-I3BEBLA0\\SQLEXPRESS;initial catalog=DB_SWP_Vaccine_Tracking_Final;user id=sa;password=12345;TrustServerCertificate=True");
+    => optionsBuilder.UseSqlServer(GetConnectionString());
+
+    private string GetConnectionString()
+    {
+        IConfiguration config = new ConfigurationBuilder()
+             .SetBasePath(Directory.GetCurrentDirectory())
+             .AddJsonFile("appsettings.json", true, true)
+             .Build();
+        var strConn = config["ConnectionStrings:DefaultConnection"];
+
+        return strConn;
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Address>(entity =>

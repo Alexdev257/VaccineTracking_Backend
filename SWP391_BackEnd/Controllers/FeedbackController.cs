@@ -1,5 +1,6 @@
 ﻿using ClassLib.DTO.Feedback;
 using ClassLib.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SWP391_BackEnd.Controllers
@@ -78,6 +79,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-all-feedback-admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> getAllFeedbackAdmin()
         {
             try
@@ -203,6 +205,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpPatch("soft-delete-feedback/{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> SoftDeleteFeedback(int id)
         {
             try
@@ -225,6 +228,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpPatch("restore-feedback/{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> RestoreFeedbackController(int id)
         {
             try

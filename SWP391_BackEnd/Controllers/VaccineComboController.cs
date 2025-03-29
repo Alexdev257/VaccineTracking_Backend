@@ -17,6 +17,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-all-vaccine-combo")]
+        [Authorize(Policy = "StaffOnly")]
         public async Task<IActionResult> GetVaccineCombos()
         {
             //try
@@ -35,7 +36,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-all-vaccine-combo-admin")]
-       
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> GetVaccineCombosAdmin()
         {
            
@@ -55,6 +56,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-vaccine-combo-detail/{id}")]
+        [Authorize(Policy = "AdminOrStaff")]
         public async Task<IActionResult> GetVaccineComBoDetailById(int id)
         {
             try
@@ -73,7 +75,6 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-vaccine-combo-detail-admin/{id}")]
-       
         public async Task<IActionResult> GetVaccineComBoDetailByIdAdmin(int id)
         {
             try
@@ -110,6 +111,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpPost("create-vaccine-combo")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> CreateVaccine([FromBody] CreateVaccineCombo rq)
         {
             try
@@ -138,6 +140,7 @@ namespace SWP391_BackEnd.Controllers
         //}
 
         [HttpPut("update-vaccine-combo-by-id/{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> UpdateVaccine(int id, [FromBody] UpdateVaccineCombo request)
         {
             try
@@ -188,6 +191,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpPatch("soft-delete-combo/{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> SoftDeleteCombo(int id)
         {
             try
@@ -210,6 +214,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpPatch("reatore-combo/{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> RestoreCombo(int id)
         {
             try
