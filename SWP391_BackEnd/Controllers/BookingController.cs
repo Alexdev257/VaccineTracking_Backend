@@ -7,6 +7,7 @@ using ClassLib.Helpers;
 using ClassLib.Models;
 using ClassLib.Repositories;
 using ClassLib.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -104,6 +105,7 @@ namespace SWP391_BackEnd.Controllers
             // If payment method is by cash
         }
         [HttpPost("add-booking-by-staff")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<string> AddBookingStaff([FromBody] AddBooking addBooking)
         {
             OrderInfoModel orderInfo = (await _bookingService.AddBooking(addBooking))!;
@@ -146,6 +148,7 @@ namespace SWP391_BackEnd.Controllers
             return Ok(bookingList);
         }
         [HttpGet("get-all-booking")]
+        [Authorize(Policy = "AdminOrStaff")]
         public async Task<IActionResult> GetAllForStaff()
         {
             var bookingList = await _bookingService.GetAllBookingForStaff();
@@ -153,12 +156,14 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpPatch("update-booking-details")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> UpdateBookingDetails(UpdateBooking updateBooking)
         {
             return Ok(await _bookingService.UpdateBookingDetails(updateBooking));
         }
 
         [HttpDelete("soft-delete-booking/{bookingID}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> DeleteBooking([FromRoute] string bookingID)
         {
             var result =await _bookingService.GetBookingById(int.Parse(bookingID));
@@ -177,6 +182,7 @@ namespace SWP391_BackEnd.Controllers
         }
     
         [HttpGet("get-all-booking-admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> GetAllForAdmin()
         {
             var bookingList = await _bookingService.GetAllBookingForAdmin();

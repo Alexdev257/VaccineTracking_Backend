@@ -17,6 +17,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-all-vaccines")]
+        [Authorize(Policy = "StaffOnly")]
         public async Task<IActionResult> GetVaccines()
         {
             try
@@ -35,6 +36,7 @@ namespace SWP391_BackEnd.Controllers
         }
         
         [HttpGet("get-all-vaccines-admin")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> GetVaccinesAdmin()
         {
             try
@@ -53,6 +55,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-vaccine-by-id/{id}")]
+        [Authorize(Policy = "AdminOrStaff")]
         public async Task<IActionResult> GetVaccine(int id)
         {
             try
@@ -71,6 +74,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-vaccine-by-id-admin/{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> GetVaccineAdmin(int id)
         {
             try
@@ -89,6 +93,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpPost("create-vaccine")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> CreateVaccine([FromBody] CreateVaccine rq)
         {
             try
@@ -117,6 +122,7 @@ namespace SWP391_BackEnd.Controllers
         //}
 
         [HttpPut("update-vaccine/{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> UpdateVaccineController(int id, [FromBody] UpdateVaccine request)
         {
             try
@@ -153,6 +159,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpPatch("soft-delete-vaccine/{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> SoftDeleteVaccine(int id)
         {
             try
@@ -175,6 +182,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpPatch("restore-vaccine/{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> RestoreVaccine(int id)
         {
             try
