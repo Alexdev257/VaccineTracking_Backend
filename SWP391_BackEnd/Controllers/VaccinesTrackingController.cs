@@ -38,7 +38,7 @@ namespace SWP391_BackEnd.Controllers
         }
         //user
         [HttpGet("get-by-parent-id/{id}")]
-        [Authorize(Policy = "UserOnly")]
+        //[Authorize(Policy = "UserOnly")]
         public async Task<IActionResult> GetByParentId(int id)
         {
             var result = await _vaccinesTrackingService.GetVaccinesTrackingByParentIdAsync(id);
