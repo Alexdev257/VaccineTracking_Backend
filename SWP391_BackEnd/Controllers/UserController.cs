@@ -20,7 +20,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-all-user")]
-        [Authorize(Policy = "StaffOnly")]
+        [Authorize(Policy = "StaffOrUser")]
         public async Task<ActionResult<List<GetUserResponse>>> GetUser()
         {
             return await _userService.getAllService();
@@ -33,7 +33,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-user-by-id/{id}")]
-        //[Authorize]
+        [Authorize(Policy = "UserOnly")]
         public async Task<ActionResult> GetUserById(int id)
         {
             try
@@ -197,6 +197,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpPost("refresh")]
+        [Authorize(Policy = "AllRole")]
         public async Task<IActionResult> RefreshToken([FromBody] LoginResponse refreshRequest)
         {
             try
@@ -219,6 +220,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-refresh-token/{userId}")]
+        [Authorize(Policy = "AllRole")]
         public async Task<IActionResult> GetRefreshToken(int? userId)
         {
             try

@@ -17,7 +17,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-all-child")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrStaff")]
         public async Task<IActionResult> getAllChild()
         {
             try
@@ -55,7 +55,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-child-by-id/{id}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrUser")]
         public async Task<IActionResult> getChildById(int id)
         {
             try
@@ -78,7 +78,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-child-by-parents-id/{parentsId}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrUser")]
         public async Task<IActionResult> getChildByParentsId(int parentsId)
         {
             try
@@ -100,7 +100,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpPost("create-child")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrUser")]
         public async Task<IActionResult> createChild([FromBody] CreateChildRequest request)
         {
             try
@@ -122,7 +122,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpPut("update-child/{id}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrUser")]
         public async Task<IActionResult> updateChild(int id, [FromBody] UpdateChildRequest request)
         {
             try
@@ -175,7 +175,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpPatch("soft-delete-child/{id}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrUser")]
         public async Task<IActionResult> softDeleteChild(int id)
         {
             try

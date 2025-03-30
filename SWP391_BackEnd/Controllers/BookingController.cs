@@ -31,6 +31,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpPost("add-booking")]
+        [Authorize(Policy = "UserOnly")]
         public async Task<IActionResult> AddBooking([FromBody] AddBooking addBooking)
         {
             OrderInfoModel orderInfo = (await _bookingService.AddBooking(addBooking))!;
@@ -105,7 +106,7 @@ namespace SWP391_BackEnd.Controllers
             // If payment method is by cash
         }
         [HttpPost("add-booking-by-staff")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrStaff")]
         public async Task<string> AddBookingStaff([FromBody] AddBooking addBooking)
         {
             OrderInfoModel orderInfo = (await _bookingService.AddBooking(addBooking))!;
@@ -134,6 +135,7 @@ namespace SWP391_BackEnd.Controllers
             return BookingEnum.Success.ToString();
         }
         [HttpGet("booking-history/{userID}")]
+        [Authorize(Policy = "UserOnly")]
         public async Task<IActionResult> GetAllBookingByUser([FromRoute] int userID)
         {
             var bookingList = await _bookingService.GetBookingByUserAsync(userID);
@@ -156,7 +158,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpPatch("update-booking-details")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrStaff")]
         public async Task<IActionResult> UpdateBookingDetails(UpdateBooking updateBooking)
         {
             return Ok(await _bookingService.UpdateBookingDetails(updateBooking));
