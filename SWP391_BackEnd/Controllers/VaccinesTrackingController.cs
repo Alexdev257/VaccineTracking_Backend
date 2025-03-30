@@ -19,6 +19,7 @@ namespace SWP391_BackEnd.Controllers
 
         // staff
         [HttpGet("get-all-staff")]
+        [Authorize(Policy = "StaffOrUser")]
         public async Task<IActionResult> GetAllStaff()
         {
             var result = await _vaccinesTrackingService.GetVaccinesTrackingAsyncStaff();
@@ -37,6 +38,7 @@ namespace SWP391_BackEnd.Controllers
         }
         //user
         [HttpGet("get-by-parent-id/{id}")]
+        [Authorize(Policy = "UserOnly")]
         public async Task<IActionResult> GetByParentId(int id)
         {
             var result = await _vaccinesTrackingService.GetVaccinesTrackingByParentIdAsync(id);
@@ -46,6 +48,7 @@ namespace SWP391_BackEnd.Controllers
 
         //get by bookingId
         [HttpGet("get-by-booking-id/{id}")]
+        [Authorize(Policy = "UserOnly")]
         public async Task<IActionResult> GetByBookingId(int id)
         {
             var result = await _vaccinesTrackingService.GetByBookingId(id);
@@ -64,6 +67,7 @@ namespace SWP391_BackEnd.Controllers
 
         // admin reaction or success + cancel
         [HttpPut("update-vaccine-staff/{id}")]
+        [Authorize(Policy = "StaffOnly")]
         public async Task<IActionResult> UpdateVaccinesTracking([FromRoute] int id, [FromBody] UpdateVaccineTracking updateVaccineTracking)
         {
             var respone = await _vaccinesTrackingService.UpdateVaccinesTrackingAsync(id, updateVaccineTracking);

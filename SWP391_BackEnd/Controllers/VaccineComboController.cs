@@ -17,7 +17,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-all-vaccine-combo")]
-        [Authorize(Policy = "StaffOnly")]
+        [Authorize(Policy = "StaffOrUser")]
         public async Task<IActionResult> GetVaccineCombos()
         {
             //try

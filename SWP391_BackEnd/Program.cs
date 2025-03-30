@@ -213,21 +213,32 @@ namespace SWP391_BackEnd
                 policy.RequireAssertion(context =>
                 {
                     var roleClaim = context.User.FindFirst(c => c.Type == "Role")?.Value;
-                    return roleClaim != "User";
+                    //return roleClaim != "User";
+                    return roleClaim == "Admin" || roleClaim == "Staff";
                 }));
 
                 option.AddPolicy("AdminOrUser", policy =>
                 policy.RequireAssertion(context =>
                 {
                     var roleClaim = context.User.FindFirst(c => c.Type == "Role")?.Value;
-                    return roleClaim != "Staff";
+                    //return roleClaim != "Staff";
+                    return roleClaim == "Admin" || roleClaim == "User";
                 }));
 
                 option.AddPolicy("StaffOrUser", policy =>
                 policy.RequireAssertion(context =>
                 {
                     var roleClaim = context.User.FindFirst(c => c.Type == "Role")?.Value;
-                    return roleClaim != "Admin";
+                    //return roleClaim != "Admin";
+                    return roleClaim == "Staff" || roleClaim == "User";
+                }));
+
+                option.AddPolicy("AllRole", policy =>
+                policy.RequireAssertion(context =>
+                {
+                    var roleClaim = context.User.FindFirst(c => c.Type == "Role")?.Value;
+                    //return roleClaim != "Admin";
+                    return roleClaim == "Admin" || roleClaim == "Staff" || roleClaim == "User";
                 }));
             });
 

@@ -17,6 +17,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-all-feedback")]
+        [Authorize(Policy = "UserOnly")]
         public async Task<IActionResult> getAllFeedback()
         {
             try
@@ -142,6 +143,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpPost("create-feedback")]
+        [Authorize(Policy = "UserOnly")]
         public async Task<IActionResult> CreateFeedback([FromBody] CreateFeedbackRequest request)
         {
             try
