@@ -42,7 +42,7 @@ namespace SWP391_BackEnd.Controllers
         public async Task<IActionResult> GetByParentId(int id)
         {
             var result = await _vaccinesTrackingService.GetVaccinesTrackingByParentIdAsync(id);
-            if (result.IsNullOrEmpty()) return BadRequest();
+            // if (result.IsNullOrEmpty()) return BadRequest();
             return Ok(result);
         }
 

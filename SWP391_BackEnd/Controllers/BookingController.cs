@@ -139,7 +139,7 @@ namespace SWP391_BackEnd.Controllers
         public async Task<IActionResult> GetAllBookingByUser([FromRoute] int userID)
         {
             var bookingList = await _bookingService.GetBookingByUserAsync(userID);
-            if (bookingList.IsNullOrEmpty()) return BadRequest("Dont have");
+            // if (bookingList.IsNullOrEmpty()) return BadRequest("Dont have");
             return Ok(bookingList);
         }
         [HttpGet("booking-history-staff/{userID}")]
