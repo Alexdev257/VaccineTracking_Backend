@@ -86,6 +86,7 @@ namespace ClassLib.Service
                         var vt = ConvertHelpers.convertToVaccinesTrackingModel(request, childID, vaccine, previousVaccination!, bookingId);
                         await _vaccinesTrackingRepository.AddVaccinesTrackingAsync(vt);
                         previousVaccination = (await _vaccinesTrackingRepository.GetVaccinesTrackingByIdAsync(vt.Id))!;
+                        await _vaccineRepository.DecreseQuantityVaccines(vaccine!, 1);
                     }
 
                     previousVaccination = null!;
@@ -123,7 +124,6 @@ namespace ClassLib.Service
                     }
                     if (updateVaccineTracking?.Status?.ToLower() == ((VaccinesTrackingEnum)VaccinesTrackingEnum.Success).ToString().ToLower())
                     {
-                        await _vaccineRepository.DecreseQuantityVaccines(vaccine!, 1);
                         vt.VaccinationDate = TimeProvider.GetVietnamNow();
                     }
                 }
@@ -143,6 +143,7 @@ namespace ClassLib.Service
                     vt.MaximumIntervalDate = null;
                     vt.Status = updateVaccineTracking.Status;
                     vt.Reaction = updateVaccineTracking.Reaction ?? vt.Reaction;
+                    await _vaccineRepository.IncreseQuantityVaccines(vaccine!, 1);
                 }
                 checkpointForThisVaccine++;
                 var vtUpdated = await _vaccinesTrackingRepository.UpdateVaccinesTrackingAsync(vt);
