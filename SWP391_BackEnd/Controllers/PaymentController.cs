@@ -150,5 +150,15 @@ namespace SWP391_BackEnd.Controllers
 
             return Ok("Success");
         }
+    
+    
+        [HttpGet("get-payment-admin")]
+        [Authorize(Policy = "AdminOrStaff")]
+        public async Task<IActionResult> GetAllPayment()
+        {
+            var payment = await _paymentRepository.GetAllAsync();
+            if (payment == null) return BadRequest("Not Found Payment");
+            return Ok(payment);
+        }
     }
 }
