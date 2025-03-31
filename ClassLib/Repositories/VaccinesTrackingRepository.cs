@@ -158,10 +158,21 @@ namespace ClassLib.Repositories
                                     .ToListAsync();
         }
 
+        public async Task<List<VaccinesTracking>> GetOverdueTracking(DateTime today)
+        {
+            return await _context.VaccinesTrackings
+                                 .Where(vt => vt.MaximumIntervalDate.HasValue && vt.MaximumIntervalDate.Value <= today && vt.Status != VaccinesTrackingEnum.Success.ToString())
+                                 .Include (vt => vt.Vaccine)
+                                 .Include(vt => vt.Child)
+                                 .ToListAsync();
+        }
+
         public async Task<bool> CheckIsChildrenTracking(int id)
         {
             var children = await _context.VaccinesTrackings.Include(vt => vt.Child).FirstOrDefaultAsync(x => x.ChildId == id && (x.Status.ToLower() == VaccinesTrackingEnum.Schedule.ToString().ToLower() || x.Status.ToLower() == VaccinesTrackingEnum.Waiting.ToString().ToLower()));
             return children != null;
         }
+
+
     }
 }

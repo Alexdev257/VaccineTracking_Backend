@@ -1,5 +1,7 @@
 ﻿using System.Net.Mail;
 using System.Text;
+using ClassLib.DTO.VaccineTracking;
+using ClassLib.Enum;
 using ClassLib.Models;
 using ClassLib.Repositories;
 using ClassLib.Service;
@@ -36,11 +38,13 @@ namespace ClassLib.BackGroundServices
                         var env = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
                         var vaccineRepository = scope.ServiceProvider.GetRequiredService<VaccineRepository>();
                         var vaccineComboRepository = scope.ServiceProvider.GetRequiredService<VaccineComboRepository>();
+                        var vaccineTrackingService = scope.ServiceProvider.GetRequiredService<VaccinesTrackingService>();
 
                         await SendUpcomingVaccineReminder(userRepository, vaccineTrackingRepository, emailService, env);
                         await SendDeadlineVaccineReminder(userRepository, vaccineTrackingRepository, emailService, env);
                         await UpdateStatusNearlyExpiredVaccineAndCombo(vaccineRepository,vaccineComboRepository, userRepository, emailService, env);
                         await UpdateStatusExpiredVaccineAndCombo(vaccineRepository, vaccineComboRepository);
+                        await UpdateCancelStatusForOverdueTracking(vaccineTrackingRepository, vaccineTrackingService);
 
 
                     }
@@ -295,6 +299,32 @@ namespace ClassLib.BackGroundServices
                 }
             }
             return allUpdated;
+        }
+
+        public async Task<bool> UpdateCancelStatusForOverdueTracking(VaccinesTrackingRepository vaccinesTrackingRepository, VaccinesTrackingService vaccinesTrackingService)
+        {
+            var today = Helpers.TimeProvider.GetVietnamNow();
+            var overdueTracking = await vaccinesTrackingRepository.GetOverdueTracking(today);
+            bool allOk = false;
+            foreach (var combo in overdueTracking)
+            {
+                UpdateVaccineTracking update = new UpdateVaccineTracking
+                {
+                    Status = VaccinesTrackingEnum.Cancel.ToString(),
+                    Reaction = combo.Reaction,
+                    AdministeredBy = combo.AdministeredBy,
+                    Reschedule = null,
+                };
+
+                var rs = await vaccinesTrackingService.UpdateVaccinesTrackingAsync(combo.Id, update);
+
+                if (rs)
+                {
+                    allOk = true;
+                }
+
+            }
+            return allOk;
         }
     }
 }
