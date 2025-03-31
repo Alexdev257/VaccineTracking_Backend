@@ -61,6 +61,7 @@ namespace ClassLib.Service.VaccineCombo
                         Id = item.Id,
                         Name = item.Name,
                         Price = item.Price,
+                        Quantity = item.Quantity,
                         SuggestAgeMin = item.SuggestAgeMin,
                         SuggestAgeMax = item.SuggestAgeMax,
                     };
