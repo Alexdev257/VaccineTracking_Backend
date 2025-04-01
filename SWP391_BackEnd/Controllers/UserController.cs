@@ -20,7 +20,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpGet("get-all-user")]
-        [Authorize(Policy = "StaffOrUser")]
+        // [Authorize(Policy = "StaffOrUser")]
         public async Task<ActionResult<List<GetUserResponse>>> GetUser()
         {
             return await _userService.getAllService();
