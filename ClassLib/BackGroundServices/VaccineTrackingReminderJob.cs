@@ -235,23 +235,28 @@ namespace ClassLib.BackGroundServices
                     }
                 }
             }
-            var allUsers = await userRepository.getAll();
-            var allAdmin = allUsers.Where(u => u.Role.ToLower() == "admin".ToLower()).ToList();
-            foreach (var admin in allAdmin)
+
+            // if exist vaccines nearly out of stock, system will send mail to admin
+            if (expiredVaccinations.Any())
             {
-                var toEmail = admin.Gmail;
-                string subject = $"Vaccines is Out of Stock Reminder For {admin.Name}";
-                string templatePath = Path.Combine(env.WebRootPath, "templates", "vaccinesOutStockReminder.html");
-                var placeholders = new Dictionary<string, string>()
+                var allUsers = await userRepository.getAll();
+                var allAdmin = allUsers.Where(u => u.Role.ToLower() == "admin".ToLower()).ToList();
+                foreach (var admin in allAdmin)
+                {
+                    var toEmail = admin.Gmail;
+                    string subject = $"Vaccines is Nearly Out of Stock Reminder For {admin.Name}";
+                    string templatePath = Path.Combine(env.WebRootPath, "templates", "vaccinesOutStockReminder.html");
+                    var placeholders = new Dictionary<string, string>()
                 {
                     { "UserName", admin.Name },
                     { "VaccineList", vaccineListHtml.ToString() }, // Thêm danh sách vaccine vào email
                     { "SupportEmail", "healthbluecaresystem@example.com" }
                 };
-                var rs = await emailService.sendEmailService(toEmail, subject, templatePath, placeholders);
-                if (!rs)
-                {
-                    allUpdated = false;
+                    var rs = await emailService.sendEmailService(toEmail, subject, templatePath, placeholders);
+                    if (!rs)
+                    {
+                        allUpdated = false;
+                    }
                 }
             }
             

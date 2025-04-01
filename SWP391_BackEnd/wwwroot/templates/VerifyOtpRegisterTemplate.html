@@ -1,9 +1,9 @@
 ﻿<!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xác nhận đăng ký</title>
+    <title>Registration Confirmation</title>
     <style>
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -36,18 +36,22 @@
                 letter-spacing: 0.5px;
             }
 
-        .logo {
+        .logo-container {
             width: 120px;
             height: 120px;
             margin: 0 auto 15px;
             background-color: white;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            text-align: center;
+            line-height: 120px;
+        }
+
+        .logo-text {
+            display: inline-block;
             font-size: 40px;
             color: #4F46E5;
             font-weight: bold;
+            vertical-align: middle;
         }
 
         .content {
@@ -173,46 +177,48 @@
 <body>
     <div class="wrapper">
         <div class="header">
-            <div class="logo">OTP</div>
-            <h1>Xác Thực Tài Khoản</h1>
+            <div class="logo-container">
+                <span class="logo-text">OTP</span>
+            </div>
+            <h1>Account Verification</h1>
         </div>
 
         <div class="content">
-            <p class="greeting">Xin chào <strong>{{UserName}}</strong>,</p>
+            <p class="greeting">Hello <strong>{{UserName}}</strong>,</p>
 
             <div class="message">
-                <p>Cảm ơn bạn đã đăng ký tài khoản với chúng tôi. Để đảm bảo tính bảo mật cho tài khoản của bạn, chúng tôi cần xác nhận địa chỉ email này thuộc về bạn.</p>
+                <p>Thank you for registering an account with HealthBlue Care System. To ensure the security of your account, we need to verify that this email address belongs to you.</p>
             </div>
 
             <div class="verification-container">
-                <p class="verification-title">Mã xác thực của bạn là:</p>
+                <p class="verification-title">Your verification code is:</p>
                 <div class="verification-code">{{VerifyCode}}</div>
-                <p class="expiry-info">Mã này sẽ hết hạn sau 5 phút</p>
+                <p class="expiry-info">This code will expire in 5 minutes</p>
             </div>
 
             <div class="security-note">
-                <strong>Lưu ý bảo mật:</strong> Đừng bao giờ chia sẻ mã OTP này với bất kỳ ai, kể cả nhân viên hỗ trợ. Chúng tôi không bao giờ yêu cầu mã OTP của bạn qua điện thoại hoặc tin nhắn.
+                <strong>Security Note:</strong> Never share this OTP code with anyone, including support staff. We will never ask for your OTP code via phone or message.
             </div>
 
             <div class="help-text">
-                <p>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này hoặc liên hệ với đội ngũ hỗ trợ của chúng tôi ngay lập tức.</p>
-                <p>Nếu bạn gặp bất kỳ vấn đề nào, vui lòng liên hệ với chúng tôi qua email hỗ trợ: <a href="mailto:healthbluecaresystem@gmail.com">healthbluecaresystem@gmail.com</a></p>
+                <p>If you did not make this request, please ignore this email or contact our support team immediately.</p>
+                <p>If you encounter any issues, please contact us via support email: <a href="mailto:healthbluecaresystem@gmail.com">healthbluecaresystem@gmail.com</a></p>
             </div>
 
             <div class="auto-message">
-                Đây là email tự động, vui lòng không trả lời email này.
+                This is an automated email, please do not reply to this message.
             </div>
         </div>
 
         <div class="footer">
-            <p>&copy; 2025 [Tên Công Ty]. Tất cả các quyền được bảo lưu.</p>
+            <p>&copy; 2025 HealthBlue Care System. All rights reserved.</p>
             <div class="social-links">
                 <a href="#">Website</a> |
                 <a href="#">Facebook</a> |
                 <a href="#">Instagram</a> |
                 <a href="#">LinkedIn</a>
             </div>
-            <p>Địa chỉ: [Địa chỉ công ty của bạn]</p>
+            <p>Address: Ho Chi Minh City, Vietnam</p>
         </div>
     </div>
 </body>
