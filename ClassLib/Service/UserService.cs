@@ -675,9 +675,11 @@ namespace ClassLib.Service
                     ValidateLifetime = false, // ko kiem token het han
                 };
                 //check 1: AccessToken valid format
+                //Kiểm tra chữ ký, cấu trúc hợp lệ, nếu không hợp lệ sẽ ném lỗi SecurityTokenException
                 var tokenInVerification = tokenHandler.ValidateToken(refreshRequest.AccessToken, tokenValidateParam, out var validatedToken);
 
                 //check 2: check algorithm
+                // kiểm tra coi có thuật toán k, và check xem có phải là HmacSha256 k(kí khi gen token)
                 if (validatedToken is not JwtSecurityToken jwtSecurityToken ||
                     jwtSecurityToken.Header.Alg == null ||
                     !jwtSecurityToken.Header.Alg.Equals(

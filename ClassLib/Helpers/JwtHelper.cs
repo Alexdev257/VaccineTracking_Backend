@@ -59,7 +59,7 @@ namespace ClassLib.Helpers
                 Expires = Helpers.TimeProvider.GetVietnamNow().AddHours(3),
                 Issuer = issuer,
                 Audience = audience,
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature), // kí token bằng HmacSha256Signature
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
