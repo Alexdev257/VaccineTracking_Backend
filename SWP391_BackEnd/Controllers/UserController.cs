@@ -507,7 +507,7 @@ namespace SWP391_BackEnd.Controllers
         }
 
         [HttpPost("create-user")]
-        [Authorize(Policy = "AdminOnly")]
+        // [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> CreateUser([FromBody] CreateStaffRequest request)
         {
             try
