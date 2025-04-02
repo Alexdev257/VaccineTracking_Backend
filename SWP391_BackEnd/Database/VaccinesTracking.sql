@@ -262,3 +262,9 @@ INSERT INTO "Payment_Method" ("name", "description", "isDeleted") VALUES
 -- Insert data into Refresh_Token table
 
 -- Insert data into Feedback table
+INSERT INTO Feedback (user_id, rating_score, description, isDeleted) VALUES
+(6, 5, 'The vaccine tracking system is very useful and easy to use.', 0),
+(6, 4, 'Helpful reminders, but sometimes the notifications are delayed.', 0),
+(6, 5, 'Great service! It helps me keep track of my child’s vaccinations.', 0),
+(6, 3, 'The interface could be improved for better usability.', 0),
+(6, 2, 'Some vaccine records were missing, please fix this issue.', 0);
