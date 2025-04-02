@@ -1,3 +1,4 @@
+// 
 using ClassLib.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -34,3 +35,6 @@ namespace SWP391_BackEnd.Controllers
         }
     }
 }
+// This code defines a BookingChildController class that handles HTTP requests related to booking children in a vaccine tracking system.
+// It includes methods to get all bookings and to add a child to a specific booking. The controller interacts with a database context (DbSwpVaccineTrackingFinalContext) to perform these operations. The Get method retrieves all bookings along with their associated children, while the AddBooking method adds a child to a specified booking if both exist in the database. If either the booking or child does not exist, it returns a BadRequest response.
+// wfewfwfwfwef
